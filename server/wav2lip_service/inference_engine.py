@@ -15,8 +15,9 @@ import os
 
 # Add Wav2Lip to path - check multiple possible locations
 possible_wav2lip_paths = [
+    Path("/opt/Wav2Lip"),  # Docker build location (Render deployment)
     Path(__file__).parent / "Wav2Lip",  # Local directory (development)
-    Path("/app/Wav2Lip"),  # Docker build location
+    Path("/app/Wav2Lip"),  # Docker build location (legacy)
     Path(os.getcwd()) / "Wav2Lip",  # Current working directory
 ]
 
