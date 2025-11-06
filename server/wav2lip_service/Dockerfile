@@ -39,6 +39,7 @@ EXPOSE 5001
 # Set environment variables
 ENV PYTHONUNBUFFERED=1
 ENV FLASK_APP=app.py
+ENV PYTHONPATH="/app:${PYTHONPATH}"
 
 # Run the Flask app
 CMD python app.py
