@@ -1,0 +1,9 @@
+flask==3.0.0
+flask-cors==4.0.0
+opencv-python-headless==4.8.1.78
+numpy==1.26.2
+librosa==0.10.1
+soundfile==0.12.1
+openvino==2025.0.0
+requests==2.31.0
+tqdm==4.66.1

@@ -1,0 +1,24 @@
+node_modules/
+dist
+.DS_Store
+server/public
+vite.config.ts.*
+*.tar.gz
+
+# Wav2Lip models (too large for GitHub, downloaded during deployment)
+server/wav2lip_service/models/
+server/wav2lip_service/checkpoints/
+server/wav2lip_service/Wav2Lip/
+server/wav2lip_service/__pycache__/
+server/wav2lip_service/*.pyc
+
+# Python cache
+*.pyc
+__pycache__/
+
+# Python dependencies and cache (NEVER commit these)
+.pythonlibs/
+.cache/
+__pycache__/
+*.pyc
+
