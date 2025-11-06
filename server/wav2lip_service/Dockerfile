@@ -28,7 +28,7 @@ RUN echo "Downloading Wav2Lip repository..." && \
     mkdir -p models && \
     wget -O models/s3fd.pth https://www.adrianbulat.com/downloads/python-fan/s3fd-619a316812.pth && \
     echo "Downloading Wav2Lip checkpoint..." && \
-    wget -O models/wav2lip_gan.pth https://iiitaphyd-my.sharepoint.com/:u:/g/personal/radrabha_m_research_iiit_ac_in/Eb3LEzbfuKlJiR600lQWRxgBIY27JZg80f7V9jtMfbNDaQ?download=1
+    wget -O models/wav2lip_gan.pth https://huggingface.co/Non-playing-Character/Wave2lip/resolve/main/wav2lip_gan.pth
 
 # Convert models to OpenVINO format (this will run during build)
 # Note: Model conversion is handled by inference_engine.py on first run
