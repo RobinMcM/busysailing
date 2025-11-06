@@ -6,18 +6,30 @@ let openaiClient: OpenAI | null = null;
 
 function getOpenAIClient(): OpenAI {
   if (!openaiClient) {
-    if (!process.env.AI_INTEGRATIONS_OPENAI_BASE_URL || !process.env.AI_INTEGRATIONS_OPENAI_API_KEY) {
+    // Support both regular OpenAI API (for Render/standard deployments) and Replit AI Integrations
+    const useReplitIntegration = process.env.AI_INTEGRATIONS_OPENAI_BASE_URL && process.env.AI_INTEGRATIONS_OPENAI_API_KEY;
+    const useStandardOpenAI = process.env.OPENAI_API_KEY;
+    
+    if (!useReplitIntegration && !useStandardOpenAI) {
       throw new Error(
-        'OpenAI integration is not configured. Please ensure AI_INTEGRATIONS_OPENAI_BASE_URL and AI_INTEGRATIONS_OPENAI_API_KEY are set in your deployment secrets.'
+        'OpenAI is not configured. Please set either OPENAI_API_KEY (for standard OpenAI) or AI_INTEGRATIONS_OPENAI_BASE_URL and AI_INTEGRATIONS_OPENAI_API_KEY (for Replit AI Integrations) in your environment variables.'
       );
     }
     
-    // This is using Replit's AI Integrations service, which provides OpenAI-compatible API access without requiring your own OpenAI API key.
-    // Referenced from blueprint: javascript_openai_ai_integrations
-    openaiClient = new OpenAI({
-      baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
-      apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY
-    });
+    if (useReplitIntegration) {
+      // Using Replit's AI Integrations service
+      console.log('Using Replit AI Integrations for OpenAI');
+      openaiClient = new OpenAI({
+        baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
+        apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY
+      });
+    } else {
+      // Using standard OpenAI API
+      console.log('Using standard OpenAI API');
+      openaiClient = new OpenAI({
+        apiKey: process.env.OPENAI_API_KEY
+      });
+    }
   }
   
   return openaiClient;
