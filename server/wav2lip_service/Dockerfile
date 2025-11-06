@@ -23,7 +23,7 @@ COPY . .
 
 # Download Wav2Lip repository and models
 RUN echo "Downloading Wav2Lip repository..." && \
-    git clone https://github.com/Rudrabha/Wav2Lip.git && \
+    git clone https://github.com/Rudrabha/Wav2Lip.git /opt/Wav2Lip && \
     echo "Downloading face detection model..." && \
     mkdir -p models && \
     wget -O models/s3fd.pth https://www.adrianbulat.com/downloads/python-fan/s3fd-619a316812.pth && \
@@ -39,7 +39,7 @@ EXPOSE 5001
 # Set environment variables
 ENV PYTHONUNBUFFERED=1
 ENV FLASK_APP=app.py
-ENV PYTHONPATH="/app:${PYTHONPATH}"
+ENV PYTHONPATH="/app:/opt:${PYTHONPATH}"
 
 # Run the Flask app
 CMD python app.py
