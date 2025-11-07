@@ -4,11 +4,13 @@ import { storage } from "./storage";
 import { chatRequestSchema } from "@shared/schema";
 import { generateFinancialResponse, generateTTSAudio } from "./openai";
 import { chatRateLimiter } from "./rateLimiter";
+import { trackChatRequest, trackTTSRequest, estimateTokenCount } from "./analytics";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/chat", async (req, res) => {
     console.log('[API] Received chat request');
+    const startTime = Date.now();
     try {
       const clientIp = req.ip || req.socket.remoteAddress || 'unknown';
       const rateLimitResult = chatRateLimiter.checkLimit(clientIp);
@@ -24,14 +26,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const validatedData = chatRequestSchema.parse(req.body);
-      console.log('[API] Request validated, calling OpenAI...');
+      console.log('[API] Request validated, calling AI...');
       
       const response = await generateFinancialResponse(
         validatedData.message,
         validatedData.conversationHistory || []
       );
 
-      console.log('[API] Got response from OpenAI, sending to client');
+      const duration = Date.now() - startTime;
+      console.log('[API] Got response from AI, sending to client');
+      
+      const inputTokens = estimateTokenCount(validatedData.message);
+      const outputTokens = estimateTokenCount(response);
+      const model = process.env.GROQ_API_KEY ? "llama-3.3-70b-versatile" : "gpt-4o";
+      
+      trackChatRequest(clientIp, inputTokens, outputTokens, model, duration).catch(err => {
+        console.error('Failed to track chat request:', err);
+      });
+      
       res.json({ 
         message: response,
         success: true 
@@ -62,7 +74,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/tts", async (req, res) => {
     console.log('[API] Received TTS request');
+    const startTime = Date.now();
     try {
+      const clientIp = req.ip || req.socket.remoteAddress || 'unknown';
       const validatedData = ttsRequestSchema.parse(req.body);
       console.log('[API] Generating TTS audio...');
       
@@ -72,9 +86,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         validatedData.speed
       );
 
+      const duration = Date.now() - startTime;
       console.log('[API] TTS audio generated, sending to client');
       
-      // Send audio as MP3
+      trackTTSRequest(clientIp, validatedData.text.length, 'tts-1', duration).catch(err => {
+        console.error('Failed to track TTS request:', err);
+      });
+      
       res.setHeader('Content-Type', 'audio/mpeg');
       res.setHeader('Content-Length', audioBuffer.length);
       res.send(Buffer.from(audioBuffer));
@@ -90,6 +108,52 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       res.status(500).json({ 
         error: error.message || 'Failed to generate audio',
+        success: false 
+      });
+    }
+  });
+
+  app.get("/api/analytics", async (req, res) => {
+    console.log('[API] Received analytics request');
+    try {
+      const period = req.query.period as string || 'today';
+      
+      let startDate: Date;
+      const endDate = new Date();
+      
+      switch (period) {
+        case 'today':
+          startDate = new Date();
+          startDate.setHours(0, 0, 0, 0);
+          break;
+        case 'week':
+          startDate = new Date();
+          startDate.setDate(startDate.getDate() - 7);
+          break;
+        case 'month':
+          startDate = new Date();
+          startDate.setMonth(startDate.getMonth() - 1);
+          break;
+        case 'all':
+          startDate = new Date(0);
+          break;
+        default:
+          startDate = new Date();
+          startDate.setHours(0, 0, 0, 0);
+      }
+      
+      const summary = await storage.getAnalyticsSummary(startDate, endDate);
+      const records = await storage.getAllAnalytics(startDate, endDate);
+      
+      res.json({
+        summary,
+        records,
+        success: true
+      });
+    } catch (error: any) {
+      console.error('Analytics endpoint error:', error);
+      res.status(500).json({ 
+        error: error.message || 'Failed to fetch analytics',
         success: false 
       });
     }
