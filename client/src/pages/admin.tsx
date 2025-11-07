@@ -21,6 +21,15 @@ export default function Admin() {
     success: boolean;
   }>({
     queryKey: ["/api/analytics", period],
+    queryFn: async () => {
+      const res = await fetch(`/api/analytics?period=${period}`, {
+        credentials: "include",
+      });
+      if (!res.ok) {
+        throw new Error(`Failed to fetch analytics: ${res.statusText}`);
+      }
+      return res.json();
+    },
     enabled: isUnlocked,
   });
 
