@@ -151,7 +151,7 @@ export async function generateTTSAudio(
   }
 
   try {
-    const openai = getOpenAIClient();
+    const openai = getTTSClient();
     
     const response = await openai.audio.speech.create({
       model: "tts-1",
