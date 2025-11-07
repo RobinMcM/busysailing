@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, varchar } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, timestamp, integer, decimal, uuid } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -61,3 +61,24 @@ export const analyticsSummarySchema = z.object({
 
 export type AnalyticsRecord = z.infer<typeof analyticsRecordSchema>;
 export type AnalyticsSummary = z.infer<typeof analyticsSummarySchema>;
+
+export const analytics = pgTable("analytics", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  timestamp: timestamp("timestamp").notNull().defaultNow(),
+  type: varchar("type", { length: 10 }).notNull(),
+  ipAddress: text("ip_address").notNull(),
+  inputTokens: integer("input_tokens"),
+  outputTokens: integer("output_tokens"),
+  characters: integer("characters"),
+  model: text("model").notNull(),
+  cost: decimal("cost", { precision: 10, scale: 6 }).notNull(),
+  duration: integer("duration").notNull(),
+});
+
+export const insertAnalyticsSchema = createInsertSchema(analytics).omit({
+  id: true,
+  timestamp: true,
+});
+
+export type InsertAnalytics = z.infer<typeof insertAnalyticsSchema>;
+export type Analytics = typeof analytics.$inferSelect;
