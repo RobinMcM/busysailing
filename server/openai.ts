@@ -1,11 +1,13 @@
 import OpenAI from "openai";
 
-// Lazy initialization - only create OpenAI client when actually used
-// This allows the server to start even if OpenAI integration isn't configured
-let openaiClient: OpenAI | null = null;
+// Lazy initialization - only create OpenAI clients when actually used
+// This allows the server to start even if integrations aren't configured
+let chatClient: OpenAI | null = null;
+let ttsClient: OpenAI | null = null;
 
+// Chat client - supports Groq (preferred), OpenAI, or Replit AI Integrations
 function getOpenAIClient(): OpenAI {
-  if (!openaiClient) {
+  if (!chatClient) {
     // Support Groq, OpenAI, and Replit AI Integrations
     // Priority: GROQ_API_KEY > OPENAI_API_KEY > Replit AI Integrations
     const useGroq = process.env.GROQ_API_KEY;
@@ -20,28 +22,59 @@ function getOpenAIClient(): OpenAI {
     
     if (useGroq) {
       // Using Groq API (preferred for production - faster and cheaper)
-      console.log('Using Groq API');
-      openaiClient = new OpenAI({
+      console.log('Using Groq API for chat');
+      chatClient = new OpenAI({
         baseURL: 'https://api.groq.com/openai/v1',
         apiKey: process.env.GROQ_API_KEY
       });
     } else if (useStandardOpenAI) {
       // Using standard OpenAI API
-      console.log('Using standard OpenAI API');
-      openaiClient = new OpenAI({
+      console.log('Using standard OpenAI API for chat');
+      chatClient = new OpenAI({
         apiKey: process.env.OPENAI_API_KEY
       });
     } else {
       // Fall back to Replit's AI Integrations service
-      console.log('Using Replit AI Integrations for OpenAI');
-      openaiClient = new OpenAI({
+      console.log('Using Replit AI Integrations for chat');
+      chatClient = new OpenAI({
         baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
         apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY
       });
     }
   }
   
-  return openaiClient;
+  return chatClient;
+}
+
+// TTS client - ONLY uses OpenAI (Groq doesn't support TTS)
+function getTTSClient(): OpenAI {
+  if (!ttsClient) {
+    // TTS requires OpenAI API (Groq doesn't support audio/speech endpoint)
+    // Priority: OPENAI_API_KEY > Replit AI Integrations
+    const useStandardOpenAI = process.env.OPENAI_API_KEY;
+    const useReplitIntegration = process.env.AI_INTEGRATIONS_OPENAI_BASE_URL && process.env.AI_INTEGRATIONS_OPENAI_API_KEY;
+    
+    if (!useStandardOpenAI && !useReplitIntegration) {
+      throw new Error(
+        'OpenAI TTS is not configured. Please set either OPENAI_API_KEY or AI_INTEGRATIONS_OPENAI_BASE_URL and AI_INTEGRATIONS_OPENAI_API_KEY in your environment variables. Note: Groq does not support TTS, so OPENAI_API_KEY is required for voice generation.'
+      );
+    }
+    
+    if (useStandardOpenAI) {
+      console.log('Using standard OpenAI API for TTS');
+      ttsClient = new OpenAI({
+        apiKey: process.env.OPENAI_API_KEY
+      });
+    } else {
+      console.log('Using Replit AI Integrations for TTS');
+      ttsClient = new OpenAI({
+        baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
+        apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY
+      });
+    }
+  }
+  
+  return ttsClient;
 }
 
 interface ChatMessage {
