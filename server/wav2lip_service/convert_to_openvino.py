@@ -7,9 +7,31 @@ import torch
 import numpy as np
 from pathlib import Path
 import openvino as ov
+import os
 
-# Add Wav2Lip to path
-sys.path.insert(0, str(Path(__file__).parent / "Wav2Lip"))
+# Add Wav2Lip to path - check multiple possible locations
+possible_wav2lip_paths = [
+    Path("/opt/Wav2Lip"),  # Docker build location (Render deployment)
+    Path(__file__).parent / "Wav2Lip",  # Local directory (development)
+    Path("/app/Wav2Lip"),  # Docker build location (alternative)
+    Path(os.getcwd()) / "Wav2Lip",  # Current working directory
+]
+
+wav2lip_added = False
+for wav2lip_path in possible_wav2lip_paths:
+    if wav2lip_path.exists():
+        sys.path.insert(0, str(wav2lip_path))
+        print(f"✅ Found Wav2Lip at: {wav2lip_path}")
+        wav2lip_added = True
+        break
+
+if not wav2lip_added:
+    print(f"❌ Wav2Lip directory not found in expected locations:")
+    for p in possible_wav2lip_paths:
+        print(f"   - {p} (exists: {p.exists()})")
+    print(f"   Current working directory: {os.getcwd()}")
+    print(f"   __file__ location: {Path(__file__).parent}")
+    sys.exit(1)
 
 from models.wav2lip import Wav2Lip
 from face_detection.detection.sfd.net_s3fd import s3fd
