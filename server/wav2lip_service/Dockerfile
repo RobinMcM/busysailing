@@ -32,7 +32,7 @@ RUN echo "Downloading Wav2Lip repository..." && \
 
 # Convert PyTorch models to OpenVINO format
 RUN echo "Converting models to OpenVINO IR format..." && \
-    python convert_to_openvino.py && \
+    PYTHONPATH="/app:/opt:${PYTHONPATH}" python convert_to_openvino.py && \
     echo "✅ OpenVINO models created" && \
     ls -lh models/
 
