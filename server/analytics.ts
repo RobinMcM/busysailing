@@ -7,8 +7,8 @@ export const PRICING = {
     output: 0.00000079,
   },
   OPENAI_GPT_4O: {
-    input: 0.0000025,
-    output: 0.00001,
+    input: 0.000005,
+    output: 0.000015,
   },
   OPENAI_TTS_1: {
     perCharacter: 0.000015,

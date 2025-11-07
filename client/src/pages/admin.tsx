@@ -1,13 +1,12 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Lock, Unlock, DollarSign, MessageSquare, Volume2, Users, TrendingUp, Download } from "lucide-react";
 import { type AnalyticsSummary, type Analytics } from "@shared/schema";
-
-const ADMIN_PASSWORD = "MKS2005";
+import { apiRequest } from "@/lib/queryClient";
 
 export default function Admin() {
   const [isUnlocked, setIsUnlocked] = useState(false);
@@ -33,15 +32,29 @@ export default function Admin() {
     enabled: isUnlocked,
   });
 
-  const handleUnlock = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (password === ADMIN_PASSWORD) {
-      setIsUnlocked(true);
-      setShowError(false);
-    } else {
+  const verifyPasswordMutation = useMutation({
+    mutationFn: async (password: string) => {
+      const res = await apiRequest("POST", "/api/admin/verify", { password });
+      return res.json();
+    },
+    onSuccess: (data) => {
+      if (data.verified) {
+        setIsUnlocked(true);
+        setShowError(false);
+      } else {
+        setShowError(true);
+        setTimeout(() => setShowError(false), 2000);
+      }
+    },
+    onError: () => {
       setShowError(true);
       setTimeout(() => setShowError(false), 2000);
-    }
+    },
+  });
+
+  const handleUnlock = (e: React.FormEvent) => {
+    e.preventDefault();
+    verifyPasswordMutation.mutate(password);
   };
 
   const exportCSV = () => {
@@ -112,9 +125,14 @@ export default function Admin() {
                   <p className="text-sm text-destructive">Incorrect password</p>
                 )}
               </div>
-              <Button data-testid="button-unlock" type="submit" className="w-full">
+              <Button 
+                data-testid="button-unlock" 
+                type="submit" 
+                className="w-full"
+                disabled={verifyPasswordMutation.isPending}
+              >
                 <Unlock className="w-4 h-4 mr-2" />
-                Unlock Dashboard
+                {verifyPasswordMutation.isPending ? "Verifying..." : "Unlock Dashboard"}
               </Button>
             </form>
           </CardContent>

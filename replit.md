@@ -15,12 +15,13 @@ The application features a React/TypeScript frontend with Shadcn UI and Tailwind
 
 ### Technical Implementations
 - **Frontend**: React with TypeScript, Wouter for routing, TanStack Query for state management, Shadcn UI, Tailwind CSS.
-- **Backend**: Express.js, in-memory storage, rate limiting (20 req/min/IP).
-- **AI Integration**: Primary: Groq API (Llama 3.3 70B Versatile); Fallback: OpenAI GPT-5 or Replit AI Integrations. System prompt tailored for UK tax law.
+- **Backend**: Express.js, PostgreSQL database (Neon/Drizzle ORM), rate limiting (20 req/min/IP).
+- **AI Integration**: Primary: Groq API (Llama 3.3 70B Versatile); Fallback: OpenAI GPT-4o or Replit AI Integrations. System prompt tailored for UK tax law.
 - **Wav2Lip Integration**: Flask API service with OpenVINO-based Wav2Lip inference. Models converted to OpenVINO IR format. Supports FPS-synchronized audio processing and promise-based sequential execution. Graceful fallback to Web Speech API.
 - **User Interface**: Mobile-phone-styled chat history, dual independent avatars with visual dimming, auto-scroll, timestamps, and professional UK financial services-themed styling.
 - **Voice Features**: Speech-to-text (Web Speech API), dual text-to-speech with paragraph-based voice alternation (Consultant/Partner voices), mute/unmute, and stop speaking controls.
-- **Security**: Password gate (MKS2005) for access control.
+- **Security**: Password gate (MKS2005) for chat access; backend-verified admin authentication for analytics dashboard.
+- **Analytics System**: Comprehensive usage tracking with PostgreSQL persistence. Tracks chat/TTS requests, token/character counts, costs, IP addresses, response times. Admin dashboard at /admin with real-time metrics, 100-user cost projections, period filtering, and CSV export.
 
 ### Feature Specifications
 - **Password Gate**: 12-character obscured input, visual feedback (lock icon), disables functionality until correct.
@@ -34,7 +35,37 @@ The application features a React/TypeScript frontend with Shadcn UI and Tailwind
 
 ## External Dependencies
 - **Groq API**: For fast and cost-effective AI chat responses (Llama 3.3 70B Versatile).
-- **OpenAI API**: For high-quality Text-to-Speech (TTS) voices (GPT-5 for chat fallback, primary for TTS).
+- **OpenAI API**: For high-quality Text-to-Speech (TTS) voices (GPT-4o for chat fallback, primary for TTS).
 - **Replit AI Integrations**: As a fallback for both chat and TTS.
 - **Web Speech API**: For client-side Speech-to-Text and as a fallback for Text-to-Speech/Wav2Lip.
 - **OpenVINO**: Used in the Wav2Lip Flask service for optimized, CPU-based model inference.
+
+## Analytics & Cost Monitoring
+
+### Overview
+The application includes a comprehensive analytics system that tracks all API usage and costs in real-time using PostgreSQL for persistent storage across deployments.
+
+### Tracked Metrics
+- **Chat Requests**: Input/output tokens, model used, response time, cost per request
+- **TTS Requests**: Character count, duration, cost per request
+- **Session Tracking**: Unique users by IP address, session timestamps
+- **Cost Calculations**: Real-time cost tracking with accurate API pricing
+
+### Pricing (as of Nov 2024)
+- **Groq Llama 3.3 70B**: $0.59/1M input tokens, $0.79/1M output tokens
+- **OpenAI GPT-4o**: $5.00/1M input tokens, $15.00/1M output tokens
+- **OpenAI TTS-1**: $15.00/1M characters
+
+### Admin Dashboard (/admin)
+- **Security**: Backend-verified password authentication (default: MKS2005, configurable via ADMIN_PASSWORD env var)
+- **Real-time Metrics**: Total costs, request counts, unique users, average response times
+- **Period Filters**: Today, Last 7 Days, Last 30 Days, All Time
+- **Cost Projections**: Automatic calculation of daily/monthly costs for 100 users based on actual usage patterns
+- **Activity Feed**: Last 50 requests with timestamps, costs, and durations
+- **CSV Export**: Download complete analytics data for external analysis
+
+### Cost Expectations
+Based on realistic usage patterns (5-10 messages/day per user):
+- **Light usage** (5 msgs/day): ~$25-40/month for 100 users
+- **Moderate usage** (10 msgs/day): ~$50-80/month for 100 users
+- Costs scale linearly with usage and are dominated by chat API costs (Groq is significantly cheaper than OpenAI)

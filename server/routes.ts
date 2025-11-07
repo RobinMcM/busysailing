@@ -113,6 +113,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  const adminPasswordSchema = z.object({
+    password: z.string().min(1),
+  });
+
+  app.post("/api/admin/verify", async (req, res) => {
+    console.log('[API] Received admin verification request');
+    try {
+      const validatedData = adminPasswordSchema.parse(req.body);
+      const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "MKS2005";
+      
+      if (validatedData.password === ADMIN_PASSWORD) {
+        res.json({ 
+          success: true,
+          verified: true 
+        });
+      } else {
+        res.json({ 
+          success: true,
+          verified: false 
+        });
+      }
+    } catch (error: any) {
+      console.error('Admin verification error:', error);
+      
+      if (error.name === 'ZodError') {
+        return res.status(400).json({ 
+          error: 'Invalid request format',
+          success: false 
+        });
+      }
+
+      res.status(500).json({ 
+        error: error.message || 'Failed to verify admin password',
+        success: false 
+      });
+    }
+  });
+
   app.get("/api/analytics", async (req, res) => {
     console.log('[API] Received analytics request');
     try {
