@@ -25,14 +25,14 @@ This application helps users get answers to their UK financial questions through
 
 ### Backend
 - Express.js server
-- OpenAI integration via Replit AI Integrations (GPT-5)
+- AI integration supporting Groq (Llama 3.3), OpenAI (GPT-5), and Replit AI Integrations
 - In-memory storage (no database persistence)
 - Rate limiting (20 requests per minute per IP)
 
 ### AI Integration
-- Uses Replit AI Integrations for OpenAI access
-- No API key required (charges billed to Replit credits)
-- Model: gpt-5 (latest OpenAI model)
+- **Primary**: Groq API with Llama 3.3 70B Versatile (faster and more cost-effective)
+- **Fallback**: OpenAI GPT-5 or Replit AI Integrations
+- Priority order: GROQ_API_KEY > OPENAI_API_KEY > Replit AI Integrations
 - System prompt specifically tailored for UK tax law and HMRC regulations
 - Maintains conversation context for coherent multi-turn discussions
 - Provides UK-specific financial guidance (not US tax advice)
@@ -55,7 +55,7 @@ This application helps users get answers to their UK financial questions through
 ### Current Implementation
 1. **Password Gate**: Access code protection (MKS2005) positioned in header for security
 2. **Mobile Chat Interface**: Side-by-side layout with mobile phone-styled conversation history and dual avatars
-3. **AI Responses**: Real-time AI-powered answers to UK financial questions using GPT-5
+3. **AI Responses**: Real-time AI-powered answers to UK financial questions using Llama 3.3 70B (Groq) or GPT-5 (OpenAI)
 4. **WhatsApp-Style Chat Display**: Mobile phone container showing full conversation history with user messages in green bubbles (right) and AI responses in grey bubbles (left)
 5. **Dual Avatar System**: Two independent avatars (both female professionals) visible during conversations (right side)
 6. **Auto-Activation**: Partner automatically enables after the second AI response
@@ -134,7 +134,7 @@ client/
 
 server/
   routes.ts - API endpoint for chat with rate limiting
-  openai.ts - OpenAI client with UK-focused system prompt
+  openai.ts - AI client supporting Groq/OpenAI with UK-focused system prompt
   rateLimiter.ts - In-memory rate limiter (20 req/min per IP)
   storage.ts - In-memory storage interface
   wav2lip_service/
@@ -193,8 +193,13 @@ Generate lip-synced video from face image and audio.
 
 ## Environment Variables
 
-- `AI_INTEGRATIONS_OPENAI_BASE_URL` - Automatically set by Replit AI Integrations
-- `AI_INTEGRATIONS_OPENAI_API_KEY` - Automatically set by Replit AI Integrations
+**AI Service (priority order):**
+- `GROQ_API_KEY` - Groq API key (preferred - faster and cheaper). Get from https://console.groq.com/keys
+- `OPENAI_API_KEY` - OpenAI API key (fallback option). Get from https://platform.openai.com/api-keys
+- `AI_INTEGRATIONS_OPENAI_BASE_URL` - Automatically set by Replit AI Integrations (Replit-only)
+- `AI_INTEGRATIONS_OPENAI_API_KEY` - Automatically set by Replit AI Integrations (Replit-only)
+
+**Note**: Only one AI service configuration is required. Groq is recommended for production deployments.
 
 ## Running the Application
 
