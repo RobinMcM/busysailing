@@ -6,19 +6,27 @@ let openaiClient: OpenAI | null = null;
 
 function getOpenAIClient(): OpenAI {
   if (!openaiClient) {
-    // Support both regular OpenAI API (for Render/standard deployments) and Replit AI Integrations
-    // Priority: OPENAI_API_KEY (standard) > Replit AI Integrations
+    // Support Groq, OpenAI, and Replit AI Integrations
+    // Priority: GROQ_API_KEY > OPENAI_API_KEY > Replit AI Integrations
+    const useGroq = process.env.GROQ_API_KEY;
     const useStandardOpenAI = process.env.OPENAI_API_KEY;
     const useReplitIntegration = process.env.AI_INTEGRATIONS_OPENAI_BASE_URL && process.env.AI_INTEGRATIONS_OPENAI_API_KEY;
     
-    if (!useStandardOpenAI && !useReplitIntegration) {
+    if (!useGroq && !useStandardOpenAI && !useReplitIntegration) {
       throw new Error(
-        'OpenAI is not configured. Please set either OPENAI_API_KEY (for standard OpenAI) or AI_INTEGRATIONS_OPENAI_BASE_URL and AI_INTEGRATIONS_OPENAI_API_KEY (for Replit AI Integrations) in your environment variables.'
+        'AI service is not configured. Please set either GROQ_API_KEY (for Groq), OPENAI_API_KEY (for OpenAI), or AI_INTEGRATIONS_OPENAI_BASE_URL and AI_INTEGRATIONS_OPENAI_API_KEY (for Replit AI Integrations) in your environment variables.'
       );
     }
     
-    if (useStandardOpenAI) {
-      // Using standard OpenAI API (preferred for production deployments)
+    if (useGroq) {
+      // Using Groq API (preferred for production - faster and cheaper)
+      console.log('Using Groq API');
+      openaiClient = new OpenAI({
+        baseURL: 'https://api.groq.com/openai/v1',
+        apiKey: process.env.GROQ_API_KEY
+      });
+    } else if (useStandardOpenAI) {
+      // Using standard OpenAI API
       console.log('Using standard OpenAI API');
       openaiClient = new OpenAI({
         apiKey: process.env.OPENAI_API_KEY
@@ -74,16 +82,18 @@ Important: Always provide information specific to the United Kingdom and HMRC re
   try {
     const openai = getOpenAIClient();
     
-    // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
+    // Use Groq's Llama 3.3 70B if GROQ_API_KEY is set, otherwise use OpenAI's GPT-5
+    const model = process.env.GROQ_API_KEY ? "llama-3.3-70b-versatile" : "gpt-5";
+    
     const response = await openai.chat.completions.create({
-      model: "gpt-5",
+      model,
       messages,
       max_completion_tokens: 8192,
     });
 
     return response.choices[0]?.message?.content || "I apologize, but I couldn't generate a response. Please try again.";
   } catch (error: any) {
-    console.error('OpenAI API Error:', error);
+    console.error('AI API Error:', error);
     
     // Provide helpful error message if integration isn't configured
     if (error.message && error.message.includes('not configured')) {
