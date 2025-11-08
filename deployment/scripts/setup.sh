@@ -43,7 +43,7 @@ echo "🐳 Step 2: Installing Docker..."
 apt-get remove -y docker docker-engine docker.io containerd runc || true
 
 # Install prerequisites
-apt-get install -y \
+apt-get install -y -o Dpkg::Options::="--force-confold" -o Dpkg::Options::="--force-confdef" \
     ca-certificates \
     curl \
     gnupg \
@@ -60,7 +60,7 @@ echo \
 
 # Install Docker Engine
 apt-get update
-apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+apt-get install -y -o Dpkg::Options::="--force-confold" -o Dpkg::Options::="--force-confdef" docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
 echo "✅ Docker installed successfully"
 docker --version
