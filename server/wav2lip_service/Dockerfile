@@ -11,7 +11,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libxrender-dev \
     libgomp1 \
     wget \
-    git \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements and install Python packages
@@ -21,19 +20,13 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application files
 COPY . .
 
-# Download Wav2Lip repository and PyTorch models
-RUN echo "Downloading Wav2Lip repository..." && \
-    git clone https://github.com/Rudrabha/Wav2Lip.git /opt/Wav2Lip && \
-    echo "Downloading PyTorch checkpoints..." && \
-    mkdir -p checkpoints && \
-    wget -O checkpoints/face_detection.pth https://www.adrianbulat.com/downloads/python-fan/s3fd-619a316812.pth && \
-    wget -O checkpoints/wav2lip.pth https://huggingface.co/Non-playing-Character/Wave2lip/resolve/main/wav2lip_gan.pth && \
-    echo "✅ PyTorch models downloaded"
-
-# Convert PyTorch models to OpenVINO format
-RUN echo "Converting models to OpenVINO IR format..." && \
-    PYTHONPATH="/app:/opt:${PYTHONPATH}" python convert_to_openvino.py && \
-    echo "✅ OpenVINO models created" && \
+# Download pre-converted OpenVINO models from Hugging Face
+RUN echo "Downloading pre-converted OpenVINO models from Hugging Face..." && \
+    mkdir -p models && \
+    wget -O openvino_models.tar.gz https://huggingface.co/RobinMcM/wav2lip-openvino-models/resolve/main/openvino_models.tar.gz && \
+    tar -xzf openvino_models.tar.gz -C models/ && \
+    rm openvino_models.tar.gz && \
+    echo "✅ OpenVINO models downloaded and extracted" && \
     ls -lh models/
 
 # Expose port (Render assigns PORT env var)
@@ -42,7 +35,6 @@ EXPOSE 5001
 # Set environment variables
 ENV PYTHONUNBUFFERED=1
 ENV FLASK_APP=app.py
-ENV PYTHONPATH="/app:/opt:${PYTHONPATH}"
 
 # Run the Flask app
 CMD python app.py
