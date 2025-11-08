@@ -20,12 +20,16 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-# Install production dependencies only
+# Install ALL dependencies (Vite and other dev deps are needed at runtime for the middleware)
 COPY package*.json ./
-RUN npm ci --only=production
+RUN npm ci
 
-# Copy built application from builder (dist contains both frontend and backend)
+# Copy built application from builder
 COPY --from=builder /app/dist ./dist
+# Copy server directory (needed for vite.ts middleware and other runtime server files)
+COPY --from=builder /app/server ./server
+# Copy shared types
+COPY --from=builder /app/shared ./shared
 
 # Expose port
 EXPOSE 3000
