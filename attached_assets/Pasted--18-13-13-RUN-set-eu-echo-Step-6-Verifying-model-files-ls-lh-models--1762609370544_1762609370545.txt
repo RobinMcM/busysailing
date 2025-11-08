@@ -1,0 +1,29 @@
+#18 [13/13] RUN set -eu &&     echo "🔍 Step 6: Verifying model files..." &&     ls -lh models/ &&     echo "Checking for required model files..." &&     test -s models/face_detection.bin && echo "✓ face_detection.bin found ($(du -h models/face_detection.bin | cut -f1))" || { echo "❌ face_detection.bin missing or empty"; exit 1; } &&     test -s models/face_detection.xml && echo "✓ face_detection.xml found ($(du -h models/face_detection.xml | cut -f1))" || { echo "❌ face_detection.xml missing or empty"; exit 1; } &&     test -s models/wav2lip.bin && echo "✓ wav2lip.bin found ($(du -h models/wav2lip.bin | cut -f1))" || { echo "❌ wav2lip.bin missing or empty"; exit 1; } &&     test -s models/wav2lip.xml && echo "✓ wav2lip.xml found ($(du -h models/wav2lip.xml | cut -f1))" || { echo "❌ wav2lip.xml missing or empty"; exit 1; } &&     echo "✅ All 4 model files verified successfully!"
+#18 0.071 🔍 Step 6: Verifying model files...
+#18 0.074 total 0
+#18 0.075 Checking for required model files...
+#18 0.075 ❌ face_detection.bin missing or empty
+#18 ERROR: process "/bin/sh -c set -eu &&     echo \"🔍 Step 6: Verifying model files...\" &&     ls -lh models/ &&     echo \"Checking for required model files...\" &&     test -s models/face_detection.bin && echo \"✓ face_detection.bin found ($(du -h models/face_detection.bin | cut -f1))\" || { echo \"❌ face_detection.bin missing or empty\"; exit 1; } &&     test -s models/face_detection.xml && echo \"✓ face_detection.xml found ($(du -h models/face_detection.xml | cut -f1))\" || { echo \"❌ face_detection.xml missing or empty\"; exit 1; } &&     test -s models/wav2lip.bin && echo \"✓ wav2lip.bin found ($(du -h models/wav2lip.bin | cut -f1))\" || { echo \"❌ wav2lip.bin missing or empty\"; exit 1; } &&     test -s models/wav2lip.xml && echo \"✓ wav2lip.xml found ($(du -h models/wav2lip.xml | cut -f1))\" || { echo \"❌ wav2lip.xml missing or empty\"; exit 1; } &&     echo \"✅ All 4 model files verified successfully!\"" did not complete successfully: exit code: 1
+------
+ > [13/13] RUN set -eu &&     echo "🔍 Step 6: Verifying model files..." &&     ls -lh models/ &&     echo "Checking for required model files..." &&     test -s models/face_detection.bin && echo "✓ face_detection.bin found ($(du -h models/face_detection.bin | cut -f1))" || { echo "❌ face_detection.bin missing or empty"; exit 1; } &&     test -s models/face_detection.xml && echo "✓ face_detection.xml found ($(du -h models/face_detection.xml | cut -f1))" || { echo "❌ face_detection.xml missing or empty"; exit 1; } &&     test -s models/wav2lip.bin && echo "✓ wav2lip.bin found ($(du -h models/wav2lip.bin | cut -f1))" || { echo "❌ wav2lip.bin missing or empty"; exit 1; } &&     test -s models/wav2lip.xml && echo "✓ wav2lip.xml found ($(du -h models/wav2lip.xml | cut -f1))" || { echo "❌ wav2lip.xml missing or empty"; exit 1; } &&     echo "✅ All 4 model files verified successfully!":
+0.071 🔍 Step 6: Verifying model files...
+0.074 total 0
+0.075 Checking for required model files...
+0.075 ❌ face_detection.bin missing or empty
+------
+Dockerfile:61
+--------------------
+  60 |     
+  61 | >>> RUN set -eu && \
+  62 | >>>     echo "🔍 Step 6: Verifying model files..." && \
+  63 | >>>     ls -lh models/ && \
+  64 | >>>     echo "Checking for required model files..." && \
+  65 | >>>     test -s models/face_detection.bin && echo "✓ face_detection.bin found ($(du -h models/face_detection.bin | cut -f1))" || { echo "❌ face_detection.bin missing or empty"; exit 1; } && \
+  66 | >>>     test -s models/face_detection.xml && echo "✓ face_detection.xml found ($(du -h models/face_detection.xml | cut -f1))" || { echo "❌ face_detection.xml missing or empty"; exit 1; } && \
+  67 | >>>     test -s models/wav2lip.bin && echo "✓ wav2lip.bin found ($(du -h models/wav2lip.bin | cut -f1))" || { echo "❌ wav2lip.bin missing or empty"; exit 1; } && \
+  68 | >>>     test -s models/wav2lip.xml && echo "✓ wav2lip.xml found ($(du -h models/wav2lip.xml | cut -f1))" || { echo "❌ wav2lip.xml missing or empty"; exit 1; } && \
+  69 | >>>     echo "✅ All 4 model files verified successfully!"
+  70 |     
+--------------------
+error: failed to solve: process "/bin/sh -c set -eu &&     echo \"🔍 Step 6: Verifying model files...\" &&     ls -lh models/ &&     echo \"Checking for required model files...\" &&     test -s models/face_detection.bin && echo \"✓ face_detection.bin found ($(du -h models/face_detection.bin | cut -f1))\" || { echo \"❌ face_detection.bin missing or empty\"; exit 1; } &&     test -s models/face_detection.xml && echo \"✓ face_detection.xml found ($(du -h models/face_detection.xml | cut -f1))\" || { echo \"❌ face_detection.xml missing or empty\"; exit 1; } &&     test -s models/wav2lip.bin && echo \"✓ wav2lip.bin found ($(du -h models/wav2lip.bin | cut -f1))\" || { echo \"❌ wav2lip.bin missing or empty\"; exit 1; } &&     test -s models/wav2lip.xml && echo \"✓ wav2lip.xml found ($(du -h models/wav2lip.xml | cut -f1))\" || { echo \"❌ wav2lip.xml missing or empty\"; exit 1; } &&     echo \"✅ All 4 model files verified successfully!\"" did not complete successfully: exit code: 1
+error: exit status 1
