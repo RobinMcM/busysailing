@@ -32,7 +32,7 @@ RUN echo "Downloading Wav2Lip repository for Python modules..." && \
 RUN echo "Downloading pre-converted OpenVINO models from Hugging Face..." && \
     mkdir -p models && \
     wget -O openvino_models.tar.gz https://huggingface.co/RobinMcM/wav2lip-openvino-models/resolve/main/openvino_models.tar.gz && \
-    tar -xzf openvino_models.tar.gz -C models/ && \
+    tar -xzf openvino_models.tar.gz -C models/ --strip-components=1 && \
     rm openvino_models.tar.gz && \
     echo "✅ OpenVINO models downloaded and extracted" && \
     ls -lh models/
