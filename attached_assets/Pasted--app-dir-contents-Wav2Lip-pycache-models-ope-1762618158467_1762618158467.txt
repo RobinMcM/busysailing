@@ -1,0 +1,87 @@
+{
+    "app_dir_contents": [
+        "Wav2Lip",
+        "__pycache__",
+        "models",
+        "openvino_models.tar.gz",
+        "DEPLOYMENT.md",
+        "inference_engine.py",
+        "download_wav2lip_models.py",
+        "PHASE4_COMPLETE.md",
+        "test_api.py",
+        "test_models.py",
+        "__init__.py",
+        "app.py",
+        "PHASE5_STATUS.md",
+        "convert_to_openvino.py",
+        "test_openvino.py",
+        "start.sh",
+        "gradio_helper.py",
+        "ov_inference.py",
+        "download_models.py",
+        "create_test_assets.py",
+        "test_inference.py",
+        "test_assets",
+        "Dockerfile",
+        "ov_wav2lip_helper.py",
+        "requirements.txt"
+    ],
+    "app_file_location": "/app/app.py",
+    "app_parent_dir": "/app",
+    "current_working_dir": "/app",
+    "models_dir_contents": [
+        {
+            "is_file": true,
+            "name": "face_detection.bin",
+            "size_mb": 42.83738136291504
+        },
+        {
+            "is_file": true,
+            "name": "wav2lip.bin",
+            "size_mb": 69.18961143493652
+        },
+        {
+            "is_file": true,
+            "name": "face_detection.xml",
+            "size_mb": 0.14145374298095703
+        },
+        {
+            "is_file": true,
+            "name": "wav2lip.xml",
+            "size_mb": 0.20742511749267578
+        }
+    ],
+    "models_dir_exists": true,
+    "models_dir_path": "/app/models",
+    "required_models_check": {
+        "face_detection.bin": {
+            "exists": true,
+            "full_path": "/app/models/face_detection.bin",
+            "is_file": true,
+            "size_mb": 42.83738136291504
+        },
+        "face_detection.xml": {
+            "exists": true,
+            "full_path": "/app/models/face_detection.xml",
+            "is_file": true,
+            "size_mb": 0.14145374298095703
+        },
+        "wav2lip.bin": {
+            "exists": true,
+            "full_path": "/app/models/wav2lip.bin",
+            "is_file": true,
+            "size_mb": 69.18961143493652
+        },
+        "wav2lip.xml": {
+            "exists": true,
+            "full_path": "/app/models/wav2lip.xml",
+            "is_file": true,
+            "size_mb": 0.20742511749267578
+        }
+    },
+    "tarball": {
+        "exists": true,
+        "full_path": "/app/openvino_models.tar.gz",
+        "size_mb": 75.55681896209717
+    }
+}
