@@ -16,6 +16,9 @@ done
 
 set -e
 
+# Prevent interactive prompts during package installation
+export DEBIAN_FRONTEND=noninteractive
+
 echo "🚀 UK Tax Advisor - DigitalOcean Setup Script"
 echo "=============================================="
 echo ""
@@ -32,7 +35,8 @@ fi
 
 echo "📦 Step 1: Updating system packages..."
 apt-get update
-apt-get upgrade -y
+# Automatically keep old config files and upgrade non-interactively
+apt-get upgrade -y -o Dpkg::Options::="--force-confold" -o Dpkg::Options::="--force-confdef"
 
 echo "🐳 Step 2: Installing Docker..."
 # Remove old Docker versions
