@@ -50,7 +50,7 @@ RUN set -eu && \
 
 RUN set -eu && \
     echo "📂 Step 4: Extracting models..." && \
-    tar -xzvf openvino_models.tar.gz -C models/ --strip-components=1 && \
+    tar -xzvf openvino_models.tar.gz -C models/ && \
     echo "✅ Extraction complete"
 
 RUN set -eu && \
