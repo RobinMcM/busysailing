@@ -123,6 +123,62 @@ def health():
     
     return jsonify(response)
 
+@app.route('/debug', methods=['GET'])
+def debug():
+    """Debug endpoint to inspect filesystem and path resolution"""
+    import glob
+    
+    debug_info = {
+        "current_working_dir": os.getcwd(),
+        "app_file_location": str(Path(__file__).resolve()),
+        "app_parent_dir": str(Path(__file__).parent.resolve()),
+    }
+    
+    # Check models directory with absolute path
+    models_dir = Path(__file__).parent / "models"
+    debug_info["models_dir_path"] = str(models_dir.resolve())
+    debug_info["models_dir_exists"] = models_dir.exists()
+    
+    # List all files in models directory
+    if models_dir.exists():
+        files = list(models_dir.iterdir())
+        debug_info["models_dir_contents"] = [
+            {
+                "name": f.name,
+                "size_mb": f.stat().st_size / (1024*1024) if f.is_file() else 0,
+                "is_file": f.is_file()
+            }
+            for f in files
+        ]
+    else:
+        debug_info["models_dir_contents"] = []
+    
+    # Check each required model file explicitly
+    required_models = ["face_detection.xml", "face_detection.bin", "wav2lip.xml", "wav2lip.bin"]
+    debug_info["required_models_check"] = {}
+    for model in required_models:
+        model_path = models_dir / model
+        debug_info["required_models_check"][model] = {
+            "full_path": str(model_path.resolve()),
+            "exists": model_path.exists(),
+            "is_file": model_path.is_file() if model_path.exists() else False,
+            "size_mb": model_path.stat().st_size / (1024*1024) if model_path.exists() else 0
+        }
+    
+    # Check tarball
+    tarball_path = Path(__file__).parent / "openvino_models.tar.gz"
+    debug_info["tarball"] = {
+        "full_path": str(tarball_path.resolve()),
+        "exists": tarball_path.exists(),
+        "size_mb": tarball_path.stat().st_size / (1024*1024) if tarball_path.exists() else 0
+    }
+    
+    # List all files in app directory
+    app_dir = Path(__file__).parent
+    debug_info["app_dir_contents"] = [f.name for f in app_dir.iterdir()]
+    
+    return jsonify(debug_info)
+
 @app.route('/api/generate', methods=['POST'])
 def generate():
     """
