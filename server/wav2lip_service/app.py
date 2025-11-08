@@ -15,6 +15,59 @@ import numpy as np
 import cv2
 
 from inference_engine import Wav2LipInferenceEngine
+import os
+import tarfile
+
+def bootstrap_models():
+    """
+    Runtime bootstrap: Extract models from tarball if missing.
+    This ensures models are always available even if Docker layers don't persist.
+    """
+    models_dir = Path(__file__).parent / "models"
+    tarball_path = Path(__file__).parent / "openvino_models.tar.gz"
+    required_models = ["face_detection.xml", "face_detection.bin", "wav2lip.xml", "wav2lip.bin"]
+    
+    # Check if all models exist
+    all_models_exist = all((models_dir / model).exists() for model in required_models)
+    
+    if all_models_exist:
+        print("✅ All OpenVINO models already present")
+        return
+    
+    # Models are missing - extract from tarball
+    print("⚠️  Models missing - extracting from tarball...")
+    
+    if not tarball_path.exists():
+        print(f"❌ ERROR: Tarball not found at {tarball_path}")
+        print("Cannot bootstrap models - they must be included in the Docker image")
+        return
+    
+    # Create models directory if needed
+    models_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Extract tarball
+    try:
+        print(f"📂 Extracting {tarball_path} to {models_dir}...")
+        with tarfile.open(tarball_path, 'r:gz') as tar:
+            tar.extractall(path=models_dir)
+        print("✅ Models extracted successfully")
+        
+        # Verify all files are now present
+        for model in required_models:
+            model_path = models_dir / model
+            if model_path.exists():
+                size_mb = model_path.stat().st_size / (1024 * 1024)
+                print(f"  ✓ {model} ({size_mb:.1f}MB)")
+            else:
+                print(f"  ❌ {model} MISSING after extraction")
+                
+    except Exception as e:
+        print(f"❌ ERROR extracting models: {e}")
+        traceback.print_exc()
+
+# Bootstrap models before starting Flask app
+print("🚀 Starting Wav2Lip service - bootstrapping models...")
+bootstrap_models()
 
 app = Flask(__name__)
 CORS(app)

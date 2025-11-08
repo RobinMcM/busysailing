@@ -53,10 +53,8 @@ RUN set -eu && \
     tar -xzvf openvino_models.tar.gz -C models/ && \
     echo "✅ Extraction complete"
 
-RUN set -eu && \
-    echo "🗑️ Step 5: Cleaning up tarball..." && \
-    rm openvino_models.tar.gz && \
-    echo "✅ Tarball removed"
+# Step 5: Keep tarball for runtime bootstrap (do NOT delete)
+# The tarball is kept so app.py can re-extract models if they're missing at runtime
 
 RUN set -eu && \
     echo "🔍 Step 6: Verifying model files..." && \
