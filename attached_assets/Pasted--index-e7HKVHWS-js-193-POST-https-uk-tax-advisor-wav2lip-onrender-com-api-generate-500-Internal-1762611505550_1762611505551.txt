@@ -1,0 +1,71 @@
+
+index-e7HKVHWS.js:193 
+ POST https://uk-tax-advisor-wav2lip.onrender.com/api/generate 500 (Internal Server Error)
+(anonymous)	@	index-e7HKVHWS.js:193
+await in (anonymous)		
+N	@	index-e7HKVHWS.js:193
+(anonymous)	@	index-e7HKVHWS.js:193
+setTimeout		
+(anonymous)	@	index-e7HKVHWS.js:193
+ys	@	index-e7HKVHWS.js:38
+oa	@	index-e7HKVHWS.js:38
+useState	@	index-e7HKVHWS.js:38
+Z.useState	@	index-e7HKVHWS.js:9
+nk	@	index-e7HKVHWS.js:193
+Rc	@	index-e7HKVHWS.js:38
+iu	@	index-e7HKVHWS.js:40
+Vm	@	index-e7HKVHWS.js:40
+zm	@	index-e7HKVHWS.js:40
+Yw	@	index-e7HKVHWS.js:40
+Xi	@	index-e7HKVHWS.js:40
+Im	@	index-e7HKVHWS.js:40
+k	@	index-e7HKVHWS.js:25
+M	@	index-e7HKVHWS.js:25
+index-e7HKVHWS.js:193 [Wav2Lip] Error: Error: Exception from src/inference/src/cpp/core.cpp:95:
+Check 'util::directory_exists(path) || util::file_exists(path)' failed at src/frontends/common/src/frontend.cpp:113:
+FrontEnd API failed with GeneralFailure:
+ir: Could not open the file: "/app/models/face_detection.xml"
+
+
+    at Object.generateLipSyncVideo (index-e7HKVHWS.js:193:69552)
+    at async N (index-e7HKVHWS.js:193:71549)
+(anonymous)	@	index-e7HKVHWS.js:193
+await in (anonymous)		
+N	@	index-e7HKVHWS.js:193
+(anonymous)	@	index-e7HKVHWS.js:193
+setTimeout		
+(anonymous)	@	index-e7HKVHWS.js:193
+ys	@	index-e7HKVHWS.js:38
+oa	@	index-e7HKVHWS.js:38
+useState	@	index-e7HKVHWS.js:38
+Z.useState	@	index-e7HKVHWS.js:9
+nk	@	index-e7HKVHWS.js:193
+Rc	@	index-e7HKVHWS.js:38
+iu	@	index-e7HKVHWS.js:40
+Vm	@	index-e7HKVHWS.js:40
+zm	@	index-e7HKVHWS.js:40
+Yw	@	index-e7HKVHWS.js:40
+Xi	@	index-e7HKVHWS.js:40
+Im	@	index-e7HKVHWS.js:40
+k	@	index-e7HKVHWS.js:25
+M	@	index-e7HKVHWS.js:25
+index-e7HKVHWS.js:193 [LipSync] Failed to generate video, falling back to Web Speech API
+N	@	index-e7HKVHWS.js:193
+await in N		
+(anonymous)	@	index-e7HKVHWS.js:193
+setTimeout		
+(anonymous)	@	index-e7HKVHWS.js:193
+ys	@	index-e7HKVHWS.js:38
+oa	@	index-e7HKVHWS.js:38
+useState	@	index-e7HKVHWS.js:38
+Z.useState	@	index-e7HKVHWS.js:9
+nk	@	index-e7HKVHWS.js:193
+Rc	@	index-e7HKVHWS.js:38
+iu	@	index-e7HKVHWS.js:40
+Vm	@	index-e7HKVHWS.js:40
+zm	@	index-e7HKVHWS.js:40
+Yw	@	index-e7HKVHWS.js:40
+Xi	@	index-e7HKVHWS.js:40
+Im	@	index-e7HKVHWS.js:40
+k	@	index-e7HKVHWS.js:25
+M	@	index-e7HKVHWS.js:25
