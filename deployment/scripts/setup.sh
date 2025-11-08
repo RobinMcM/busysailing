@@ -3,11 +3,26 @@
 # DigitalOcean Droplet Setup Script
 # This script prepares a fresh Ubuntu droplet for deployment
 
+# Parse command line arguments
+AUTO_YES=false
+for arg in "$@"; do
+  case $arg in
+    -y|--yes)
+      AUTO_YES=true
+      shift
+      ;;
+  esac
+done
+
 set -e
 
 echo "🚀 UK Tax Advisor - DigitalOcean Setup Script"
 echo "=============================================="
 echo ""
+if [ "$AUTO_YES" = true ]; then
+  echo "🤖 Running in auto-yes mode (will overwrite files without prompting)"
+  echo ""
+fi
 
 # Check if running as root
 if [ "$EUID" -ne 0 ]; then
@@ -84,19 +99,24 @@ cd app/deployment
 
 echo "⚙️  Step 8: Setting up environment variables..."
 if [ ! -f .env ]; then
-    cp .env.template .env
-    echo ""
-    echo "⚠️  IMPORTANT: Edit the .env file with your actual credentials:"
-    echo "   nano .env"
-    echo ""
-    echo "You need to set:"
-    echo "  - POSTGRES_PASSWORD (secure random password)"
-    echo "  - AI_INTEGRATIONS_OPENAI_API_KEY"
-    echo "  - GROQ_API_KEY"
-    echo "  - DOMAIN_NAME (your domain)"
-    echo "  - EMAIL (for SSL certificates)"
-    echo ""
-    read -p "Press Enter when you've edited the .env file..."
+    if [ "$AUTO_YES" = true ]; then
+        cp -f .env.template .env
+        echo "✅ Created .env file from template (you'll need to edit it with your credentials)"
+    else
+        cp .env.template .env
+        echo ""
+        echo "⚠️  IMPORTANT: Edit the .env file with your actual credentials:"
+        echo "   nano .env"
+        echo ""
+        echo "You need to set:"
+        echo "  - POSTGRES_PASSWORD (secure random password)"
+        echo "  - AI_INTEGRATIONS_OPENAI_API_KEY"
+        echo "  - GROQ_API_KEY"
+        echo "  - DOMAIN_NAME (your domain)"
+        echo "  - EMAIL (for SSL certificates)"
+        echo ""
+        read -p "Press Enter when you've edited the .env file..."
+    fi
 fi
 
 echo "🔐 Step 9: Getting SSL certificate information..."
@@ -108,8 +128,13 @@ docker compose build
 
 echo "🚀 Step 11: Starting nginx temporarily (without SSL)..."
 # Backup the SSL config and use initial config first
-cp nginx/nginx.conf nginx/nginx-ssl.conf.bak
-cp nginx/nginx-initial.conf nginx/nginx.conf
+if [ "$AUTO_YES" = true ]; then
+    cp -f nginx/nginx.conf nginx/nginx-ssl.conf.bak
+    cp -f nginx/nginx-initial.conf nginx/nginx.conf
+else
+    cp nginx/nginx.conf nginx/nginx-ssl.conf.bak
+    cp nginx/nginx-initial.conf nginx/nginx.conf
+fi
 docker compose up -d nginx
 
 # Wait for nginx to be ready
@@ -126,7 +151,11 @@ docker compose run --rm certbot certonly --webroot \
 
 echo "🔧 Step 13: Configuring nginx with SSL..."
 # Restore the SSL config and update domain name
-cp nginx/nginx-ssl.conf.bak nginx/nginx.conf
+if [ "$AUTO_YES" = true ]; then
+    cp -f nginx/nginx-ssl.conf.bak nginx/nginx.conf
+else
+    cp nginx/nginx-ssl.conf.bak nginx/nginx.conf
+fi
 sed -i "s/DOMAIN_NAME/$DOMAIN/g" nginx/nginx.conf
 
 echo "🔄 Step 14: Restarting nginx with SSL enabled..."

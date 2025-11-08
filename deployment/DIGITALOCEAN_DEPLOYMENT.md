@@ -93,10 +93,17 @@ ssh root@YOUR_DROPLET_IP
 
 ### Step 2: Run Setup Script
 
+**Interactive Mode (default):**
 ```bash
 # Download and run the setup script
 curl -fsSL https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/deployment/scripts/setup.sh -o setup.sh
 sudo bash setup.sh
+```
+
+**Auto-Yes Mode (automatically overwrites files without prompting):**
+```bash
+# Use -y flag to skip file overwrite prompts
+curl -fsSL https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/deployment/scripts/setup.sh | sudo bash -s -- -y
 ```
 
 **What this script does:**
@@ -110,7 +117,10 @@ sudo bash setup.sh
 8. ✅ Requests SSL certificates
 9. ✅ Builds and starts all services
 
-**Important:** The setup script is designed for initial deployment on a fresh droplet. If you need to re-run SSL certificate setup, use the certbot renewal workflow instead of re-running the entire script.
+**Note:** 
+- Use `-y` or `--yes` flag for automatic file overwrites (useful for re-runs)
+- The setup script is designed for initial deployment on a fresh droplet
+- If you need to re-run SSL certificate setup, use the certbot renewal workflow instead of re-running the entire script
 
 ### Step 3: Follow the Prompts
 
