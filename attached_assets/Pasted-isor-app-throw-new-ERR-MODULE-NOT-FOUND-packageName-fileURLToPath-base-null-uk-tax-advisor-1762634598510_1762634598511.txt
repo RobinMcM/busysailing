@@ -1,0 +1,100 @@
+isor-app  |   throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);
+uk-tax-advisor-app  |         ^
+uk-tax-advisor-app  | 
+uk-tax-advisor-app  | Error [ERR_MODULE_NOT_FOUND]: Cannot find package 'vite' imported from /app/dist/index.js
+uk-tax-advisor-app  |     at packageResolve (node:internal/modules/esm/resolve:873:9)
+uk-tax-advisor-app  |     at moduleResolve (node:internal/modules/esm/resolve:946:18)
+uk-tax-advisor-app  |     at defaultResolve (node:internal/modules/esm/resolve:1188:11)
+uk-tax-advisor-app  |     at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:708:12)
+uk-tax-advisor-app  |     at #cachedDefaultResolve (node:internal/modules/esm/loader:657:25)
+uk-tax-advisor-app  |     at ModuleLoader.resolve (node:internal/modules/esm/loader:640:38)
+uk-tax-advisor-app  |     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:264:38)
+uk-tax-advisor-app  |     at ModuleJob._link (node:internal/modules/esm/module_job:168:49) {
+uk-tax-advisor-app  |   code: 'ERR_MODULE_NOT_FOUND'
+uk-tax-advisor-app  | }
+uk-tax-advisor-app  | 
+uk-tax-advisor-app  | Node.js v20.19.5
+uk-tax-advisor-app  | 
+uk-tax-advisor-app  | > rest-express@1.0.0 start
+uk-tax-advisor-app  | > NODE_ENV=production node dist/index.js
+uk-tax-advisor-app  | 
+uk-tax-advisor-app  | node:internal/modules/esm/resolve:873
+uk-tax-advisor-app  |   throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);
+uk-tax-advisor-app  |         ^
+uk-tax-advisor-app  | 
+uk-tax-advisor-app  | Error [ERR_MODULE_NOT_FOUND]: Cannot find package 'vite' imported from /app/dist/index.js
+uk-tax-advisor-app  |     at packageResolve (node:internal/modules/esm/resolve:873:9)
+uk-tax-advisor-app  |     at moduleResolve (node:internal/modules/esm/resolve:946:18)
+uk-tax-advisor-app  |     at defaultResolve (node:internal/modules/esm/resolve:1188:11)
+uk-tax-advisor-app  |     at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:708:12)
+uk-tax-advisor-app  |     at #cachedDefaultResolve (node:internal/modules/esm/loader:657:25)
+uk-tax-advisor-app  |     at ModuleLoader.resolve (node:internal/modules/esm/loader:640:38)
+uk-tax-advisor-app  |     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:264:38)
+uk-tax-advisor-app  |     at ModuleJob._link (node:internal/modules/esm/module_job:168:49) {
+uk-tax-advisor-app  |   code: 'ERR_MODULE_NOT_FOUND'
+uk-tax-advisor-app  | }
+uk-tax-advisor-app  | 
+uk-tax-advisor-app  | Node.js v20.19.5
+uk-tax-advisor-app  | 
+uk-tax-advisor-app  | > rest-express@1.0.0 start
+uk-tax-advisor-app  | > NODE_ENV=production node dist/index.js
+uk-tax-advisor-app  | 
+uk-tax-advisor-app  | node:internal/modules/esm/resolve:873
+uk-tax-advisor-app  |   throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);
+uk-tax-advisor-app  |         ^
+uk-tax-advisor-app  | 
+uk-tax-advisor-app  | Error [ERR_MODULE_NOT_FOUND]: Cannot find package 'vite' imported from /app/dist/index.js
+uk-tax-advisor-app  |     at packageResolve (node:internal/modules/esm/resolve:873:9)
+uk-tax-advisor-app  |     at moduleResolve (node:internal/modules/esm/resolve:946:18)
+uk-tax-advisor-app  |     at defaultResolve (node:internal/modules/esm/resolve:1188:11)
+uk-tax-advisor-app  |     at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:708:12)
+uk-tax-advisor-app  |     at #cachedDefaultResolve (node:internal/modules/esm/loader:657:25)
+uk-tax-advisor-app  |     at ModuleLoader.resolve (node:internal/modules/esm/loader:640:38)
+uk-tax-advisor-app  |     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:264:38)
+uk-tax-advisor-app  |     at ModuleJob._link (node:internal/modules/esm/module_job:168:49) {
+uk-tax-advisor-app  |   code: 'ERR_MODULE_NOT_FOUND'
+uk-tax-advisor-app  | }
+uk-tax-advisor-app  | 
+uk-tax-advisor-app  | Node.js v20.19.5
+uk-tax-advisor-app  | 
+uk-tax-advisor-app  | > rest-express@1.0.0 start
+uk-tax-advisor-app  | > NODE_ENV=production node dist/index.js
+uk-tax-advisor-app  | 
+uk-tax-advisor-app  | node:internal/modules/esm/resolve:873
+uk-tax-advisor-app  |   throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);
+uk-tax-advisor-app  |         ^
+uk-tax-advisor-app  | 
+uk-tax-advisor-app  | Error [ERR_MODULE_NOT_FOUND]: Cannot find package 'vite' imported from /app/dist/index.js
+uk-tax-advisor-app  |     at packageResolve (node:internal/modules/esm/resolve:873:9)
+uk-tax-advisor-app  |     at moduleResolve (node:internal/modules/esm/resolve:946:18)
+uk-tax-advisor-app  |     at defaultResolve (node:internal/modules/esm/resolve:1188:11)
+uk-tax-advisor-app  |     at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:708:12)
+uk-tax-advisor-app  |     at #cachedDefaultResolve (node:internal/modules/esm/loader:657:25)
+uk-tax-advisor-app  |     at ModuleLoader.resolve (node:internal/modules/esm/loader:640:38)
+uk-tax-advisor-app  |     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:264:38)
+uk-tax-advisor-app  |     at ModuleJob._link (node:internal/modules/esm/module_job:168:49) {
+uk-tax-advisor-app  |   code: 'ERR_MODULE_NOT_FOUND'
+uk-tax-advisor-app  | }
+uk-tax-advisor-app  | 
+uk-tax-advisor-app  | Node.js v20.19.5
+uk-tax-advisor-app  | 
+uk-tax-advisor-app  | > rest-express@1.0.0 start
+uk-tax-advisor-app  | > NODE_ENV=production node dist/index.js
+uk-tax-advisor-app  | 
+uk-tax-advisor-app  | node:internal/modules/esm/resolve:873
+uk-tax-advisor-app  |   throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);
+uk-tax-advisor-app  |         ^
+uk-tax-advisor-app  | 
+uk-tax-advisor-app  | Error [ERR_MODULE_NOT_FOUND]: Cannot find package 'vite' imported from /app/dist/index.js
+uk-tax-advisor-app  |     at packageResolve (node:internal/modules/esm/resolve:873:9)
+uk-tax-advisor-app  |     at moduleResolve (node:internal/modules/esm/resolve:946:18)
+uk-tax-advisor-app  |     at defaultResolve (node:internal/modules/esm/resolve:1188:11)
+uk-tax-advisor-app  |     at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:708:12)
+uk-tax-advisor-app  |     at #cachedDefaultResolve (node:internal/modules/esm/loader:657:25)
+uk-tax-advisor-app  |     at ModuleLoader.resolve (node:internal/modules/esm/loader:640:38)
+uk-tax-advisor-app  |     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:264:38)
+uk-tax-advisor-app  |     at ModuleJob._link (node:internal/modules/esm/module_job:168:49) {
+uk-tax-advisor-app  |   code: 'ERR_MODULE_NOT_FOUND'
+uk-tax-advisor-app  | }
+uk-tax-advisor-app  | 
+uk-tax-advisor-app  | Node.js v20.19.5
