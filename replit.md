@@ -17,7 +17,7 @@ The application features a React/TypeScript frontend with Shadcn UI and Tailwind
 - **Frontend**: React with TypeScript, Wouter for routing, TanStack Query for state management, Shadcn UI, Tailwind CSS.
 - **Backend**: Express.js, PostgreSQL database (Neon/Drizzle ORM), rate limiting (20 req/min/IP).
 - **AI Integration**: Primary: Groq API (Llama 3.3 70B Versatile); Fallback: OpenAI GPT-4o or Replit AI Integrations. System prompt tailored for UK tax law.
-- **Wav2Lip Integration**: Flask API service with OpenVINO-based Wav2Lip inference. Models converted to OpenVINO IR format. Supports FPS-synchronized audio processing and promise-based sequential execution. Graceful fallback to Web Speech API.
+- **Wav2Lip Integration**: Flask API service with OpenVINO-based Wav2Lip inference. Models converted to OpenVINO IR format (113MB, hosted on HuggingFace: RobinMcM/wav2lip-openvino-models). Models are baked into Docker image during build. Supports FPS-synchronized audio processing and promise-based sequential execution. Graceful fallback to Web Speech API.
 - **User Interface**: Mobile-phone-styled chat history, dual independent avatars with visual dimming, auto-scroll, timestamps, and professional UK financial services-themed styling.
 - **Voice Features**: Speech-to-text (Web Speech API), dual text-to-speech with paragraph-based voice alternation (Consultant/Partner voices), mute/unmute, and stop speaking controls.
 - **Security**: Password gate (MKS2005) for chat access; backend-verified admin authentication for analytics dashboard.
@@ -39,6 +39,34 @@ The application features a React/TypeScript frontend with Shadcn UI and Tailwind
 - **Replit AI Integrations**: As a fallback for both chat and TTS.
 - **Web Speech API**: For client-side Speech-to-Text and as a fallback for Text-to-Speech/Wav2Lip.
 - **OpenVINO**: Used in the Wav2Lip Flask service for optimized, CPU-based model inference.
+
+## Deployment Configuration
+
+### Wav2Lip Service (Render.com)
+The Wav2Lip Flask service is deployed as a separate web service on Render with the following configuration:
+
+**Critical Configuration:**
+- **Start Command**: `python app.py` (NOT `./start.sh`)
+  - The OpenVINO models are pre-built into the Docker image during build time
+  - Using `start.sh` or `download_models.py` at runtime will DELETE the pre-built models and attempt to re-download them, causing service failure
+  - The Dockerfile verifies all 4 model files during build (Step 6 validation)
+
+**Docker Build Process:**
+1. Downloads pre-converted OpenVINO models from HuggingFace (RobinMcM/wav2lip-openvino-models)
+2. Extracts 4 model files into `/app/models/` (face_detection.bin/xml, wav2lip.bin/xml)
+3. Verifies all files are present and correct size (~113MB total)
+4. Bakes models into the final Docker image
+
+**Render Service Settings:**
+- Service Type: Web Service
+- Docker Context: `server/wav2lip_service`
+- Port: 10000 (auto-assigned by Render via PORT env var)
+- Health Check Endpoint: `/health`
+
+**Troubleshooting:**
+- If `/health` reports `models_available: false`, verify the Render start command is set to `python app.py`
+- Models should show as verified in Docker build logs (Step 6)
+- DO NOT use runtime download scripts - models are already in the image
 
 ## Analytics & Cost Monitoring
 
