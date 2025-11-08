@@ -29,13 +29,44 @@ RUN echo "Downloading Wav2Lip repository for Python modules..." && \
     echo "✅ Wav2Lip repository downloaded"
 
 # Download pre-converted OpenVINO models from Hugging Face
-RUN echo "Downloading pre-converted OpenVINO models from Hugging Face..." && \
+# Split into multiple steps for better debugging and fail-fast behavior
+RUN set -eu && \
+    echo "📦 Step 1: Creating models directory..." && \
     mkdir -p models && \
-    wget -O openvino_models.tar.gz https://huggingface.co/RobinMcM/wav2lip-openvino-models/resolve/main/openvino_models.tar.gz && \
-    tar -xzf openvino_models.tar.gz -C models/ --strip-components=1 && \
+    echo "✅ Models directory created"
+
+RUN set -eu && \
+    echo "⬇️ Step 2: Downloading OpenVINO models from Hugging Face..." && \
+    wget -v -O openvino_models.tar.gz \
+    https://huggingface.co/RobinMcM/wav2lip-openvino-models/resolve/main/openvino_models.tar.gz && \
+    echo "✅ Download complete" && \
+    ls -lh openvino_models.tar.gz && \
+    echo "📊 File size: $(du -h openvino_models.tar.gz | cut -f1)"
+
+RUN set -eu && \
+    echo "📋 Step 3: Inspecting tarball contents..." && \
+    tar -tzf openvino_models.tar.gz | head -20 && \
+    echo "✅ Tarball structure verified"
+
+RUN set -eu && \
+    echo "📂 Step 4: Extracting models..." && \
+    tar -xzvf openvino_models.tar.gz -C models/ --strip-components=1 && \
+    echo "✅ Extraction complete"
+
+RUN set -eu && \
+    echo "🗑️ Step 5: Cleaning up tarball..." && \
     rm openvino_models.tar.gz && \
-    echo "✅ OpenVINO models downloaded and extracted" && \
-    ls -lh models/
+    echo "✅ Tarball removed"
+
+RUN set -eu && \
+    echo "🔍 Step 6: Verifying model files..." && \
+    ls -lh models/ && \
+    echo "Checking for required model files..." && \
+    test -s models/face_detection.bin && echo "✓ face_detection.bin found ($(du -h models/face_detection.bin | cut -f1))" || { echo "❌ face_detection.bin missing or empty"; exit 1; } && \
+    test -s models/face_detection.xml && echo "✓ face_detection.xml found ($(du -h models/face_detection.xml | cut -f1))" || { echo "❌ face_detection.xml missing or empty"; exit 1; } && \
+    test -s models/wav2lip.bin && echo "✓ wav2lip.bin found ($(du -h models/wav2lip.bin | cut -f1))" || { echo "❌ wav2lip.bin missing or empty"; exit 1; } && \
+    test -s models/wav2lip.xml && echo "✓ wav2lip.xml found ($(du -h models/wav2lip.xml | cut -f1))" || { echo "❌ wav2lip.xml missing or empty"; exit 1; } && \
+    echo "✅ All 4 model files verified successfully!"
 
 # Expose port (Render assigns PORT env var)
 EXPOSE 5001
