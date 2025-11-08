@@ -42,31 +42,61 @@ The application features a React/TypeScript frontend with Shadcn UI and Tailwind
 
 ## Deployment Configuration
 
-### Wav2Lip Service (Render.com)
-The Wav2Lip Flask service is deployed as a separate web service on Render with the following configuration:
+### Recommended: DigitalOcean Deployment
+The application can be deployed to a single DigitalOcean droplet (8GB RAM / 4 vCPU / 160GB SSD) running all services via Docker Compose. This is the most cost-effective option at ~$48-63/month for complete hosting.
+
+**Deployment Structure:**
+- **Docker Compose Setup**: All services (Node.js app, Flask Wav2Lip, PostgreSQL, Nginx) run in containers on one server
+- **Nginx Reverse Proxy**: Handles SSL termination, routing, and rate limiting
+- **Let's Encrypt SSL**: Automatic certificate generation and renewal
+- **Service Communication**: Internal Docker network with health checks
+- **Automated Deployment**: Git-based deployment with one-command updates
+
+**Key Features:**
+- ✅ Single-server deployment (no vendor lock-in)
+- ✅ Full resource control and flexibility
+- ✅ Automated SSL certificate management
+- ✅ Database backups and restore scripts
+- ✅ Zero-downtime deployments
+- ✅ Comprehensive logging and monitoring
+- ✅ Cost-effective ($48-63/month vs $100+/month for managed services)
+
+**Deployment Files:**
+- `deployment/docker-compose.yml` - Multi-service orchestration
+- `deployment/nginx/nginx.conf` - Reverse proxy with SSL and rate limiting
+- `deployment/scripts/setup.sh` - One-command server setup
+- `deployment/scripts/deploy.sh` - Git-based deployment updates
+- `deployment/scripts/backup.sh` - Database backup automation
+- `deployment/DIGITALOCEAN_DEPLOYMENT.md` - Complete deployment guide
+
+**Quick Start:**
+1. Create DigitalOcean droplet (Ubuntu 22.04, 8GB RAM)
+2. Run `curl -fsSL https://raw.githubusercontent.com/YOUR_REPO/main/deployment/scripts/setup.sh | sudo bash`
+3. Follow prompts for SSH keys, environment variables, and SSL certificates
+4. Access at your domain with full lip-sync functionality
+
+See `deployment/DIGITALOCEAN_DEPLOYMENT.md` for complete step-by-step instructions.
+
+### Alternative: Render.com Deployment
+The Wav2Lip Flask service can also be deployed as a separate web service on Render (requires Standard tier $25/month minimum for 2GB RAM).
 
 **Critical Configuration:**
 - **Start Command**: `python app.py` (NOT `./start.sh`)
-  - The OpenVINO models are pre-built into the Docker image during build time
-  - Using `start.sh` or `download_models.py` at runtime will DELETE the pre-built models and attempt to re-download them, causing service failure
-  - The Dockerfile verifies all 4 model files during build (Step 6 validation)
-
-**Docker Build Process:**
-1. Downloads pre-converted OpenVINO models from HuggingFace (RobinMcM/wav2lip-openvino-models)
-2. Extracts 4 model files into `/app/models/` (face_detection.bin/xml, wav2lip.bin/xml)
-3. Verifies all files are present and correct size (~113MB total)
-4. Bakes models into the final Docker image
+- **Instance Type**: Standard ($25/mo) or higher - requires 2GB+ RAM for OpenVINO inference
+- **Memory Limit**: Free/Starter tiers (512MB) will cause out-of-memory errors during video generation
+- **Docker Build**: Models are pre-built into image during build time (113MB total)
 
 **Render Service Settings:**
 - Service Type: Web Service
 - Docker Context: `server/wav2lip_service`
+- Dockerfile Path: `server/wav2lip_service/Dockerfile`
 - Port: 10000 (auto-assigned by Render via PORT env var)
 - Health Check Endpoint: `/health`
 
 **Troubleshooting:**
-- If `/health` reports `models_available: false`, verify the Render start command is set to `python app.py`
-- Models should show as verified in Docker build logs (Step 6)
-- DO NOT use runtime download scripts - models are already in the image
+- If service crashes with "Ran out of memory" → Upgrade to Standard tier or higher
+- If `/health` reports `models_available: false` → Check Docker build logs for model extraction
+- Bootstrap code auto-extracts models from tarball if missing at runtime
 
 ## Analytics & Cost Monitoring
 
