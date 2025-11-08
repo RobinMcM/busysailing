@@ -1,0 +1,50 @@
+2025-11-08T14:59:49.300279333Z #17 0.076 -rw-r--r-- 1 1000 1000 213K Nov  6 14:33 wav2lip.xml
+2025-11-08T14:59:49.300286213Z #17 0.076 Checking for required model files...
+2025-11-08T14:59:49.300295283Z #17 0.079 ✓ face_detection.bin found (43M)
+2025-11-08T14:59:49.300301993Z #17 0.082 ✓ face_detection.xml found (148K)
+2025-11-08T14:59:49.300308313Z #17 0.085 ✓ wav2lip.bin found (70M)
+2025-11-08T14:59:49.300314264Z #17 0.088 ✓ wav2lip.xml found (216K)
+2025-11-08T14:59:49.300319954Z #17 0.088 ✅ All 4 model files verified successfully!
+2025-11-08T14:59:49.300326284Z #17 DONE 0.1s
+2025-11-08T14:59:49.507441843Z 
+2025-11-08T14:59:49.507490364Z #18 exporting to docker image format
+2025-11-08T14:59:49.507500704Z #18 exporting layers
+2025-11-08T15:04:35.916490503Z #18 exporting layers 286.6s done
+2025-11-08T15:04:36.103643159Z #18 exporting manifest sha256:6283668f40847fdf116eafbe662c663a924d9568cc603d3be2c602c1d1aba923 done
+2025-11-08T15:04:36.10367566Z #18 exporting config sha256:227f5b797839ca42c2486497e9ebbd0dc1ee44117de002b4010a8fdc903625ef done
+2025-11-08T15:05:44.03853873Z #18 DONE 354.7s
+2025-11-08T15:05:44.038574841Z 
+2025-11-08T15:05:44.038584021Z #19 exporting cache to client directory
+2025-11-08T15:05:44.038589351Z #19 preparing build cache for export
+2025-11-08T15:06:33.559220579Z #19 writing cache image manifest sha256:3c98f080d1f510fcfc4b5e7a0df41ca0471e8859a8fb344b393295b8522a68a5 done
+2025-11-08T15:06:33.5592498Z #19 DONE 49.5s
+2025-11-08T15:06:33.886207066Z Pushing image to registry...
+2025-11-08T15:07:45.939037478Z Upload succeeded
+2025-11-08T15:07:52.560284113Z ==> Deploying...
+2025-11-08T15:09:32.798268079Z ==> No open ports detected, continuing to scan...
+2025-11-08T15:09:33.285092171Z ==> Docs on specifying a port: https://render.com/docs/web-services#port-binding
+2025-11-08T15:09:34.937539624Z <frozen importlib.util>:262: DeprecationWarning: The `openvino.runtime` module is deprecated and will be removed in the 2026.0 release. Please replace `openvino.runtime` with `openvino`.
+2025-11-08T15:09:35.437418456Z ✅ Found Wav2Lip at: /app/Wav2Lip
+2025-11-08T15:09:38.467770133Z /usr/local/lib/python3.11/site-packages/librosa/core/intervals.py:8: DeprecationWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html
+2025-11-08T15:09:38.467786484Z   from pkg_resources import resource_filename
+2025-11-08T15:09:38.842083257Z 🚀 Starting Wav2Lip service - bootstrapping models...
+2025-11-08T15:09:38.842221097Z ✅ All OpenVINO models already present
+2025-11-08T15:09:38.843742141Z 🚀 Starting Wav2Lip service on port 10000...
+2025-11-08T15:09:38.843749981Z 📍 Health check: http://localhost:10000/health
+2025-11-08T15:09:38.843752272Z 📍 Generate API: http://localhost:10000/api/generate (POST)
+2025-11-08T15:09:38.843755722Z 🔧 Debug mode: False
+2025-11-08T15:09:38.844094319Z  * Serving Flask app 'app'
+2025-11-08T15:09:38.84410052Z  * Debug mode: off
+2025-11-08T15:09:38.846173917Z WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+2025-11-08T15:09:38.846183228Z  * Running on all addresses (0.0.0.0)
+2025-11-08T15:09:38.846185738Z  * Running on http://127.0.0.1:10000
+2025-11-08T15:09:38.846187998Z  * Running on http://10.18.25.0:10000
+2025-11-08T15:09:38.846195169Z Press CTRL+C to quit
+2025-11-08T15:09:39.121168693Z 127.0.0.1 - - [08/Nov/2025 15:09:39] "HEAD / HTTP/1.1" 200 -
+2025-11-08T15:09:45.803486936Z ==> Your service is live 🎉
+2025-11-08T15:09:45.973276155Z ==> 
+2025-11-08T15:09:46.733130671Z ==> ///////////////////////////////////////////////////////////
+2025-11-08T15:09:46.90816268Z ==> 
+2025-11-08T15:09:47.079398839Z ==> Available at your primary URL https://wav2lip-service.onrender.com
+2025-11-08T15:09:47.251145789Z ==> 
+2025-11-08T15:09:47.422671758Z ==> ///////////////////////////////////////////////////////////
