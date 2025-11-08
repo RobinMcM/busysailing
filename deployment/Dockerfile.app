@@ -20,15 +20,15 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-# Copy built application from builder
-COPY --from=builder /app/node_modules ./node_modules
+# Install production dependencies only
+COPY package*.json ./
+RUN npm ci --only=production
+
+# Copy built application from builder (dist contains both frontend and backend)
 COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/server ./server
-COPY --from=builder /app/db ./db
-COPY --from=builder /app/package*.json ./
 
 # Expose port
 EXPOSE 3000
 
-# Start application
+# Start application (runs: node dist/index.js)
 CMD ["npm", "run", "start"]
