@@ -1,4 +1,4 @@
-import { type User, type InsertUser, type Analytics, type InsertAnalytics, type AnalyticsSummary } from "@shared/schema";
+import { type User, type InsertUser, type Analytics, type InsertAnalytics, type AnalyticsSummary } from "./schema";
 import { randomUUID } from "crypto";
 
 export interface IStorage {
@@ -11,7 +11,7 @@ export interface IStorage {
 }
 
 import { db } from "./db";
-import { users, analytics } from "@shared/schema";
+import { users, analytics } from "./schema";
 import { eq, and, gte, lte, sql, count, sum } from "drizzle-orm";
 
 export class DatabaseStorage implements IStorage {

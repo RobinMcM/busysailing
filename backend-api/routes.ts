@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { chatRequestSchema } from "@shared/schema";
+import { chatRequestSchema } from "./schema";
 import { generateFinancialResponse, generateTTSAudio } from "./openai";
 import { chatRateLimiter } from "./rateLimiter";
 import { trackChatRequest, trackTTSRequest, estimateTokenCount } from "./analytics";
@@ -40,7 +40,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const outputTokens = estimateTokenCount(response);
       const model = process.env.GROQ_API_KEY ? "llama-3.3-70b-versatile" : "gpt-4o";
       
-      trackChatRequest(clientIp, inputTokens, outputTokens, model, duration).catch(err => {
+      trackChatRequest(clientIp, inputTokens, outputTokens, model, duration).catch((err: any) => {
         console.error('Failed to track chat request:', err);
       });
       
@@ -89,7 +89,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const duration = Date.now() - startTime;
       console.log('[API] TTS audio generated, sending to client');
       
-      trackTTSRequest(clientIp, validatedData.text.length, 'tts-1', duration).catch(err => {
+      trackTTSRequest(clientIp, validatedData.text.length, 'tts-1', duration).catch((err: any) => {
         console.error('Failed to track TTS request:', err);
       });
       
