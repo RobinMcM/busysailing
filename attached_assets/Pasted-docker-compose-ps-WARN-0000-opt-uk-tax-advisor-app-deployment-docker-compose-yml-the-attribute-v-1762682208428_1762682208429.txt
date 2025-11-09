@@ -1,0 +1,110 @@
+docker compose ps
+WARN[0000] /opt/uk-tax-advisor/app/deployment/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion 
+NAME                     IMAGE                COMMAND                  SERVICE   CREATED        STATUS                          PORTS
+uk-tax-advisor-app       deployment-app       "docker-entrypoint.s…"   app       13 hours ago   Up 13 hours                     0.0.0.0:3000->3000/tcp, [::]:3000->3000/tcp
+uk-tax-advisor-certbot   certbot/certbot      "/bin/sh -c 'trap ex…"   certbot   14 hours ago   Up 13 hours                     80/tcp, 443/tcp
+uk-tax-advisor-db        postgres:16-alpine   "docker-entrypoint.s…"   db        14 hours ago   Up 13 hours                     0.0.0.0:5432->5432/tcp, [::]:5432->5432/tcp
+uk-tax-advisor-nginx     nginx:alpine         "/docker-entrypoint.…"   nginx     14 hours ago   Restarting (1) 46 seconds ago   
+uk-tax-advisor-wav2lip   deployment-wav2lip   "/bin/sh -c 'python …"   wav2lip   14 hours ago   Up 13 hours                     0.0.0.0:5001->5001/tcp, [::]:5001->5001/tcp
+root@ubuntu-s-4vcpu-8gb-lon1-01:/opt/uk-tax-advisor/app/deployment# docker compose logs nginx --tail=100
+WARN[0000] /opt/uk-tax-advisor/app/deployment/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion 
+uk-tax-advisor-nginx  | 2025/11/09 09:47:10 [warn] 1#1: the "listen ... http2" directive is deprecated, use the "http2" directive instead in /etc/nginx/nginx.conf:35
+uk-tax-advisor-nginx  | nginx: [warn] the "listen ... http2" directive is deprecated, use the "http2" directive instead in /etc/nginx/nginx.conf:35
+uk-tax-advisor-nginx  | 2025/11/09 09:47:10 [emerg] 1#1: cannot load certificate "/etc/letsencrypt/live/DOMAIN_NAME/fullchain.pem": BIO_new_file() failed (SSL: error:80000002:system library::No such file or directory:calling fopen(/etc/letsencrypt/live/DOMAIN_NAME/fullchain.pem, r) error:10000080:BIO routines::no such file)
+uk-tax-advisor-nginx  | nginx: [emerg] cannot load certificate "/etc/letsencrypt/live/DOMAIN_NAME/fullchain.pem": BIO_new_file() failed (SSL: error:80000002:system library::No such file or directory:calling fopen(/etc/letsencrypt/live/DOMAIN_NAME/fullchain.pem, r) error:10000080:BIO routines::no such file)
+uk-tax-advisor-nginx  | /docker-entrypoint.sh: /docker-entrypoint.d/ is not empty, will attempt to perform configuration
+uk-tax-advisor-nginx  | /docker-entrypoint.sh: Looking for shell scripts in /docker-entrypoint.d/
+uk-tax-advisor-nginx  | /docker-entrypoint.sh: Launching /docker-entrypoint.d/10-listen-on-ipv6-by-default.sh
+uk-tax-advisor-nginx  | 10-listen-on-ipv6-by-default.sh: info: IPv6 listen already enabled
+uk-tax-advisor-nginx  | /docker-entrypoint.sh: Sourcing /docker-entrypoint.d/15-local-resolvers.envsh
+uk-tax-advisor-nginx  | /docker-entrypoint.sh: Launching /docker-entrypoint.d/20-envsubst-on-templates.sh
+uk-tax-advisor-nginx  | /docker-entrypoint.sh: Launching /docker-entrypoint.d/30-tune-worker-processes.sh
+uk-tax-advisor-nginx  | /docker-entrypoint.sh: Configuration complete; ready for start up
+uk-tax-advisor-nginx  | 2025/11/09 09:48:10 [warn] 1#1: the "listen ... http2" directive is deprecated, use the "http2" directive instead in /etc/nginx/nginx.conf:35
+uk-tax-advisor-nginx  | nginx: [warn] the "listen ... http2" directive is deprecated, use the "http2" directive instead in /etc/nginx/nginx.conf:35
+uk-tax-advisor-nginx  | 2025/11/09 09:48:10 [emerg] 1#1: cannot load certificate "/etc/letsencrypt/live/DOMAIN_NAME/fullchain.pem": BIO_new_file() failed (SSL: error:80000002:system library::No such file or directory:calling fopen(/etc/letsencrypt/live/DOMAIN_NAME/fullchain.pem, r) error:10000080:BIO routines::no such file)
+uk-tax-advisor-nginx  | nginx: [emerg] cannot load certificate "/etc/letsencrypt/live/DOMAIN_NAME/fullchain.pem": BIO_new_file() failed (SSL: error:80000002:system library::No such file or directory:calling fopen(/etc/letsencrypt/live/DOMAIN_NAME/fullchain.pem, r) error:10000080:BIO routines::no such file)
+uk-tax-advisor-nginx  | /docker-entrypoint.sh: /docker-entrypoint.d/ is not empty, will attempt to perform configuration
+uk-tax-advisor-nginx  | /docker-entrypoint.sh: Looking for shell scripts in /docker-entrypoint.d/
+uk-tax-advisor-nginx  | /docker-entrypoint.sh: Launching /docker-entrypoint.d/10-listen-on-ipv6-by-default.sh
+uk-tax-advisor-nginx  | 10-listen-on-ipv6-by-default.sh: info: IPv6 listen already enabled
+uk-tax-advisor-nginx  | /docker-entrypoint.sh: Sourcing /docker-entrypoint.d/15-local-resolvers.envsh
+uk-tax-advisor-nginx  | /docker-entrypoint.sh: Launching /docker-entrypoint.d/20-envsubst-on-templates.sh
+uk-tax-advisor-nginx  | /docker-entrypoint.sh: Launching /docker-entrypoint.d/30-tune-worker-processes.sh
+uk-tax-advisor-nginx  | /docker-entrypoint.sh: Configuration complete; ready for start up
+uk-tax-advisor-nginx  | 2025/11/09 09:49:10 [warn] 1#1: the "listen ... http2" directive is deprecated, use the "http2" directive instead in /etc/nginx/nginx.conf:35
+uk-tax-advisor-nginx  | nginx: [warn] the "listen ... http2" directive is deprecated, use the "http2" directive instead in /etc/nginx/nginx.conf:35
+uk-tax-advisor-nginx  | 2025/11/09 09:49:10 [emerg] 1#1: cannot load certificate "/etc/letsencrypt/live/DOMAIN_NAME/fullchain.pem": BIO_new_file() failed (SSL: error:80000002:system library::No such file or directory:calling fopen(/etc/letsencrypt/live/DOMAIN_NAME/fullchain.pem, r) error:10000080:BIO routines::no such file)
+uk-tax-advisor-nginx  | nginx: [emerg] cannot load certificate "/etc/letsencrypt/live/DOMAIN_NAME/fullchain.pem": BIO_new_file() failed (SSL: error:80000002:system library::No such file or directory:calling fopen(/etc/letsencrypt/live/DOMAIN_NAME/fullchain.pem, r) error:10000080:BIO routines::no such file)
+uk-tax-advisor-nginx  | /docker-entrypoint.sh: /docker-entrypoint.d/ is not empty, will attempt to perform configuration
+uk-tax-advisor-nginx  | /docker-entrypoint.sh: Looking for shell scripts in /docker-entrypoint.d/
+uk-tax-advisor-nginx  | /docker-entrypoint.sh: Launching /docker-entrypoint.d/10-listen-on-ipv6-by-default.sh
+uk-tax-advisor-nginx  | 10-listen-on-ipv6-by-default.sh: info: IPv6 listen already enabled
+uk-tax-advisor-nginx  | /docker-entrypoint.sh: Sourcing /docker-entrypoint.d/15-local-resolvers.envsh
+uk-tax-advisor-nginx  | /docker-entrypoint.sh: Launching /docker-entrypoint.d/20-envsubst-on-templates.sh
+uk-tax-advisor-nginx  | /docker-entrypoint.sh: Launching /docker-entrypoint.d/30-tune-worker-processes.sh
+uk-tax-advisor-nginx  | /docker-entrypoint.sh: Configuration complete; ready for start up
+uk-tax-advisor-nginx  | 2025/11/09 09:50:10 [warn] 1#1: the "listen ... http2" directive is deprecated, use the "http2" directive instead in /etc/nginx/nginx.conf:35
+uk-tax-advisor-nginx  | nginx: [warn] the "listen ... http2" directive is deprecated, use the "http2" directive instead in /etc/nginx/nginx.conf:35
+uk-tax-advisor-nginx  | 2025/11/09 09:50:10 [emerg] 1#1: cannot load certificate "/etc/letsencrypt/live/DOMAIN_NAME/fullchain.pem": BIO_new_file() failed (SSL: error:80000002:system library::No such file or directory:calling fopen(/etc/letsencrypt/live/DOMAIN_NAME/fullchain.pem, r) error:10000080:BIO routines::no such file)
+uk-tax-advisor-nginx  | nginx: [emerg] cannot load certificate "/etc/letsencrypt/live/DOMAIN_NAME/fullchain.pem": BIO_new_file() failed (SSL: error:80000002:system library::No such file or directory:calling fopen(/etc/letsencrypt/live/DOMAIN_NAME/fullchain.pem, r) error:10000080:BIO routines::no such file)
+uk-tax-advisor-nginx  | /docker-entrypoint.sh: /docker-entrypoint.d/ is not empty, will attempt to perform configuration
+uk-tax-advisor-nginx  | /docker-entrypoint.sh: Looking for shell scripts in /docker-entrypoint.d/
+uk-tax-advisor-nginx  | /docker-entrypoint.sh: Launching /docker-entrypoint.d/10-listen-on-ipv6-by-default.sh
+uk-tax-advisor-nginx  | 10-listen-on-ipv6-by-default.sh: info: IPv6 listen already enabled
+uk-tax-advisor-nginx  | /docker-entrypoint.sh: Sourcing /docker-entrypoint.d/15-local-resolvers.envsh
+uk-tax-advisor-nginx  | /docker-entrypoint.sh: Launching /docker-entrypoint.d/20-envsubst-on-templates.sh
+uk-tax-advisor-nginx  | /docker-entrypoint.sh: Launching /docker-entrypoint.d/30-tune-worker-processes.sh
+uk-tax-advisor-nginx  | /docker-entrypoint.sh: Configuration complete; ready for start up
+uk-tax-advisor-nginx  | 2025/11/09 09:51:11 [warn] 1#1: the "listen ... http2" directive is deprecated, use the "http2" directive instead in /etc/nginx/nginx.conf:35
+uk-tax-advisor-nginx  | nginx: [warn] the "listen ... http2" directive is deprecated, use the "http2" directive instead in /etc/nginx/nginx.conf:35
+uk-tax-advisor-nginx  | 2025/11/09 09:51:11 [emerg] 1#1: cannot load certificate "/etc/letsencrypt/live/DOMAIN_NAME/fullchain.pem": BIO_new_file() failed (SSL: error:80000002:system library::No such file or directory:calling fopen(/etc/letsencrypt/live/DOMAIN_NAME/fullchain.pem, r) error:10000080:BIO routines::no such file)
+uk-tax-advisor-nginx  | nginx: [emerg] cannot load certificate "/etc/letsencrypt/live/DOMAIN_NAME/fullchain.pem": BIO_new_file() failed (SSL: error:80000002:system library::No such file or directory:calling fopen(/etc/letsencrypt/live/DOMAIN_NAME/fullchain.pem, r) error:10000080:BIO routines::no such file)
+uk-tax-advisor-nginx  | /docker-entrypoint.sh: /docker-entrypoint.d/ is not empty, will attempt to perform configuration
+uk-tax-advisor-nginx  | /docker-entrypoint.sh: Looking for shell scripts in /docker-entrypoint.d/
+uk-tax-advisor-nginx  | /docker-entrypoint.sh: Launching /docker-entrypoint.d/10-listen-on-ipv6-by-default.sh
+uk-tax-advisor-nginx  | 10-listen-on-ipv6-by-default.sh: info: IPv6 listen already enabled
+uk-tax-advisor-nginx  | /docker-entrypoint.sh: Sourcing /docker-entrypoint.d/15-local-resolvers.envsh
+uk-tax-advisor-nginx  | /docker-entrypoint.sh: Launching /docker-entrypoint.d/20-envsubst-on-templates.sh
+uk-tax-advisor-nginx  | /docker-entrypoint.sh: Launching /docker-entrypoint.d/30-tune-worker-processes.sh
+uk-tax-advisor-nginx  | /docker-entrypoint.sh: Configuration complete; ready for start up
+uk-tax-advisor-nginx  | 2025/11/09 09:52:11 [warn] 1#1: the "listen ... http2" directive is deprecated, use the "http2" directive instead in /etc/nginx/nginx.conf:35
+uk-tax-advisor-nginx  | nginx: [warn] the "listen ... http2" directive is deprecated, use the "http2" directive instead in /etc/nginx/nginx.conf:35
+uk-tax-advisor-nginx  | 2025/11/09 09:52:11 [emerg] 1#1: cannot load certificate "/etc/letsencrypt/live/DOMAIN_NAME/fullchain.pem": BIO_new_file() failed (SSL: error:80000002:system library::No such file or directory:calling fopen(/etc/letsencrypt/live/DOMAIN_NAME/fullchain.pem, r) error:10000080:BIO routines::no such file)
+uk-tax-advisor-nginx  | nginx: [emerg] cannot load certificate "/etc/letsencrypt/live/DOMAIN_NAME/fullchain.pem": BIO_new_file() failed (SSL: error:80000002:system library::No such file or directory:calling fopen(/etc/letsencrypt/live/DOMAIN_NAME/fullchain.pem, r) error:10000080:BIO routines::no such file)
+uk-tax-advisor-nginx  | /docker-entrypoint.sh: /docker-entrypoint.d/ is not empty, will attempt to perform configuration
+uk-tax-advisor-nginx  | /docker-entrypoint.sh: Looking for shell scripts in /docker-entrypoint.d/
+uk-tax-advisor-nginx  | /docker-entrypoint.sh: Launching /docker-entrypoint.d/10-listen-on-ipv6-by-default.sh
+uk-tax-advisor-nginx  | 10-listen-on-ipv6-by-default.sh: info: IPv6 listen already enabled
+uk-tax-advisor-nginx  | /docker-entrypoint.sh: Sourcing /docker-entrypoint.d/15-local-resolvers.envsh
+uk-tax-advisor-nginx  | /docker-entrypoint.sh: Launching /docker-entrypoint.d/20-envsubst-on-templates.sh
+uk-tax-advisor-nginx  | /docker-entrypoint.sh: Launching /docker-entrypoint.d/30-tune-worker-processes.sh
+uk-tax-advisor-nginx  | /docker-entrypoint.sh: Configuration complete; ready for start up
+uk-tax-advisor-nginx  | 2025/11/09 09:53:11 [warn] 1#1: the "listen ... http2" directive is deprecated, use the "http2" directive instead in /etc/nginx/nginx.conf:35
+uk-tax-advisor-nginx  | nginx: [warn] the "listen ... http2" directive is deprecated, use the "http2" directive instead in /etc/nginx/nginx.conf:35
+uk-tax-advisor-nginx  | 2025/11/09 09:53:11 [emerg] 1#1: cannot load certificate "/etc/letsencrypt/live/DOMAIN_NAME/fullchain.pem": BIO_new_file() failed (SSL: error:80000002:system library::No such file or directory:calling fopen(/etc/letsencrypt/live/DOMAIN_NAME/fullchain.pem, r) error:10000080:BIO routines::no such file)
+uk-tax-advisor-nginx  | nginx: [emerg] cannot load certificate "/etc/letsencrypt/live/DOMAIN_NAME/fullchain.pem": BIO_new_file() failed (SSL: error:80000002:system library::No such file or directory:calling fopen(/etc/letsencrypt/live/DOMAIN_NAME/fullchain.pem, r) error:10000080:BIO routines::no such file)
+uk-tax-advisor-nginx  | /docker-entrypoint.sh: /docker-entrypoint.d/ is not empty, will attempt to perform configuration
+uk-tax-advisor-nginx  | /docker-entrypoint.sh: Looking for shell scripts in /docker-entrypoint.d/
+uk-tax-advisor-nginx  | /docker-entrypoint.sh: Launching /docker-entrypoint.d/10-listen-on-ipv6-by-default.sh
+uk-tax-advisor-nginx  | 10-listen-on-ipv6-by-default.sh: info: IPv6 listen already enabled
+uk-tax-advisor-nginx  | /docker-entrypoint.sh: Sourcing /docker-entrypoint.d/15-local-resolvers.envsh
+uk-tax-advisor-nginx  | /docker-entrypoint.sh: Launching /docker-entrypoint.d/20-envsubst-on-templates.sh
+uk-tax-advisor-nginx  | /docker-entrypoint.sh: Launching /docker-entrypoint.d/30-tune-worker-processes.sh
+uk-tax-advisor-nginx  | /docker-entrypoint.sh: Configuration complete; ready for start up
+uk-tax-advisor-nginx  | 2025/11/09 09:54:12 [warn] 1#1: the "listen ... http2" directive is deprecated, use the "http2" directive instead in /etc/nginx/nginx.conf:35
+uk-tax-advisor-nginx  | nginx: [warn] the "listen ... http2" directive is deprecated, use the "http2" directive instead in /etc/nginx/nginx.conf:35
+uk-tax-advisor-nginx  | 2025/11/09 09:54:12 [emerg] 1#1: cannot load certificate "/etc/letsencrypt/live/DOMAIN_NAME/fullchain.pem": BIO_new_file() failed (SSL: error:80000002:system library::No such file or directory:calling fopen(/etc/letsencrypt/live/DOMAIN_NAME/fullchain.pem, r) error:10000080:BIO routines::no such file)
+uk-tax-advisor-nginx  | nginx: [emerg] cannot load certificate "/etc/letsencrypt/live/DOMAIN_NAME/fullchain.pem": BIO_new_file() failed (SSL: error:80000002:system library::No such file or directory:calling fopen(/etc/letsencrypt/live/DOMAIN_NAME/fullchain.pem, r) error:10000080:BIO routines::no such file)
+uk-tax-advisor-nginx  | /docker-entrypoint.sh: /docker-entrypoint.d/ is not empty, will attempt to perform configuration
+uk-tax-advisor-nginx  | /docker-entrypoint.sh: Looking for shell scripts in /docker-entrypoint.d/
+uk-tax-advisor-nginx  | /docker-entrypoint.sh: Launching /docker-entrypoint.d/10-listen-on-ipv6-by-default.sh
+uk-tax-advisor-nginx  | 10-listen-on-ipv6-by-default.sh: info: IPv6 listen already enabled
+uk-tax-advisor-nginx  | /docker-entrypoint.sh: Sourcing /docker-entrypoint.d/15-local-resolvers.envsh
+uk-tax-advisor-nginx  | /docker-entrypoint.sh: Launching /docker-entrypoint.d/20-envsubst-on-templates.sh
+uk-tax-advisor-nginx  | /docker-entrypoint.sh: Launching /docker-entrypoint.d/30-tune-worker-processes.sh
+uk-tax-advisor-nginx  | /docker-entrypoint.sh: Configuration complete; ready for start up
+uk-tax-advisor-nginx  | 2025/11/09 09:55:12 [warn] 1#1: the "listen ... http2" directive is deprecated, use the "http2" directive instead in /etc/nginx/nginx.conf:35
+uk-tax-advisor-nginx  | nginx: [warn] the "listen ... http2" directive is deprecated, use the "http2" directive instead in /etc/nginx/nginx.conf:35
+uk-tax-advisor-nginx  | 2025/11/09 09:55:12 [emerg] 1#1: cannot load certificate "/etc/letsencrypt/live/DOMAIN_NAME/fullchain.pem": BIO_new_file() failed (SSL: error:80000002:system library::No such file or directory:calling fopen(/etc/letsencrypt/live/DOMAIN_NAME/fullchain.pem, r) error:10000080:BIO routines::no such file)
+uk-tax-advisor-nginx  | nginx: [emerg] cannot load certificate "/etc/letsencrypt/live/DOMAIN_NAME/fullchain.pem": BIO_new_file() failed (SSL: error:80000002:system library::No such file or directory:calling fopen(/etc/letsencrypt/live/DOMAIN_NAME/fullchain.pem, r) error:10000080:BIO routines::no such file)
