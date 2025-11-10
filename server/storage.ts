@@ -1,4 +1,5 @@
-// Simple in-memory storage - no database required
+import { supabase } from './supabase';
+
 export interface Analytics {
   id: string;
   timestamp: Date;
@@ -25,31 +26,102 @@ export interface AnalyticsSummary {
   totalCharacters: number;
 }
 
-class SimpleStorage {
-  private analytics: Analytics[] = [];
-  private nextId = 1;
-
+class SupabaseStorage {
   async createAnalyticsRecord(record: Omit<Analytics, 'id' | 'timestamp'>): Promise<Analytics> {
-    const analyticsRecord: Analytics = {
-      id: (this.nextId++).toString(),
-      timestamp: new Date(),
-      ...record
-    };
-    this.analytics.push(analyticsRecord);
-    return analyticsRecord;
+    if (!supabase) {
+      console.warn('[Storage] Supabase not available, analytics will not be persisted');
+      return {
+        id: crypto.randomUUID(),
+        timestamp: new Date(),
+        ...record
+      };
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from('analytics')
+        .insert([{
+          type: record.type,
+          ip_address: record.ipAddress,
+          input_tokens: record.inputTokens,
+          output_tokens: record.outputTokens,
+          character_count: record.characters,
+          model: record.model,
+          duration_ms: record.duration,
+          cost: parseFloat(record.cost)
+        }])
+        .select()
+        .single();
+
+      if (error) {
+        console.error('[Storage] Error creating analytics record:', error);
+        throw error;
+      }
+
+      return {
+        id: data.id,
+        timestamp: new Date(data.timestamp),
+        type: data.type,
+        ipAddress: data.ip_address,
+        inputTokens: data.input_tokens,
+        outputTokens: data.output_tokens,
+        characters: data.character_count,
+        model: data.model,
+        cost: data.cost.toString(),
+        duration: data.duration_ms
+      };
+    } catch (error) {
+      console.error('[Storage] Failed to create analytics record:', error);
+      return {
+        id: crypto.randomUUID(),
+        timestamp: new Date(),
+        ...record
+      };
+    }
   }
 
   async getAllAnalytics(startDate?: Date, endDate?: Date): Promise<Analytics[]> {
-    let filtered = this.analytics;
-    
-    if (startDate) {
-      filtered = filtered.filter(r => r.timestamp >= startDate);
+    if (!supabase) {
+      console.warn('[Storage] Supabase not available');
+      return [];
     }
-    if (endDate) {
-      filtered = filtered.filter(r => r.timestamp <= endDate);
+
+    try {
+      let query = supabase
+        .from('analytics')
+        .select('*')
+        .order('timestamp', { ascending: false });
+
+      if (startDate) {
+        query = query.gte('timestamp', startDate.toISOString());
+      }
+      if (endDate) {
+        query = query.lte('timestamp', endDate.toISOString());
+      }
+
+      const { data, error } = await query.limit(1000);
+
+      if (error) {
+        console.error('[Storage] Error fetching analytics:', error);
+        return [];
+      }
+
+      return (data || []).map(row => ({
+        id: row.id,
+        timestamp: new Date(row.timestamp),
+        type: row.type,
+        ipAddress: row.ip_address,
+        inputTokens: row.input_tokens,
+        outputTokens: row.output_tokens,
+        characters: row.character_count,
+        model: row.model,
+        cost: row.cost.toString(),
+        duration: row.duration_ms
+      }));
+    } catch (error) {
+      console.error('[Storage] Failed to fetch analytics:', error);
+      return [];
     }
-    
-    return filtered;
   }
 
   async getAnalyticsSummary(startDate: Date, endDate: Date): Promise<AnalyticsSummary> {
@@ -89,4 +161,4 @@ class SimpleStorage {
   }
 }
 
-export const storage = new SimpleStorage();
+export const storage = new SupabaseStorage();
