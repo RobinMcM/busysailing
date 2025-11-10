@@ -102,30 +102,58 @@ git clone "$REPO_URL" app
 cd app/deployment
 
 echo "⚙️  Step 8: Setting up environment variables..."
-if [ ! -f .env ]; then
-    if [ "$AUTO_YES" = true ]; then
-        cp -f .env.template .env
-        echo "✅ Created .env file from template (you'll need to edit it with your credentials)"
-    else
-        cp .env.template .env
-        echo ""
-        echo "⚠️  IMPORTANT: Edit the .env file with your actual credentials:"
-        echo "   nano .env"
-        echo ""
-        echo "You need to set:"
-        echo "  - POSTGRES_PASSWORD (secure random password)"
-        echo "  - AI_INTEGRATIONS_OPENAI_API_KEY"
-        echo "  - GROQ_API_KEY"
-        echo "  - DOMAIN_NAME (your domain)"
-        echo "  - EMAIL (for SSL certificates)"
-        echo ""
-        read -p "Press Enter when you've edited the .env file..."
-    fi
+echo ""
+echo "I'll ask you for your credentials now. Press Enter to skip optional values."
+echo ""
+
+# Domain and Email (required for SSL)
+read -p "Enter your domain name (e.g., busysailing.com): " DOMAIN
+read -p "Enter your email for SSL notifications: " EMAIL
+
+# Database password
+read -p "Enter a secure database password (or press Enter for auto-generated): " DB_PASSWORD
+if [ -z "$DB_PASSWORD" ]; then
+    DB_PASSWORD=$(openssl rand -base64 32)
+    echo "Generated database password: $DB_PASSWORD"
 fi
 
-echo "🔐 Step 9: Getting SSL certificate information..."
-read -p "Enter your domain name: " DOMAIN
-read -p "Enter your email for SSL notifications: " EMAIL
+# Supabase (optional)
+read -p "Enter Supabase URL (or press Enter to skip): " SUPABASE_URL
+if [ ! -z "$SUPABASE_URL" ]; then
+    read -p "Enter Supabase Service Key: " SUPABASE_KEY
+else
+    SUPABASE_KEY=""
+fi
+
+# AI API Keys (at least one required)
+read -p "Enter Groq API Key (recommended, or press Enter to skip): " GROQ_KEY
+read -p "Enter OpenAI API Key (or press Enter to skip): " OPENAI_KEY
+
+# Create .env file from template
+cp .env.template .env
+
+# Populate .env file with provided values
+sed -i "s|DOMAIN_NAME=.*|DOMAIN_NAME=$DOMAIN|" .env
+sed -i "s|EMAIL=.*|EMAIL=$EMAIL|" .env
+sed -i "s|POSTGRES_PASSWORD=.*|POSTGRES_PASSWORD=$DB_PASSWORD|" .env
+sed -i "s|DATABASE_URL=.*|DATABASE_URL=postgresql://postgres:$DB_PASSWORD@db:5432/uk_tax_advisor|" .env
+
+if [ ! -z "$SUPABASE_URL" ]; then
+    sed -i "s|SUPABASE_URL=.*|SUPABASE_URL=$SUPABASE_URL|" .env
+    sed -i "s|SUPABASE_SERVICE_KEY=.*|SUPABASE_SERVICE_KEY=$SUPABASE_KEY|" .env
+fi
+
+if [ ! -z "$GROQ_KEY" ]; then
+    sed -i "s|GROQ_API_KEY=.*|GROQ_API_KEY=$GROQ_KEY|" .env
+fi
+
+if [ ! -z "$OPENAI_KEY" ]; then
+    sed -i "s|OPENAI_API_KEY=.*|OPENAI_API_KEY=$OPENAI_KEY|" .env
+fi
+
+echo ""
+echo "✅ Environment file created successfully!"
+echo ""
 
 echo "🏗️  Step 10: Building services..."
 docker compose build
