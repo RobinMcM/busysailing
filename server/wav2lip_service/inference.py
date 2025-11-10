@@ -43,8 +43,13 @@ class Wav2LipInference:
             self.output_layer = self.compiled_model.output(0)
             
             logger.info(f"Model loaded successfully on CPU")
-            logger.info(f"Input shape: {self.input_layer.shape}")
-            logger.info(f"Output shape: {self.output_layer.shape}")
+            
+            # Try to log shapes, but skip if dynamic
+            try:
+                logger.info(f"Input shape: {self.input_layer.shape}")
+                logger.info(f"Output shape: {self.output_layer.shape}")
+            except ValueError:
+                logger.info("Model has dynamic input/output shapes")
             
             self.models_loaded = True
             

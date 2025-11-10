@@ -1,0 +1,34 @@
+docker compose logs wav2lip
+WARN[0000] /opt/uk-tax-advisor/app/deployment/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion 
+uk-tax-advisor-wav2lip  | INFO:__main__:Initializing Wav2Lip inference engine...
+uk-tax-advisor-wav2lip  | INFO:inference:Loading Wav2Lip model from /app/models/wav2lip.xml
+uk-tax-advisor-wav2lip  | INFO:inference:Model loaded successfully on CPU
+uk-tax-advisor-wav2lip  | ERROR:inference:Failed to load models: get_shape was called on a descriptor::Tensor with dynamic shape
+uk-tax-advisor-wav2lip  | Traceback (most recent call last):
+uk-tax-advisor-wav2lip  |   File "/app/inference.py", line 46, in _load_models
+uk-tax-advisor-wav2lip  |     logger.info(f"Input shape: {self.input_layer.shape}")
+uk-tax-advisor-wav2lip  | ValueError: get_shape was called on a descriptor::Tensor with dynamic shape
+uk-tax-advisor-wav2lip  | INFO:__main__:Wav2Lip engine initialized successfully
+uk-tax-advisor-wav2lip  |  * Serving Flask app 'app'
+uk-tax-advisor-wav2lip  |  * Debug mode: off
+uk-tax-advisor-wav2lip  | INFO:werkzeug:WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+uk-tax-advisor-wav2lip  |  * Running on all addresses (0.0.0.0)
+uk-tax-advisor-wav2lip  |  * Running on http://127.0.0.1:5001
+uk-tax-advisor-wav2lip  |  * Running on http://172.19.0.2:5001
+uk-tax-advisor-wav2lip  | INFO:werkzeug:Press CTRL+C to quit
+uk-tax-advisor-wav2lip  | INFO:werkzeug:127.0.0.1 - - [10/Nov/2025 21:50:17] "GET /health HTTP/1.1" 503 -
+uk-tax-advisor-wav2lip  | INFO:werkzeug:127.0.0.1 - - [10/Nov/2025 21:50:22] "GET /health HTTP/1.1" 503 -
+uk-tax-advisor-wav2lip  | INFO:werkzeug:127.0.0.1 - - [10/Nov/2025 21:50:28] "GET /health HTTP/1.1" 503 -
+uk-tax-advisor-wav2lip  | INFO:werkzeug:127.0.0.1 - - [10/Nov/2025 21:50:33] "GET /health HTTP/1.1" 503 -
+uk-tax-advisor-wav2lip  | INFO:werkzeug:127.0.0.1 - - [10/Nov/2025 21:50:38] "GET /health HTTP/1.1" 503 -
+uk-tax-advisor-wav2lip  | INFO:werkzeug:127.0.0.1 - - [10/Nov/2025 21:50:43] "GET /health HTTP/1.1" 503 -
+uk-tax-advisor-wav2lip  | INFO:werkzeug:127.0.0.1 - - [10/Nov/2025 21:50:49] "GET /health HTTP/1.1" 503 -
+uk-tax-advisor-wav2lip  | INFO:werkzeug:127.0.0.1 - - [10/Nov/2025 21:50:54] "GET /health HTTP/1.1" 503 -
+uk-tax-advisor-wav2lip  | INFO:werkzeug:127.0.0.1 - - [10/Nov/2025 21:50:59] "GET /health HTTP/1.1" 503 -
+uk-tax-advisor-wav2lip  | INFO:werkzeug:127.0.0.1 - - [10/Nov/2025 21:51:04] "GET /health HTTP/1.1" 503 -
+uk-tax-advisor-wav2lip  | INFO:werkzeug:127.0.0.1 - - [10/Nov/2025 21:51:09] "GET /health HTTP/1.1" 503 -
+uk-tax-advisor-wav2lip  | INFO:werkzeug:127.0.0.1 - - [10/Nov/2025 21:51:15] "GET /health HTTP/1.1" 503 -
+uk-tax-advisor-wav2lip  | INFO:werkzeug:127.0.0.1 - - [10/Nov/2025 21:51:45] "GET /health HTTP/1.1" 503 -
+uk-tax-advisor-wav2lip  | INFO:werkzeug:127.0.0.1 - - [10/Nov/2025 21:52:15] "GET /health HTTP/1.1" 503 -
+uk-tax-advisor-wav2lip  | INFO:werkzeug:127.0.0.1 - - [10/Nov/2025 21:52:45] "GET /health HTTP/1.1" 503 -
+root@ubuntu-s-2vcpu-8gb-amd-lon1-01:/opt/uk-tax-advisor/app/deployment# 
