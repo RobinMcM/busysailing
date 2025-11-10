@@ -30,7 +30,8 @@ RUN npm ci --omit=dev && \
 COPY --from=builder /app/server ./server
 
 # Copy built frontend from builder to server/public (where serveStatic expects it)
-COPY --from=builder /app/dist ./server/public
+# Note: vite.config.ts builds to dist/public/, so we copy from there
+COPY --from=builder /app/dist/public ./server/public
 
 # Copy shared types
 COPY --from=builder /app/shared ./shared
