@@ -25,15 +25,23 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY app.py .
 COPY inference.py .
 
-# Create models directory
-RUN mkdir -p /app/models
+# Download and extract Wav2Lip OpenVINO models from HuggingFace (tarball method)
+RUN echo "📦 Downloading pre-converted OpenVINO models from HuggingFace..." && \
+    mkdir -p models && \
+    wget -O openvino_models.tar.gz https://huggingface.co/RobinMcM/wav2lip-openvino-models/resolve/main/openvino_models.tar.gz && \
+    tar -xzf openvino_models.tar.gz -C models/ --strip-components=1 && \
+    rm openvino_models.tar.gz && \
+    echo "✅ OpenVINO models downloaded and extracted" && \
+    ls -lh models/
 
-# Download Wav2Lip OpenVINO models from HuggingFace
-RUN echo "Downloading Wav2Lip models from HuggingFace..." && \
-    wget -q https://huggingface.co/RobinMcM/wav2lip-openvino-models/resolve/main/wav2lip.xml -O /app/models/wav2lip.xml && \
-    wget -q https://huggingface.co/RobinMcM/wav2lip-openvino-models/resolve/main/wav2lip.bin -O /app/models/wav2lip.bin && \
-    echo "Models downloaded successfully" && \
-    ls -lh /app/models/
+# Verify all required model files are present
+RUN set -eu && \
+    echo "🔍 Verifying model files..." && \
+    test -s models/face_detection.bin && echo "✓ face_detection.bin found ($(du -h models/face_detection.bin | cut -f1))" || { echo "❌ face_detection.bin missing"; exit 1; } && \
+    test -s models/face_detection.xml && echo "✓ face_detection.xml found ($(du -h models/face_detection.xml | cut -f1))" || { echo "❌ face_detection.xml missing"; exit 1; } && \
+    test -s models/wav2lip.bin && echo "✓ wav2lip.bin found ($(du -h models/wav2lip.bin | cut -f1))" || { echo "❌ wav2lip.bin missing"; exit 1; } && \
+    test -s models/wav2lip.xml && echo "✓ wav2lip.xml found ($(du -h models/wav2lip.xml | cut -f1))" || { echo "❌ wav2lip.xml missing"; exit 1; } && \
+    echo "✅ All 4 model files verified successfully!"
 
 # Expose port (will be overridden by PORT env var)
 EXPOSE 5001
