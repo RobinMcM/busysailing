@@ -35,6 +35,13 @@ COPY --from=builder /app/server ./server
 # Copy shared types
 COPY --from=builder /app/shared ./shared
 
+# Copy essential config files needed by server/vite.ts and runtime
+COPY --from=builder /app/vite.config.ts ./vite.config.ts
+COPY --from=builder /app/tsconfig.json ./tsconfig.json
+COPY --from=builder /app/postcss.config.js ./postcss.config.js
+COPY --from=builder /app/tailwind.config.ts ./tailwind.config.ts
+COPY --from=builder /app/components.json ./components.json
+
 # Set production environment
 ENV NODE_ENV=production
 ENV PORT=5000
