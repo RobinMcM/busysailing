@@ -141,6 +141,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
+      // Handle TTS not available gracefully - let frontend fall back to Web Speech API
+      if (error.message === 'TTS_NOT_AVAILABLE') {
+        return res.status(503).json({ 
+          error: 'TTS service not configured',
+          message: 'OpenAI TTS is unavailable. Please use Web Speech API fallback.',
+          ttsAvailable: false,
+          success: false 
+        });
+      }
+
       res.status(500).json({ 
         error: error.message || 'Failed to generate audio',
         success: false 

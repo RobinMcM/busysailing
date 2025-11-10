@@ -1,6 +1,7 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import { initializeSupabaseTables } from "./supabase";
 
 const app = express();
 
@@ -49,6 +50,9 @@ app.use((req, res, next) => {
 });
 
 (async () => {
+  // Initialize Supabase tables
+  await initializeSupabaseTables();
+  
   const server = await registerRoutes(app);
 
   // Error handling middleware

@@ -11,7 +11,7 @@ export const supabase = supabaseUrl && supabaseKey
   ? createClient(supabaseUrl, supabaseKey)
   : null;
 
-// Initialize database tables
+// Check if analytics table exists
 export async function initializeSupabaseTables() {
   if (!supabase) {
     console.log('[Supabase] Skipping table initialization - no client available');
@@ -19,41 +19,26 @@ export async function initializeSupabaseTables() {
   }
 
   try {
-    console.log('[Supabase] Checking analytics table...');
+    console.log('[Supabase] Checking if analytics table exists...');
 
-    // Create analytics table if it doesn't exist
-    const { error } = await supabase.rpc('create_analytics_table', {});
+    // Try to query the table to check if it exists
+    const { error } = await supabase
+      .from('analytics')
+      .select('id')
+      .limit(1);
 
-    if (error && !error.message.includes('already exists')) {
-      console.error('[Supabase] Error creating table:', error);
-      
-      // Try direct SQL approach
-      console.log('[Supabase] Attempting direct table creation...');
-      const createTableSQL = `
-        CREATE TABLE IF NOT EXISTS analytics (
-          id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-          timestamp TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-          type TEXT NOT NULL CHECK (type IN ('chat', 'tts')),
-          ip_address TEXT NOT NULL,
-          input_tokens INTEGER DEFAULT 0,
-          output_tokens INTEGER DEFAULT 0,
-          character_count INTEGER DEFAULT 0,
-          model TEXT,
-          duration_ms INTEGER NOT NULL,
-          cost DECIMAL(10, 6) NOT NULL DEFAULT 0,
-          created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-        );
-        
-        CREATE INDEX IF NOT EXISTS idx_analytics_timestamp ON analytics(timestamp);
-        CREATE INDEX IF NOT EXISTS idx_analytics_type ON analytics(type);
-        CREATE INDEX IF NOT EXISTS idx_analytics_ip ON analytics(ip_address);
-      `;
-
-      // Execute via query (not available in supabase-js, so we'll skip for now)
-      console.log('[Supabase] Table creation SQL prepared (manual setup may be required)');
+    if (error) {
+      if (error.code === 'PGRST116' || error.message.includes('does not exist')) {
+        console.warn('[Supabase] ⚠️  Analytics table does not exist!');
+        console.warn('[Supabase] Please run the SQL from deployment/supabase-schema.sql in your Supabase SQL Editor');
+        console.warn('[Supabase] Visit: https://supabase.com/dashboard/project/_/sql');
+        return false;
+      }
+      console.error('[Supabase] Error checking table:', error);
+      return false;
     }
 
-    console.log('[Supabase] Database initialized successfully');
+    console.log('[Supabase] ✓ Analytics table exists and is accessible');
     return true;
   } catch (error: any) {
     console.error('[Supabase] Initialization error:', error);

@@ -46,32 +46,22 @@ function getOpenAIClient(): OpenAI {
   return chatClient;
 }
 
-// TTS client - ONLY uses OpenAI (Groq doesn't support TTS)
-function getTTSClient(): OpenAI {
+// TTS client - ONLY uses standard OpenAI API (Groq and Replit AI Integrations don't support TTS)
+function getTTSClient(): OpenAI | null {
   if (!ttsClient) {
-    // TTS requires OpenAI API (Groq doesn't support audio/speech endpoint)
-    // Priority: OPENAI_API_KEY > Replit AI Integrations
+    // TTS requires standard OpenAI API only
+    // Neither Groq nor Replit AI Integrations support the /audio/speech endpoint
     const useStandardOpenAI = process.env.OPENAI_API_KEY;
-    const useReplitIntegration = process.env.AI_INTEGRATIONS_OPENAI_BASE_URL && process.env.AI_INTEGRATIONS_OPENAI_API_KEY;
     
-    if (!useStandardOpenAI && !useReplitIntegration) {
-      throw new Error(
-        'OpenAI TTS is not configured. Please set either OPENAI_API_KEY or AI_INTEGRATIONS_OPENAI_BASE_URL and AI_INTEGRATIONS_OPENAI_API_KEY in your environment variables. Note: Groq does not support TTS, so OPENAI_API_KEY is required for voice generation.'
-      );
+    if (!useStandardOpenAI) {
+      console.warn('OpenAI TTS is not configured. OPENAI_API_KEY is required for voice generation. Returning null - TTS will fall back to Web Speech API.');
+      return null;
     }
     
-    if (useStandardOpenAI) {
-      console.log('Using standard OpenAI API for TTS');
-      ttsClient = new OpenAI({
-        apiKey: process.env.OPENAI_API_KEY
-      });
-    } else {
-      console.log('Using Replit AI Integrations for TTS');
-      ttsClient = new OpenAI({
-        baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
-        apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY
-      });
-    }
+    console.log('Using standard OpenAI API for TTS');
+    ttsClient = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY
+    });
   }
   
   return ttsClient;
@@ -153,6 +143,11 @@ export async function generateTTSAudio(
   try {
     const openai = getTTSClient();
     
+    // If OpenAI TTS is not available, throw a specific error for frontend to handle
+    if (!openai) {
+      throw new Error('TTS_NOT_AVAILABLE');
+    }
+    
     const response = await openai.audio.speech.create({
       model: "tts-1",
       voice: voice,
@@ -166,7 +161,8 @@ export async function generateTTSAudio(
   } catch (error: any) {
     console.error('OpenAI TTS API Error:', error);
     
-    if (error.message && error.message.includes('not configured')) {
+    // Pass through TTS_NOT_AVAILABLE error for frontend to handle gracefully
+    if (error.message === 'TTS_NOT_AVAILABLE') {
       throw error;
     }
     
