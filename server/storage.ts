@@ -20,7 +20,9 @@ export interface AnalyticsSummary {
   chatCost: number;
   ttsCost: number;
   uniqueUsers: number;
-  avgResponseTime: number;
+  averageResponseTime: number;
+  totalTokens: number;
+  totalCharacters: number;
 }
 
 class SimpleStorage {
@@ -65,6 +67,13 @@ class SimpleStorage {
       ? records.reduce((sum, r) => sum + r.duration, 0) / records.length 
       : 0;
     
+    const totalTokens = records.reduce((sum, r) => 
+      sum + (r.inputTokens || 0) + (r.outputTokens || 0), 0
+    );
+    const totalCharacters = records.reduce((sum, r) => 
+      sum + (r.characters || 0), 0
+    );
+    
     return {
       totalRequests: records.length,
       chatRequests: chatRecords.length,
@@ -73,7 +82,9 @@ class SimpleStorage {
       chatCost,
       ttsCost,
       uniqueUsers: uniqueIPs.size,
-      avgResponseTime: avgDuration
+      averageResponseTime: avgDuration,
+      totalTokens,
+      totalCharacters
     };
   }
 }

@@ -283,7 +283,10 @@ export default function Admin() {
                     • TTS requests: {summary.ttsRequests} (${summary.ttsCost.toFixed(4)})
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    • Total tokens processed: {summary.totalTokens.toLocaleString()}
+                    • Total tokens processed: {(summary.totalTokens || 0).toLocaleString()}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    • Total characters: {(summary.totalCharacters || 0).toLocaleString()}
                   </p>
                 </div>
               </CardContent>
