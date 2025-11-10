@@ -1,4 +1,4 @@
-import { storage } from "./storage-simple";
+import { storage } from "./storage";
 
 export const PRICING = {
   GROQ_LLAMA_3_3_70B: {

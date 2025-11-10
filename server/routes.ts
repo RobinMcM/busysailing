@@ -1,9 +1,9 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import { storage } from "./storage-simple";
+import { storage } from "./storage";
 import { generateFinancialResponse, generateTTSAudio } from "./openai";
 import { chatRateLimiter } from "./rateLimiter";
-import { trackChatRequest, trackTTSRequest, estimateTokenCount } from "./analytics-simple";
+import { trackChatRequest, trackTTSRequest, estimateTokenCount } from "./analytics";
 import { z } from "zod";
 
 const chatRequestSchema = z.object({
