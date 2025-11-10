@@ -1,0 +1,52 @@
+WARN[0000] /opt/uk-tax-advisor/app/deployment/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion 
+uk-tax-advisor-app  | /app/server/vite.ts:74
+uk-tax-advisor-app  |     throw new Error(
+uk-tax-advisor-app  |           ^
+uk-tax-advisor-app  | 
+uk-tax-advisor-app  | 
+uk-tax-advisor-app  | Error: Could not find the build directory: /app/server/public, make sure to build the client first
+uk-tax-advisor-app  |     at serveStatic (/app/server/vite.ts:74:11)
+uk-tax-advisor-app  |     at <anonymous> (/app/server/index.ts:71:5)
+uk-tax-advisor-app  |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+uk-tax-advisor-app  | 
+uk-tax-advisor-app  | Node.js v20.19.5
+uk-tax-advisor-app  | [Supabase] Checking if analytics table exists...
+uk-tax-advisor-app  | [Supabase] ✓ Analytics table exists and is accessible
+uk-tax-advisor-app  | /app/server/vite.ts:74
+uk-tax-advisor-app  |     throw new Error(
+uk-tax-advisor-app  |           ^
+uk-tax-advisor-app  | 
+uk-tax-advisor-app  | 
+uk-tax-advisor-app  | Error: Could not find the build directory: /app/server/public, make sure to build the client first
+uk-tax-advisor-app  |     at serveStatic (/app/server/vite.ts:74:11)
+uk-tax-advisor-app  |     at <anonymous> (/app/server/index.ts:71:5)
+uk-tax-advisor-app  |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+uk-tax-advisor-app  | 
+uk-tax-advisor-app  | Node.js v20.19.5
+uk-tax-advisor-app  | [Supabase] Checking if analytics table exists...
+uk-tax-advisor-app  | [Supabase] ✓ Analytics table exists and is accessible
+uk-tax-advisor-app  | /app/server/vite.ts:74
+uk-tax-advisor-app  |     throw new Error(
+uk-tax-advisor-app  |           ^
+uk-tax-advisor-app  | 
+uk-tax-advisor-app  | 
+uk-tax-advisor-app  | Error: Could not find the build directory: /app/server/public, make sure to build the client first
+uk-tax-advisor-app  |     at serveStatic (/app/server/vite.ts:74:11)
+uk-tax-advisor-app  |     at <anonymous> (/app/server/index.ts:71:5)
+uk-tax-advisor-app  |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+uk-tax-advisor-app  | 
+uk-tax-advisor-app  | Node.js v20.19.5
+uk-tax-advisor-app  | [Supabase] Checking if analytics table exists...
+uk-tax-advisor-app  | [Supabase] ✓ Analytics table exists and is accessible
+uk-tax-advisor-app  | /app/server/vite.ts:74
+uk-tax-advisor-app  |     throw new Error(
+uk-tax-advisor-app  |           ^
+uk-tax-advisor-app  | 
+uk-tax-advisor-app  | 
+uk-tax-advisor-app  | Error: Could not find the build directory: /app/server/public, make sure to build the client first
+uk-tax-advisor-app  |     at serveStatic (/app/server/vite.ts:74:11)
+uk-tax-advisor-app  |     at <anonymous> (/app/server/index.ts:71:5)
+uk-tax-advisor-app  |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+uk-tax-advisor-app  | 
+uk-tax-advisor-app  | Node.js v20.19.5
+root@ubuntu-s-2vcpu-8gb-amd-lon1-01:/opt/uk-tax-advisor/app/deployment# 

@@ -26,11 +26,11 @@ RUN npm ci --omit=dev && \
     # tsx is needed to run TypeScript server in production
     npm install tsx
 
-# Copy built frontend from builder
-COPY --from=builder /app/dist ./dist
-
-# Copy backend server code (TypeScript files)
+# Copy backend server code (TypeScript files) FIRST
 COPY --from=builder /app/server ./server
+
+# Copy built frontend from builder to server/public (where serveStatic expects it)
+COPY --from=builder /app/dist ./server/public
 
 # Copy shared types
 COPY --from=builder /app/shared ./shared
