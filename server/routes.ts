@@ -187,6 +187,80 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Wav2Lip proxy endpoint
+  app.post("/api/wav2lip/generate", async (req, res) => {
+    console.log('[API] Received Wav2Lip video generation request');
+    try {
+      // Get Wav2Lip service URL from environment or default to local Docker service
+      const WAV2LIP_SERVICE_URL = process.env.WAV2LIP_SERVICE_URL || 'http://localhost:5001';
+      
+      // Forward request to Flask service
+      const response = await fetch(`${WAV2LIP_SERVICE_URL}/api/generate`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(req.body),
+        signal: AbortSignal.timeout(120000) // 2 minute timeout for video generation
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+        console.error('[API] Wav2Lip service error:', errorData);
+        return res.status(response.status).json({
+          error: errorData.error || 'Wav2Lip service error',
+          details: errorData.details,
+          success: false
+        });
+      }
+
+      const data = await response.json();
+      console.log('[API] Wav2Lip video generated successfully');
+      res.json({
+        ...data,
+        success: true
+      });
+
+    } catch (error: any) {
+      console.error('[API] Wav2Lip proxy error:', error);
+      
+      if (error.name === 'AbortError') {
+        return res.status(504).json({
+          error: 'Video generation timeout',
+          details: 'Request exceeded 2 minute limit',
+          success: false
+        });
+      }
+
+      res.status(500).json({
+        error: 'Failed to generate video',
+        details: error.message,
+        success: false
+      });
+    }
+  });
+
+  // Wav2Lip health check proxy
+  app.get("/api/wav2lip/health", async (req, res) => {
+    try {
+      const WAV2LIP_SERVICE_URL = process.env.WAV2LIP_SERVICE_URL || 'http://localhost:5001';
+      
+      const response = await fetch(`${WAV2LIP_SERVICE_URL}/health`, {
+        signal: AbortSignal.timeout(5000)
+      });
+
+      const data = await response.json();
+      res.status(response.status).json(data);
+
+    } catch (error: any) {
+      res.status(503).json({
+        status: 'unavailable',
+        models_available: false,
+        error: error.message
+      });
+    }
+  });
+
   // Analytics endpoint
   app.get("/api/analytics", async (req, res) => {
     console.log('[API] Received analytics request');
