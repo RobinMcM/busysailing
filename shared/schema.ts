@@ -82,3 +82,22 @@ export const insertAnalyticsSchema = createInsertSchema(analytics).omit({
 
 export type InsertAnalytics = z.infer<typeof insertAnalyticsSchema>;
 export type Analytics = typeof analytics.$inferSelect;
+
+export const videoCache = pgTable("video_cache", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  audioHash: varchar("audio_hash", { length: 64 }).notNull(),
+  avatarType: varchar("avatar_type", { length: 20 }).notNull(),
+  videoUrl: text("video_url").notNull(),
+  cost: decimal("cost", { precision: 10, scale: 6 }).notNull(),
+  duration: integer("duration").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  expiresAt: timestamp("expires_at").notNull(),
+});
+
+export const insertVideoCacheSchema = createInsertSchema(videoCache).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertVideoCache = z.infer<typeof insertVideoCacheSchema>;
+export type VideoCache = typeof videoCache.$inferSelect;
