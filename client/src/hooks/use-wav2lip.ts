@@ -108,10 +108,8 @@ export function useWav2Lip() {
 
       console.log('[Wav2Lip] Video generated successfully');
       
-      // Step 5: Convert base64 video to data URL
-      const videoDataUrl = `data:video/webm;base64,${result.video}`;
-      
-      return videoDataUrl;
+      // Step 5: Return video data URL (already includes data:video/mp4;base64, prefix from server)
+      return result.video;
 
     } catch (err: any) {
       console.error('[Wav2Lip] Error:', err);
