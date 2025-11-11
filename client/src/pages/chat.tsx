@@ -520,9 +520,12 @@ export default function Chat() {
                 </div>
 
                 {/* Secondary Partner Avatar - Always rendered, visibility controlled by opacity */}
-                <div className={`flex flex-col items-center gap-2 transition-all duration-500 ${
-                  isSecondAvatarEnabled ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'
-                }`}>
+                <div 
+                  className={`flex flex-col items-center gap-2 transition-all duration-500 ${
+                    isSecondAvatarEnabled ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'
+                  }`}
+                  data-testid="avatar-support-container"
+                >
                   <div 
                     className={`w-64 h-64 rounded-lg overflow-hidden transition-opacity duration-300 ${
                       isParagraphSpeaking && activeAvatar === 'primary' ? 'opacity-50' : 'opacity-100'
