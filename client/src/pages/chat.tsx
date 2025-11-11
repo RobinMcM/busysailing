@@ -7,12 +7,10 @@ import MessageInput from '@/components/MessageInput';
 import ExamplePrompts from '@/components/ExamplePrompts';
 import TypingIndicator from '@/components/TypingIndicator';
 import { AvatarWelcome } from '@/components/AvatarWelcome';
+import Avatar3D from '@/components/Avatar3D';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
 import { useTTS } from '@/hooks/use-tts';
-import { useWav2Lip } from '@/hooks/use-wav2lip';
-import femaleAdvisorImage from '@assets/generated_images/Older_European_female_advisor_portrait_b60fd6fc.png';
-import defaultAvatarImage from '@assets/generated_images/Video_call_tax_advisor_3ce91073.png';
 
 interface Message {
   id: string;
@@ -30,13 +28,7 @@ export default function Chat() {
   const [isParagraphSpeaking, setIsParagraphSpeaking] = useState(false);
   const [passwordInput, setPasswordInput] = useState('');
   const [isUnlocked, setIsUnlocked] = useState(false);
-  const [primaryVideoSrc, setPrimaryVideoSrc] = useState<string | null>(null);
-  const [supportVideoSrc, setSupportVideoSrc] = useState<string | null>(null);
   const paragraphCancelledRef = useRef(false);
-  const isLipSyncRunningRef = useRef(false);
-  const lipSyncCompletionPromiseRef = useRef<Promise<void> | null>(null);
-  const lipSyncCompletionResolveRef = useRef<((value: void) => void) | null>(null);
-  const videoEndedResolveRef = useRef<((value: void) => void) | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   
@@ -46,205 +38,11 @@ export default function Chat() {
   const primaryTTS = useTTS();
   const supportTTS = useTTS();
   
-  // Wav2Lip hook for lip-synced video generation
-  const wav2lip = useWav2Lip();
-  
   // Track which avatar is currently speaking
   const isSpeaking = primaryTTS.isSpeaking || supportTTS.isSpeaking || isParagraphSpeaking;
   const isSupported = primaryTTS.isSupported;
 
-  // Callback when avatar video ends
-  const handleVideoEnded = () => {
-    console.log('[LipSync] Video ended callback');
-    if (videoEndedResolveRef.current) {
-      videoEndedResolveRef.current();
-      videoEndedResolveRef.current = null;
-    }
-  };
-
-  // Function to speak response with lip-synced video using Wav2Lip
-  const speakResponseWithLipSync = async (text: string) => {
-    // Guard against concurrent executions
-    if (isLipSyncRunningRef.current && lipSyncCompletionPromiseRef.current) {
-      console.log('[LipSync] Already running, cancelling previous and waiting for completion');
-      paragraphCancelledRef.current = true;
-      
-      // Resolve any pending video promise to unblock previous run
-      if (videoEndedResolveRef.current) {
-        videoEndedResolveRef.current();
-        videoEndedResolveRef.current = null;
-      }
-      
-      // Wait for previous run to fully complete (NO TIMEOUT - must wait)
-      console.log('[LipSync] Waiting for previous run to complete cleanup...');
-      await lipSyncCompletionPromiseRef.current;
-      console.log('[LipSync] Previous run completed, starting new run');
-    }
-    
-    // Create completion promise for this run
-    lipSyncCompletionPromiseRef.current = new Promise<void>((resolve) => {
-      lipSyncCompletionResolveRef.current = resolve;
-    });
-    
-    // Mark as running
-    isLipSyncRunningRef.current = true;
-    paragraphCancelledRef.current = false;
-    
-    // Use try/finally to guarantee cleanup and promise resolution on ALL exit paths
-    try {
-      // Split by double line breaks to get paragraphs
-      const paragraphs = text
-        .split(/\n\n+/)
-        .map(p => p.trim())
-        .filter(p => p.length > 0);
-      
-      console.log(`[LipSync] Split response into ${paragraphs.length} paragraphs`);
-      
-      if (paragraphs.length === 0) {
-        console.warn('[LipSync] No paragraphs found in response');
-        return;
-      }
-      
-      setIsParagraphSpeaking(true);
-    
-      // Process each paragraph sequentially
-      for (let i = 0; i < paragraphs.length; i++) {
-        // Check if cancelled (at start of loop)
-        if (paragraphCancelledRef.current) {
-          console.log('[LipSync] Cancelled at loop start');
-          // Resolve any pending promise before breaking
-          if (videoEndedResolveRef.current) {
-            videoEndedResolveRef.current();
-            videoEndedResolveRef.current = null;
-          }
-          break;
-        }
-        
-        const paragraph = paragraphs[i];
-        const usePrimary = i % 2 === 0; // Even indices use primary, odd use support
-        const avatarImage = usePrimary ? defaultAvatarImage : femaleAdvisorImage;
-        const voice = usePrimary ? 'nova' : 'shimmer'; // Different voices for each avatar
-        
-        console.log(`[LipSync] Processing paragraph ${i + 1}/${paragraphs.length} with ${usePrimary ? 'Primary' : 'Support'} avatar`);
-        
-        // Update active avatar
-        setActiveAvatar(usePrimary ? 'primary' : 'support');
-        
-        try {
-          // Generate lip-synced video
-          const videoDataUrl = await wav2lip.generateLipSyncVideo({
-            text: paragraph,
-            avatarImage: avatarImage,
-            options: { voice, speed: 1.0 }
-          });
-          
-          // Check if cancelled after async operation
-          if (paragraphCancelledRef.current) {
-            console.log('[LipSync] Cancelled after video generation');
-            // Resolve any pending promise before breaking
-            if (videoEndedResolveRef.current) {
-              videoEndedResolveRef.current();
-              videoEndedResolveRef.current = null;
-            }
-            break;
-          }
-          
-          if (!videoDataUrl) {
-            console.error('[LipSync] Failed to generate video, falling back to Web Speech API');
-            // Fallback to Web Speech API
-            speakResponseInParagraphs(text);
-            return;
-          }
-          
-          // Create promise to wait for video end
-          const videoEndPromise = new Promise<void>((resolve) => {
-            videoEndedResolveRef.current = resolve;
-            
-            // Fallback timeout in case onVideoEnded doesn't fire
-            const words = paragraph.split(/\s+/).length;
-            const estimatedDuration = (words / 2.5) * 1000 + 1000;
-            setTimeout(() => {
-              console.log('[LipSync] Timeout fallback triggered');
-              if (videoEndedResolveRef.current === resolve) {
-                resolve();
-                videoEndedResolveRef.current = null;
-              }
-            }, estimatedDuration);
-          });
-          
-          // Set video source for the appropriate avatar
-          if (usePrimary) {
-            setPrimaryVideoSrc(videoDataUrl);
-          } else {
-            setSupportVideoSrc(videoDataUrl);
-          }
-          
-          // Wait for video to finish playing (using actual video event)
-          console.log(`[LipSync] Waiting for video end event`);
-          await videoEndPromise;
-          
-          // Check if cancelled after video playback
-          if (paragraphCancelledRef.current) {
-            console.log('[LipSync] Cancelled after video playback');
-            // Resolve any pending promise before breaking
-            if (videoEndedResolveRef.current) {
-              videoEndedResolveRef.current();
-              videoEndedResolveRef.current = null;
-            }
-            break;
-          }
-          
-          // Clear video source
-          if (usePrimary) {
-            setPrimaryVideoSrc(null);
-          } else {
-            setSupportVideoSrc(null);
-          }
-          
-          // Small pause between paragraphs
-          await new Promise(resolve => setTimeout(resolve, 400));
-          
-          // Final cancellation check before next paragraph
-          if (paragraphCancelledRef.current) {
-            console.log('[LipSync] Cancelled before next paragraph');
-            // Resolve any pending promise before breaking
-            if (videoEndedResolveRef.current) {
-              videoEndedResolveRef.current();
-              videoEndedResolveRef.current = null;
-            }
-            break;
-          }
-          
-        } catch (error) {
-          console.error('[LipSync] Error:', error);
-          toast({
-            title: "Video generation failed",
-            description: "Falling back to voice-only mode",
-            variant: "default",
-          });
-          // Fallback to Web Speech API
-          speakResponseInParagraphs(text);
-          return;
-        }
-      }
-    } finally {
-      // Cleanup - ALWAYS runs on ALL exit paths
-      setIsParagraphSpeaking(false);
-      setPrimaryVideoSrc(null);
-      setSupportVideoSrc(null);
-      videoEndedResolveRef.current = null;
-      
-      // Mark as complete and resolve completion promise
-      isLipSyncRunningRef.current = false;
-      if (lipSyncCompletionResolveRef.current) {
-        lipSyncCompletionResolveRef.current();
-        lipSyncCompletionResolveRef.current = null;
-      }
-      lipSyncCompletionPromiseRef.current = null;
-    }
-  };
-
-  // Function to speak response by alternating advisors per paragraph (fallback)
+  // Function to speak response by alternating advisors per paragraph
   const speakResponseInParagraphs = (text: string) => {
     // Reset cancellation flag
     paragraphCancelledRef.current = false;
@@ -398,10 +196,10 @@ export default function Chat() {
         const shouldUseSupportAvatar = secondAvatarShouldBeActive && aiCount % 2 === 0;
         setActiveAvatar(shouldUseSupportAvatar ? 'support' : 'primary');
         
-        // Auto-play TTS for AI responses if not muted - use lip-sync video
+        // Auto-play TTS for AI responses if not muted
         if (!isMuted && isSupported) {
           setTimeout(() => {
-            speakResponseWithLipSync(data.message);
+            speakResponseInParagraphs(data.message);
           }, 100);
         }
         
@@ -445,27 +243,14 @@ export default function Chat() {
     // Set cancellation flag to prevent paragraph chaining
     paragraphCancelledRef.current = true;
     
-    // Resolve any pending video promises to unblock awaiting coroutines
-    if (videoEndedResolveRef.current) {
-      console.log('[LipSync] Resolving pending video promise due to stop');
-      videoEndedResolveRef.current();
-      videoEndedResolveRef.current = null;
-    }
-    
+    // Stop Web Speech API
     primaryTTS.stop();
     supportTTS.stop();
     window.speechSynthesis.cancel();
+    
+    // Clear speaking states
     setIsParagraphSpeaking(false);
-    
-    // Clear video sources
-    setPrimaryVideoSrc(null);
-    setSupportVideoSrc(null);
-    
-    // Reset active avatar
     setActiveAvatar('primary');
-    
-    // DO NOT clear isLipSyncRunningRef here - let cleanup block handle it
-    // This ensures the coroutine completes its cleanup before a new run starts
   };
 
   const handleClearChat = () => {
@@ -713,27 +498,43 @@ export default function Chat() {
                 </div>
               </div>
 
-              {/* Avatars - Side by Side */}
-              <div className="flex flex-row gap-4 flex-shrink-0">
-                <AvatarWelcome 
-                  isSpeaking={(primaryTTS.isSpeaking || isParagraphSpeaking) && activeAvatar === 'primary'}
-                  isDimmed={isParagraphSpeaking && activeAvatar === 'support'}
-                  avatarId="primary"
-                  label="Consultant"
-                  avatarImage={defaultAvatarImage}
-                  videoSrc={primaryVideoSrc}
-                  onVideoEnded={handleVideoEnded}
-                />
-                <AvatarWelcome 
-                  isSpeaking={(supportTTS.isSpeaking || isParagraphSpeaking) && activeAvatar === 'support'} 
-                  isDisabled={!isSecondAvatarEnabled && !(isParagraphSpeaking && activeAvatar === 'support')}
-                  isDimmed={isParagraphSpeaking && activeAvatar === 'primary' && isSecondAvatarEnabled}
-                  avatarId="support"
-                  label="Partner"
-                  avatarImage={femaleAdvisorImage}
-                  videoSrc={supportVideoSrc}
-                  onVideoEnded={handleVideoEnded}
-                />
+              {/* 3D Avatars - Side by Side */}
+              <div className="flex flex-row gap-6 flex-shrink-0">
+                {/* Primary Consultant Avatar */}
+                <div className="flex flex-col items-center gap-2">
+                  <div 
+                    className={`w-64 h-64 rounded-lg overflow-hidden transition-opacity duration-300 ${
+                      isParagraphSpeaking && activeAvatar === 'support' ? 'opacity-50' : 'opacity-100'
+                    }`}
+                    data-testid="avatar-primary"
+                  >
+                    <Avatar3D 
+                      isActive={activeAvatar === 'primary'}
+                      isSpeaking={(primaryTTS.isSpeaking || isParagraphSpeaking) && activeAvatar === 'primary'}
+                      className="w-full h-full"
+                    />
+                  </div>
+                  <span className="text-sm font-medium text-foreground">Consultant</span>
+                </div>
+
+                {/* Secondary Partner Avatar */}
+                {isSecondAvatarEnabled && (
+                  <div className="flex flex-col items-center gap-2">
+                    <div 
+                      className={`w-64 h-64 rounded-lg overflow-hidden transition-opacity duration-300 ${
+                        isParagraphSpeaking && activeAvatar === 'primary' ? 'opacity-50' : 'opacity-100'
+                      }`}
+                      data-testid="avatar-support"
+                    >
+                      <Avatar3D 
+                        isActive={activeAvatar === 'support'}
+                        isSpeaking={(supportTTS.isSpeaking || isParagraphSpeaking) && activeAvatar === 'support'}
+                        className="w-full h-full"
+                      />
+                    </div>
+                    <span className="text-sm font-medium text-foreground">Partner</span>
+                  </div>
+                )}
               </div>
             </div>
           )}
