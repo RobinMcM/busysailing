@@ -86,7 +86,7 @@ export function useWav2Lip() {
 
       // Step 4: Call Wav2Lip API
       console.log(`[Wav2Lip] Calling Wav2Lip API at ${WAV2LIP_SERVICE_URL}...`);
-      const wav2lipResponse = await fetch(`${WAV2LIP_SERVICE_URL}/api/generate`, {
+      const wav2lipResponse = await fetch(`${WAV2LIP_SERVICE_URL}/generate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

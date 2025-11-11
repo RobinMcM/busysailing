@@ -11,12 +11,18 @@ import RealisticAvatar from '@/components/RealisticAvatar';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
 import { useTTS } from '@/hooks/use-tts';
+import { useWav2Lip } from '@/hooks/use-wav2lip';
+import consultantImage from '@assets/stock_images/professional_busines_35704b64.jpg';
+import partnerImage from '@assets/stock_images/professional_busines_db181492.jpg';
 
 interface Message {
   id: string;
   role: 'user' | 'assistant';
   content: string;
   timestamp: string;
+  videoUrl?: string | null;
+  isGeneratingVideo?: boolean;
+  videoError?: string | null;
 }
 
 export default function Chat() {
@@ -37,6 +43,9 @@ export default function Chat() {
   // Dual TTS hooks - one for each avatar with different voice characteristics
   const primaryTTS = useTTS();
   const supportTTS = useTTS();
+  
+  // Wav2Lip hook for lip-sync video generation
+  const { generateLipSyncVideo, isGenerating: isGeneratingWav2Lip, error: wav2lipError } = useWav2Lip();
   
   // Track which avatar is currently speaking
   const isSpeaking = primaryTTS.isSpeaking || supportTTS.isSpeaking || isParagraphSpeaking;
@@ -294,6 +303,77 @@ export default function Chat() {
     });
   };
 
+  const handleGenerateVideo = async (messageId: string) => {
+    console.log('[Wav2Lip] Starting video generation for message:', messageId);
+    
+    // Find the message
+    const messageIndex = messages.findIndex(m => m.id === messageId);
+    if (messageIndex === -1) {
+      console.error('[Wav2Lip] Message not found:', messageId);
+      return;
+    }
+    
+    const message = messages[messageIndex];
+    
+    // Determine which avatar to use (alternate between consultant and partner)
+    const aiMessageIndex = messages.slice(0, messageIndex + 1).filter(m => m.role === 'assistant').length - 1;
+    const useConsultant = aiMessageIndex % 2 === 0;
+    const avatarImage = useConsultant ? consultantImage : partnerImage;
+    const avatarName = useConsultant ? 'Consultant' : 'Partner';
+    
+    console.log(`[Wav2Lip] Using ${avatarName} avatar for message ${aiMessageIndex + 1}`);
+    
+    // Update message state to show loading
+    setMessages(prev => prev.map(m => 
+      m.id === messageId 
+        ? { ...m, isGeneratingVideo: true, videoError: null }
+        : m
+    ));
+    
+    try {
+      // Generate lip-sync video
+      const videoUrl = await generateLipSyncVideo({
+        text: message.content,
+        avatarImage: avatarImage,
+        options: {
+          voice: useConsultant ? 'nova' : 'shimmer', // Different voices for each avatar
+          speed: 1.0
+        }
+      });
+      
+      if (videoUrl) {
+        console.log('[Wav2Lip] Video generated successfully');
+        // Update message with video URL
+        setMessages(prev => prev.map(m => 
+          m.id === messageId 
+            ? { ...m, videoUrl, isGeneratingVideo: false, videoError: null }
+            : m
+        ));
+        
+        toast({
+          title: "Video generated!",
+          description: `${avatarName} is now speaking with lip-sync.`,
+        });
+      } else {
+        throw new Error('Video generation returned no URL');
+      }
+    } catch (error: any) {
+      console.error('[Wav2Lip] Video generation failed:', error);
+      
+      // Update message with error
+      setMessages(prev => prev.map(m => 
+        m.id === messageId 
+          ? { ...m, isGeneratingVideo: false, videoError: error.message || 'Failed to generate video' }
+          : m
+      ));
+      
+      toast({
+        title: "Video generation failed",
+        description: error.message || 'Please try again.',
+        variant: "destructive",
+      });
+    }
+  };
 
   // Auto-enable second avatar after 2 AI responses
   useEffect(() => {
@@ -466,6 +546,10 @@ export default function Chat() {
                           role={message.role}
                           timestamp={message.timestamp}
                           onReplay={message.role === 'assistant' ? () => handleReplayMessage(message.content) : undefined}
+                          onGenerateVideo={message.role === 'assistant' ? () => handleGenerateVideo(message.id) : undefined}
+                          videoUrl={message.videoUrl}
+                          isGeneratingVideo={message.isGeneratingVideo}
+                          videoError={message.videoError}
                         />
                       ))}
                       {isLoading && (
