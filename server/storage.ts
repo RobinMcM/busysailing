@@ -26,6 +26,14 @@ export interface AnalyticsSummary {
   totalCharacters: number;
 }
 
+export interface Conversation {
+  id: string;
+  userQuestion: string;
+  aiResponse: string;
+  ipAddress: string | null;
+  timestamp: Date;
+}
+
 class SupabaseStorage {
   async createAnalyticsRecord(record: Omit<Analytics, 'id' | 'timestamp'>): Promise<Analytics> {
     if (!supabase) {
@@ -158,6 +166,49 @@ class SupabaseStorage {
       totalTokens,
       totalCharacters
     };
+  }
+
+  async saveConversation(conversation: Omit<Conversation, 'id' | 'timestamp'>): Promise<Conversation> {
+    if (!supabase) {
+      console.warn('[Storage] Supabase not available, conversation will not be persisted');
+      return {
+        id: crypto.randomUUID(),
+        timestamp: new Date(),
+        ...conversation
+      };
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from('conversations')
+        .insert([{
+          user_question: conversation.userQuestion,
+          ai_response: conversation.aiResponse,
+          ip_address: conversation.ipAddress
+        }])
+        .select()
+        .single();
+
+      if (error) {
+        console.error('[Storage] Error saving conversation:', error);
+        throw error;
+      }
+
+      return {
+        id: data.id,
+        timestamp: new Date(data.timestamp),
+        userQuestion: data.user_question,
+        aiResponse: data.ai_response,
+        ipAddress: data.ip_address
+      };
+    } catch (error) {
+      console.error('[Storage] Failed to save conversation:', error);
+      return {
+        id: crypto.randomUUID(),
+        timestamp: new Date(),
+        ...conversation
+      };
+    }
   }
 }
 

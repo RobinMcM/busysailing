@@ -101,3 +101,19 @@ export const insertVideoCacheSchema = createInsertSchema(videoCache).omit({
 
 export type InsertVideoCache = z.infer<typeof insertVideoCacheSchema>;
 export type VideoCache = typeof videoCache.$inferSelect;
+
+export const conversations = pgTable("conversations", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userQuestion: text("user_question").notNull(),
+  aiResponse: text("ai_response").notNull(),
+  ipAddress: text("ip_address"),
+  timestamp: timestamp("timestamp").notNull().defaultNow(),
+});
+
+export const insertConversationSchema = createInsertSchema(conversations).omit({
+  id: true,
+  timestamp: true,
+});
+
+export type InsertConversation = z.infer<typeof insertConversationSchema>;
+export type Conversation = typeof conversations.$inferSelect;

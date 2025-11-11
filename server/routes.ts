@@ -79,6 +79,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.error('Failed to track chat request:', err);
       });
       
+      // Save conversation to database
+      storage.saveConversation({
+        userQuestion: validatedData.message,
+        aiResponse: response,
+        ipAddress: clientIp
+      }).catch((err: any) => {
+        console.error('Failed to save conversation:', err);
+      });
+      
       res.json({ 
         message: response,
         success: true 
