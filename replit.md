@@ -13,8 +13,20 @@ This project is an AI-powered chatbot designed to provide expert guidance on UK 
 ## System Architecture
 The application features a React/TypeScript frontend with Shadcn UI and Tailwind CSS, and an Express.js backend. Core architectural decisions include a dual AI integration strategy, prioritizing Groq (Llama 3.3) for chat responses due to its speed and cost-effectiveness, and OpenAI TTS for high-quality voice generation.
 
-**Avatar System Evolution (Nov 2024):**
-After extensive testing, the project pivoted from CPU-based Wav2Lip video generation (which had 20-30 second delays per paragraph) to client-side Three.js 3D avatars. The avatars have evolved from simple geometric shapes to **semi-realistic professional faces** with advanced animations including phoneme-based lip-sync, natural blinking, eye tracking, and subtle idle movements. This delivers instant, lightweight rendering using React Three Fiber (@react-three/fiber) with zero server-side processing overhead.
+**Avatar System Evolution (Nov 2024 - Final Implementation):**
+After 5 technical attempts (geometric shapes, Wav2Lip, GLB avatars, OmniAvatar, client-side Three.js), the project has successfully integrated **Replicate SadTalker API** for realistic talking head video generation. This solution balances cost-effectiveness (~$0.10 per video), quality (realistic lip-sync), and technical feasibility (no GPU required on deployment servers).
+
+**Video Avatar System (Current):**
+- On-demand video generation triggered by user clicking "Generate Video" button on AI messages
+- Uses professional stock photos as avatar source images
+- OpenAI TTS generates high-quality British English female voice audio
+- Replicate SadTalker API combines photo + audio → realistic talking head video (MP4)
+- Video generation takes 20-35 seconds, displays inline in chat with controls
+- Persistent database caching: identical messages reuse cached videos at $0 cost
+- Graceful error handling with retry capability
+
+**Three.js Avatars (Supplementary):**
+The project also includes client-side Three.js 3D avatars with semi-realistic professional faces, phoneme-based lip-sync, natural blinking, and eye tracking. These provide instant visual feedback during chat interactions and serve as a guaranteed fallback. Videos are generated on-demand when users want high-quality talking head output.
 
 The UI/UX emphasizes a mobile-first, WhatsApp-style chat display with dual professional 3D avatars, visual dimming for inactive speakers, and paragraph-based voice alternation using distinct British English female voices. The system incorporates a password gate for access control, rate limiting, and robust error handling. Conversation context is maintained for multi-turn interactions, and all content is localized for the UK.
 
@@ -40,10 +52,42 @@ The UI/UX emphasizes a mobile-first, WhatsApp-style chat display with dual profe
 
 ## External Dependencies
 - **Groq API**: For fast and cost-effective AI chat responses (Llama 3.3 70B Versatile).
-- **OpenAI API**: For high-quality Text-to-Speech (TTS) voices (GPT-4o for chat fallback, primary for TTS).
-- **Replit AI Integrations**: As a fallback for both chat and TTS.
+- **OpenAI API**: For high-quality Text-to-Speech (TTS) voices and chat fallback (GPT-4o). **Required for video avatar generation.**
+- **Replicate API**: For SadTalker video avatar generation. **Required for video avatar generation.**
+- **Replit AI Integrations**: As a fallback for chat.
 - **Web Speech API**: For client-side Speech-to-Text and as a fallback for Text-to-Speech.
 - **Three.js**: Client-side 3D rendering library via React Three Fiber for avatar visualization.
+
+## Setup Instructions for Video Avatar Generation
+
+### Required API Keys
+1. **OPENAI_API_KEY** - For high-quality TTS audio generation
+   - Get key from: https://platform.openai.com/api-keys
+   - Cost: ~$0.015 per TTS response
+   - Required: Yes (video generation will fail without it)
+
+2. **REPLICATE_API_TOKEN** - For SadTalker video generation
+   - Get key from: https://replicate.com/account/api-tokens
+   - Add billing credit: https://replicate.com/account/billing
+   - Cost: ~$0.10 per video generation
+   - Required: Yes (video generation will fail without it)
+
+### Setup Steps
+1. Add both API keys to Replit Secrets
+2. Ensure Replicate account has billing credit (minimum $5 recommended)
+3. Restart the application
+4. Video generation will now work when clicking "Generate Video" button on AI messages
+
+### Cost Structure
+- **Chat**: ~$0.01-0.05 per response (Groq API)
+- **TTS Audio**: ~$0.015 per response (OpenAI TTS)
+- **Video Generation**: ~$0.10 per video (Replicate SadTalker)
+- **Cached Videos**: $0.00 (reused from database cache)
+
+### Troubleshooting
+- **"TTS_NOT_AVAILABLE" error**: OPENAI_API_KEY is missing or invalid
+- **"402 Payment Required" error**: Replicate account needs credit added
+- **Timeout errors**: Video generation takes 20-35 seconds, ensure good connection
 
 ## Deployment Configuration
 
