@@ -4,7 +4,6 @@ import { storage } from "./storage";
 import { generateFinancialResponse, generateTTSAudio } from "./openai";
 import { chatRateLimiter } from "./rateLimiter";
 import { trackChatRequest, trackTTSRequest, estimateTokenCount } from "./analytics";
-import { generateTalkingAvatar, getCacheStats } from "./replicate-service";
 import { z } from "zod";
 
 const chatRequestSchema = z.object({
@@ -272,85 +271,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Generate talking avatar video endpoint (TTS + SadTalker combined)
-  const avatarRequestSchema = z.object({
-    text: z.string().min(1).max(4096),
-    avatarType: z.enum(['consultant', 'partner']).default('consultant'),
-    voice: z.enum(['alloy', 'echo', 'fable', 'onyx', 'nova', 'shimmer']).default('nova'),
-  });
-
-  app.post("/api/generate-avatar", async (req, res) => {
-    console.log('[API] Received avatar generation request');
-    const startTime = Date.now();
-    try {
-      const clientIp = req.ip || req.socket.remoteAddress || 'unknown';
-      const validatedData = avatarRequestSchema.parse(req.body);
-      
-      console.log('[API] Step 1: Generating TTS audio...');
-      const audioBuffer = await generateTTSAudio(
-        validatedData.text,
-        validatedData.voice,
-        1.0
-      );
-
-      console.log('[API] Step 2: Generating talking avatar with Replicate...');
-      const result = await generateTalkingAvatar(
-        audioBuffer,
-        validatedData.avatarType,
-        {
-          enhancer: 'gfpgan',
-          preprocess: 'full',
-          expression_scale: 1.0,
-          still: true,
-        }
-      );
-
-      const duration = Date.now() - startTime;
-      console.log('[API] Avatar generated successfully in', duration, 'ms');
-      
-      // Track analytics
-      trackTTSRequest(clientIp, validatedData.text.length, 'tts-1', duration).catch(console.error);
-      
-      res.json({
-        videoUrl: result.video_url,
-        cached: result.cost === 0,
-        duration: result.duration,
-        cost: result.cost,
-        success: true
-      });
-    } catch (error: any) {
-      console.error('Avatar generation error:', error);
-      
-      if (error.name === 'ZodError') {
-        return res.status(400).json({ 
-          error: 'Invalid request format',
-          success: false 
-        });
-      }
-
-      res.status(500).json({ 
-        error: error.message || 'Failed to generate avatar video',
-        success: false 
-      });
-    }
-  });
-
-  // Get avatar cache stats endpoint
-  app.get("/api/avatar-cache-stats", async (req, res) => {
-    try {
-      const stats = getCacheStats();
-      res.json({
-        ...stats,
-        success: true
-      });
-    } catch (error: any) {
-      console.error('Cache stats error:', error);
-      res.status(500).json({ 
-        error: error.message || 'Failed to get cache stats',
-        success: false 
-      });
-    }
-  });
 
   // Analytics endpoint
   app.get("/api/analytics", async (req, res) => {

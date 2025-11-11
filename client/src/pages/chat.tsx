@@ -12,19 +12,11 @@ import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
 import { useTTS } from '@/hooks/use-tts';
 
-interface VideoState {
-  status: 'idle' | 'generating' | 'ready' | 'error';
-  jobId?: string;
-  url?: string;
-  error?: string;
-}
-
 interface Message {
   id: string;
   role: 'user' | 'assistant';
   content: string;
   timestamp: string;
-  video?: VideoState;
 }
 
 export default function Chat() {
@@ -302,101 +294,6 @@ export default function Chat() {
     });
   };
 
-  const updateMessageVideo = (messageId: string, partialVideo: Partial<VideoState>) => {
-    setMessages(prev => prev.map(msg => {
-      if (msg.id === messageId) {
-        return {
-          ...msg,
-          video: {
-            ...msg.video,
-            ...partialVideo,
-            status: partialVideo.status || msg.video?.status || 'idle'
-          } as VideoState
-        };
-      }
-      return msg;
-    }));
-  };
-
-  const handleGenerateVideo = async (messageId: string, content: string) => {
-    if (!isUnlocked) {
-      toast({
-        title: "Access required",
-        description: "Please enter the access code to generate videos.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    // Check if already generating
-    const message = messages.find(m => m.id === messageId);
-    if (message?.video?.status === 'generating') {
-      return; // Prevent duplicate requests
-    }
-
-    // Optimistically set to generating
-    updateMessageVideo(messageId, { status: 'generating' });
-
-    toast({
-      title: "Generating video...",
-      description: "This will take about 20-30 seconds. Please keep this tab open.",
-    });
-
-    try {
-      console.log('[Video] Generating talking avatar for message:', messageId);
-      
-      // Create abort controller for timeout
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 120000); // 2 minute timeout
-      
-      const res = await fetch('/api/generate-avatar', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          text: content,
-          avatarType: 'consultant',
-          voice: 'nova'
-        }),
-        signal: controller.signal,
-        credentials: 'include'
-      });
-
-      clearTimeout(timeoutId);
-
-      if (!res.ok) {
-        throw new Error(`HTTP ${res.status}: ${await res.text()}`);
-      }
-
-      const data = await res.json() as { videoUrl: string; cached: boolean; cost: number; success: boolean };
-      
-      if (!data.success || !data.videoUrl) {
-        throw new Error('No video URL returned');
-      }
-
-      console.log('[Video] Video generated successfully:', data.videoUrl);
-      updateMessageVideo(messageId, { 
-        status: 'ready', 
-        url: data.videoUrl 
-      });
-
-      toast({
-        title: data.cached ? "Video ready (from cache)" : "Video generated!",
-        description: data.cached ? "Retrieved from cache at no cost" : `Cost: $${data.cost.toFixed(2)}`,
-      });
-    } catch (error: any) {
-      console.error('[Video] Error generating video:', error);
-      updateMessageVideo(messageId, { 
-        status: 'error', 
-        error: error.message || 'Failed to generate video' 
-      });
-
-      toast({
-        title: "Video generation failed",
-        description: error.message || "Please try again later.",
-        variant: "destructive",
-      });
-    }
-  };
 
   // Auto-enable second avatar after 2 AI responses
   useEffect(() => {
@@ -569,8 +466,6 @@ export default function Chat() {
                           role={message.role}
                           timestamp={message.timestamp}
                           onReplay={message.role === 'assistant' ? () => handleReplayMessage(message.content) : undefined}
-                          onGenerateVideo={message.role === 'assistant' ? () => handleGenerateVideo(message.id, message.content) : undefined}
-                          video={message.video}
                         />
                       ))}
                       {isLoading && (
