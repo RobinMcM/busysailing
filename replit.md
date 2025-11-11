@@ -14,7 +14,7 @@ This project is an AI-powered chatbot designed to provide expert guidance on UK 
 The application features a React/TypeScript frontend with Shadcn UI and Tailwind CSS, and an Express.js backend. Core architectural decisions include a dual AI integration strategy, prioritizing Groq (Llama 3.3) for chat responses due to its speed and cost-effectiveness, and OpenAI TTS for high-quality voice generation.
 
 **Avatar System (Current):**
-The application uses professional stock photographs as static avatars displayed alongside the chat interface. Two distinct professional female avatars (Consultant and Partner) are shown side-by-side on desktop and stacked on mobile devices. The avatars provide visual feedback by dimming (50% opacity) when not actively speaking through the TTS system.
+The application uses professional photographs as static avatars displayed alongside the chat interface. Two distinct professional female avatars (Consultant and Partner) are shown side-by-side on desktop and stacked on mobile devices. The Consultant avatar features a younger professional woman (Sarah Davies) in a blue blazer with an office background, while the Partner avatar shows a mature professional woman with gray hair in a gray suit. The avatars provide visual feedback by dimming (50% opacity) when not actively speaking through the TTS system. Avatar images are loaded from `attached_assets/generated_images/` directory.
 
 The UI/UX emphasizes a mobile-first, WhatsApp-style chat display with dual professional photo avatars, visual dimming for inactive speakers, and paragraph-based voice alternation using distinct British English female voices. The system incorporates a password gate for access control, rate limiting, and robust error handling. Conversation context is maintained for multi-turn interactions, and all content is localized for the UK.
 
@@ -22,7 +22,7 @@ The UI/UX emphasizes a mobile-first, WhatsApp-style chat display with dual profe
 - **Frontend**: React with TypeScript, Wouter for routing, TanStack Query for state management, Shadcn UI, Tailwind CSS.
 - **Backend**: Express.js, Supabase PostgreSQL database with row-level security, rate limiting (20 req/min/IP).
 - **AI Integration**: Primary: Groq API (Llama 3.3 70B Versatile); Fallback: OpenAI GPT-4o or Replit AI Integrations. System prompt tailored for UK tax law.
-- **Avatar System**: Professional stock photograph avatars displayed in 256x256px containers. Two distinct avatars (Consultant and Partner) shown side-by-side with visual dimming (50% opacity) for inactive speaker.
+- **Avatar System**: Professional photograph avatars displayed in 256x256px containers. Consultant avatar: younger professional woman (Sarah Davies) in blue blazer. Partner avatar: mature professional woman with gray hair in gray suit. Both shown side-by-side with visual dimming (50% opacity) for inactive speaker. Images sourced from `attached_assets/generated_images/`.
 - **User Interface**: Mobile-phone-styled chat history, dual independent photo avatars with visual dimming, auto-scroll, timestamps, and professional UK financial services-themed styling.
 - **Voice Features**: Speech-to-text (Web Speech API), dual text-to-speech with paragraph-based voice alternation (Consultant: even paragraphs, Partner: odd paragraphs), OpenAI TTS-1 voices (British English female), mute/unmute, and stop speaking controls.
 - **Security**: Password gate (MKS2005) for chat access; backend-verified admin authentication for analytics dashboard.
@@ -32,7 +32,7 @@ The UI/UX emphasizes a mobile-first, WhatsApp-style chat display with dual profe
 - **Password Gate**: 12-character obscured input, visual feedback (lock icon), disables functionality until correct.
 - **Layout**: Side-by-side on desktop, stacked on mobile, with mobile phone container (307px width).
 - **Chat Display**: WhatsApp-style, user messages (green, right), AI messages (grey, left), auto-scroll.
-- **Avatars**: Two distinct professional female photo avatars (Consultant: always visible; Partner: fades in after 2nd AI response). Visual dimming (50% opacity) for inactive speaker during TTS playback.
+- **Avatars**: Two distinct professional female photo avatars - Consultant (younger woman in blue blazer, always visible) and Partner (mature woman with gray hair, fades in after 2nd AI response). Visual dimming (50% opacity) for inactive speaker during TTS playback. NO video generation or animations - simple static photos only.
 - **Voice Alternation**: Paragraph-based (Consultant: even paragraphs, higher pitch; Partner: odd paragraphs, lower pitch), 400ms pause, British English voices, Web Speech API fallback.
 - **Loading Feedback**: Typing indicator during AI response generation.
 - **Error Handling**: User-friendly error messages.

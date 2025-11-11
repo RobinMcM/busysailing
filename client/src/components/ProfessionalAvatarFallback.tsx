@@ -1,5 +1,5 @@
-import consultantImage from '@assets/stock_images/professional_busines_35704b64.jpg';
-import partnerImage from '@assets/stock_images/older_european_femal_6cfda77f.jpg';
+import consultantImage from '@assets/generated_images/Video_call_tax_advisor_3ce91073.png';
+import partnerImage from '@assets/generated_images/Older_European_female_advisor_portrait_b60fd6fc.png';
 
 interface ProfessionalAvatarFallbackProps {
   avatarType?: 'consultant' | 'partner';
