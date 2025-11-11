@@ -1,7 +1,8 @@
-import { useRef, useEffect } from 'react';
+import { useRef } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Environment, Sphere, Box } from '@react-three/drei';
 import * as THREE from 'three';
+import { WebGLFallback } from './WebGLFallback';
 
 interface AvatarModelProps {
   isActive: boolean;
@@ -92,7 +93,27 @@ interface Avatar3DProps {
   className?: string;
 }
 
+// Proactive WebGL capability detection
+function isWebGLAvailable(): boolean {
+  try {
+    const canvas = document.createElement('canvas');
+    const gl = canvas.getContext('webgl') || canvas.getContext('webgl2');
+    return !!gl;
+  } catch (e) {
+    return false;
+  }
+}
+
 export default function Avatar3D({ isActive, isSpeaking, className = '' }: Avatar3DProps) {
+  // Check WebGL availability before attempting to render Canvas
+  const webglSupported = isWebGLAvailable();
+
+  // If WebGL is not supported, show fallback immediately
+  if (!webglSupported) {
+    console.warn('[Avatar3D] WebGL not available, showing fallback');
+    return <WebGLFallback />;
+  }
+
   return (
     <div className={`${className}`} data-testid="avatar-3d-scene">
       <Canvas
