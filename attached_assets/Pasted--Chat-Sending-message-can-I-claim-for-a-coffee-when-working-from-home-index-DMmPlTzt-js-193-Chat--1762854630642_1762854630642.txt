@@ -1,0 +1,44 @@
+[Chat] Sending message: can I claim for a coffee when working from home
+index-DMmPlTzt.js:193 [Chat] Making API request...
+index-DMmPlTzt.js:193 [Chat] Got response, status: 200
+index-DMmPlTzt.js:193 [Chat] Response data: Success
+index-DMmPlTzt.js:193 [LipSync] Split response into 6 paragraphs
+index-DMmPlTzt.js:193 [LipSync] Processing paragraph 1/6 with Primary avatar
+index-DMmPlTzt.js:193 [Wav2Lip] Generating audio with OpenAI TTS...
+index-DMmPlTzt.js:193 [Wav2Lip] Audio generated, size: 436320
+index-DMmPlTzt.js:193 [Wav2Lip] Loading avatar image...
+index-DMmPlTzt.js:193 [Wav2Lip] Calling Wav2Lip API at /api/wav2lip...
+index-DMmPlTzt.js:193 [Wav2Lip] Video generated successfully
+index-DMmPlTzt.js:193 [LipSync] Waiting for video end event
+index-DMmPlTzt.js:193 [Avatar primary] Loading video, speaking=true
+index-DMmPlTzt.js:193 [Avatar primary] Video ended
+index-DMmPlTzt.js:193 [LipSync] Video ended callback
+index-DMmPlTzt.js:193 [LipSync] Processing paragraph 2/6 with Support avatar
+index-DMmPlTzt.js:193 [Wav2Lip] Generating audio with OpenAI TTS...
+index-DMmPlTzt.js:193 [Wav2Lip] Audio generated, size: 1177920
+index-DMmPlTzt.js:193 [Wav2Lip] Loading avatar image...
+index-DMmPlTzt.js:193 [Wav2Lip] Calling Wav2Lip API at /api/wav2lip...
+index-DMmPlTzt.js:193 [LipSync] Timeout fallback triggered
+index-DMmPlTzt.js:193 [Wav2Lip] Video generated successfully
+index-DMmPlTzt.js:193 [LipSync] Waiting for video end event
+index-DMmPlTzt.js:193 [Avatar support] Loading video, speaking=true
+index-DMmPlTzt.js:193 [Avatar support] Video ended
+index-DMmPlTzt.js:193 [LipSync] Video ended callback
+index-DMmPlTzt.js:193 [LipSync] Processing paragraph 3/6 with Primary avatar
+index-DMmPlTzt.js:193 [Wav2Lip] Generating audio with OpenAI TTS...
+index-DMmPlTzt.js:193 [Wav2Lip] Audio generated, size: 369120
+index-DMmPlTzt.js:193 [Wav2Lip] Loading avatar image...
+index-DMmPlTzt.js:193 [Wav2Lip] Calling Wav2Lip API at /api/wav2lip...
+index-DMmPlTzt.js:193 [Wav2Lip] Video generated successfully
+index-DMmPlTzt.js:193 [LipSync] Waiting for video end event
+index-DMmPlTzt.js:193 [Avatar primary] Loading video, speaking=true
+index-DMmPlTzt.js:193 [Avatar primary] Video ended
+index-DMmPlTzt.js:193 [LipSync] Video ended callback
+index-DMmPlTzt.js:193 [LipSync] Processing paragraph 4/6 with Support avatar
+index-DMmPlTzt.js:193 [Wav2Lip] Generating audio with OpenAI TTS...
+index-DMmPlTzt.js:193 [Wav2Lip] Audio generated, size: 90240
+index-DMmPlTzt.js:193 [Wav2Lip] Loading avatar image...
+index-DMmPlTzt.js:193 [Wav2Lip] Calling Wav2Lip API at /api/wav2lip...
+index-DMmPlTzt.js:193 [Wav2Lip] Video generated successfully
+index-DMmPlTzt.js:193 [LipSync] Cancelled after video generation
+2index-DMmPlTzt.js:193 [LipSync] Timeout fallback triggered
