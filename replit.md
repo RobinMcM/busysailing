@@ -13,8 +13,8 @@ This project is an AI-powered chatbot designed to provide expert guidance on UK 
 ## System Architecture
 The application features a React/TypeScript frontend with Shadcn UI and Tailwind CSS, and an Express.js backend. Core architectural decisions include a dual AI integration strategy, prioritizing Groq (Llama 3.3) for chat responses due to its speed and cost-effectiveness, and OpenAI TTS for high-quality voice generation.
 
-**Avatar System Pivot (Nov 2024):**
-After extensive testing, the project pivoted from CPU-based Wav2Lip video generation (which had 20-30 second delays per paragraph, making it unsuitable for real-time chat) to client-side Three.js 3D avatars. This delivers instant, lightweight animations with basic lip-sync using React Three Fiber (@react-three/fiber), providing a superior user experience with zero server-side processing overhead.
+**Avatar System Evolution (Nov 2024):**
+After extensive testing, the project pivoted from CPU-based Wav2Lip video generation (which had 20-30 second delays per paragraph) to client-side Three.js 3D avatars. The avatars have evolved from simple geometric shapes to **semi-realistic professional faces** with advanced animations including phoneme-based lip-sync, natural blinking, eye tracking, and subtle idle movements. This delivers instant, lightweight rendering using React Three Fiber (@react-three/fiber) with zero server-side processing overhead.
 
 The UI/UX emphasizes a mobile-first, WhatsApp-style chat display with dual professional 3D avatars, visual dimming for inactive speakers, and paragraph-based voice alternation using distinct British English female voices. The system incorporates a password gate for access control, rate limiting, and robust error handling. Conversation context is maintained for multi-turn interactions, and all content is localized for the UK.
 
@@ -22,7 +22,7 @@ The UI/UX emphasizes a mobile-first, WhatsApp-style chat display with dual profe
 - **Frontend**: React with TypeScript, Wouter for routing, TanStack Query for state management, Shadcn UI, Tailwind CSS.
 - **Backend**: Express.js, Supabase PostgreSQL database with row-level security, rate limiting (20 req/min/IP).
 - **AI Integration**: Primary: Groq API (Llama 3.3 70B Versatile); Fallback: OpenAI GPT-4o or Replit AI Integrations. System prompt tailored for UK tax law.
-- **3D Avatar System**: Client-side Three.js rendering using React Three Fiber (@react-three/fiber) and Drei. Geometric avatars (sphere head, eyes, nose, mouth) with real-time animations. Speaking states trigger mouth movement (8Hz scaling) and blue point-light glow effect. Proactive WebGL detection with graceful fallback card for unsupported browsers. Zero server-side processing, instant rendering.
+- **3D Avatar System**: Client-side Three.js rendering using React Three Fiber (@react-three/fiber) and Drei. **Realistic professional avatars** with semi-realistic facial features including oval head shape, detailed eyes (iris, pupil, highlights), realistic nose with nostrils, separate upper/lower lips, eyebrows, ears, cheekbones, professional hair styling, and business attire. Advanced animations include phoneme-based lip-sync (jaw drop + lip movement with variable timing), natural blinking (3-3.5s intervals), subtle eye tracking, breathing, and gentle head rotation. Speaking states trigger blue point-light glow effect. Two distinct avatar types (Consultant: lighter skin, darker hair, green eyes; Partner: different skin tone, lighter hair, blue eyes). Proactive WebGL detection with graceful fallback card for unsupported browsers. Zero server-side processing, instant rendering.
 - **User Interface**: Mobile-phone-styled chat history, dual independent 3D avatars (256x256 each) with visual dimming (50% opacity for inactive speaker), auto-scroll, timestamps, and professional UK financial services-themed styling.
 - **Voice Features**: Speech-to-text (Web Speech API), dual text-to-speech with paragraph-based voice alternation (Consultant: even paragraphs, Partner: odd paragraphs), OpenAI TTS-1 voices (British English female), mute/unmute, and stop speaking controls.
 - **Security**: Password gate (MKS2005) for chat access; backend-verified admin authentication for analytics dashboard.
@@ -32,7 +32,7 @@ The UI/UX emphasizes a mobile-first, WhatsApp-style chat display with dual profe
 - **Password Gate**: 12-character obscured input, visual feedback (lock icon), disables functionality until correct.
 - **Layout**: Side-by-side on desktop, stacked on mobile, with mobile phone container (307px width).
 - **Chat Display**: WhatsApp-style, user messages (green, right), AI messages (grey, left), auto-scroll.
-- **Avatars**: Two female professional avatars (Consultant always visible, Partner enabled after 2nd AI response or when speaking), visual dimming (50% opacity) for inactive speaker.
+- **Avatars**: Two distinct realistic female professional avatars with semi-realistic facial features and advanced animations (Consultant: always visible; Partner: fades in after 2nd AI response with proper visibility hiding using `invisible` class + `aria-hidden`). Visual dimming (50% opacity) for inactive speaker. Avatars feature phoneme-based lip-sync, natural blinking, eye tracking, and subtle idle movements.
 - **Voice Alternation**: Paragraph-based (Consultant: even paragraphs, higher pitch; Partner: odd paragraphs, lower pitch), 400ms pause, British English voices, Web Speech API fallback.
 - **Loading Feedback**: Typing indicator during AI response generation.
 - **Error Handling**: User-friendly error messages.
