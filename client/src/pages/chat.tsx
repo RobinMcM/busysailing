@@ -505,10 +505,10 @@ export default function Chat() {
                   <span className="text-sm font-medium text-foreground">Consultant</span>
                 </div>
 
-                {/* Secondary Partner Avatar - Always rendered, visibility controlled by opacity and visibility */}
+                {/* Secondary Partner Avatar - Always rendered, visibility controlled by opacity only */}
                 <div 
                   className={`flex flex-col items-center gap-2 transition-all duration-500 ${
-                    isSecondAvatarEnabled ? 'opacity-100 scale-100 visible' : 'opacity-0 scale-95 invisible pointer-events-none'
+                    isSecondAvatarEnabled ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'
                   }`}
                   data-testid="avatar-support-container"
                   aria-hidden={!isSecondAvatarEnabled}
