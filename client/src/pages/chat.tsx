@@ -88,6 +88,12 @@ export default function Chat() {
       // Update active avatar for speaking indicator
       setActiveAvatar(usePrimary ? 'primary' : 'support');
       
+      // Enable Partner avatar when she first speaks (odd paragraph)
+      if (!usePrimary && !isSecondAvatarEnabled) {
+        setIsSecondAvatarEnabled(true);
+        console.log('[Avatar] Partner avatar enabled due to voice alternation');
+      }
+      
       // Get available voices
       const voices = window.speechSynthesis.getVoices();
       const femaleUKVoices = voices.filter((voice) => {
@@ -183,18 +189,8 @@ export default function Chat() {
       setMessages((prev) => {
         const updated = [...prev, aiMessage];
         
-        // Calculate AI response count
-        const aiCount = updated.filter(m => m.role === 'assistant').length;
-        
-        // Enable second avatar immediately when we reach 2 AI responses
-        if (aiCount >= 2) {
-          setTimeout(() => setIsSecondAvatarEnabled(true), 0);
-        }
-        
-        // Determine which avatar should speak this response
-        const secondAvatarShouldBeActive = aiCount >= 2;
-        const shouldUseSupportAvatar = secondAvatarShouldBeActive && aiCount % 2 === 0;
-        setActiveAvatar(shouldUseSupportAvatar ? 'support' : 'primary');
+        // Partner avatar will be enabled automatically during voice alternation (first odd paragraph)
+        // No need to enable based on message count
         
         // Auto-play TTS for AI responses if not muted
         if (!isMuted && isSupported) {
@@ -294,15 +290,8 @@ export default function Chat() {
     });
   };
 
-  // Auto-enable second avatar after 2 AI responses
-  useEffect(() => {
-    const aiResponseCount = messages.filter(m => m.role === 'assistant').length;
-    console.log(`[Avatar] AI response count: ${aiResponseCount}, Partner enabled: ${isSecondAvatarEnabled}`);
-    if (aiResponseCount >= 2 && !isSecondAvatarEnabled) {
-      console.log('[Avatar] Enabling Partner avatar');
-      setIsSecondAvatarEnabled(true);
-    }
-  }, [messages, isSecondAvatarEnabled]);
+  // Partner avatar is now enabled automatically during voice alternation (first odd paragraph)
+  // No need to enable based on message count anymore
 
   // Check password when input changes
   useEffect(() => {
