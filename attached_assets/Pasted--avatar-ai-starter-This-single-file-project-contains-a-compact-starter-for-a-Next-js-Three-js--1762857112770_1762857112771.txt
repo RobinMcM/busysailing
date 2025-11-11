@@ -1,0 +1,226 @@
+# avatar-ai-starter
+
+This single-file project contains a compact starter for a Next.js + Three.js website that loads a local `.glb` avatar, shows a chat UI, and includes a simple API route stub for chat/tts. You can paste these files into a Next.js project.
+
+--- package.json ---
+```json
+{
+  "name": "avatar-ai-starter",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "next": "14.0.0",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "three": "0.160.0",
+    "@react-three/fiber": "8.13.0",
+    "@react-three/drei": "9.46.0",
+    "swr": "2.1.2"
+  }
+}
+```
+
+--- README.md ---
+```md
+# Avatar AI Starter (Next.js + Three.js)
+
+Quick start:
+
+1. Create a Next.js app and copy files below into the project.
+2. Put your avatar file at `public/models/avatar.glb`.
+3. `npm install` then `npm run dev`.
+4. Open `http://localhost:3000`.
+
+Notes:
+- The `/api/chat` route is a stub. Replace it with calls to OpenAI, Ollama, or your local LLM.
+- TTS generation is not implemented in the stub; it shows how to return text and a mock audio URL.
+- Lip-sync requires blendshapes or a phoneme-to-blendshape mapping; this starter animates a simple mouth bone if present.
+```
+
+--- pages/index.jsx ---
+```jsx
+import Head from 'next/head'
+import dynamic from 'next/dynamic'
+import { Suspense } from 'react'
+import ChatUI from '../src/ChatUI'
+
+const AvatarScene = dynamic(() => import('../src/AvatarScene'), { ssr: false })
+
+export default function Home() {
+  return (
+    <>
+      <Head>
+        <title>Avatar AI Starter</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+      </Head>
+      <div className="min-h-screen bg-gray-50 flex flex-col md:flex-row">
+        <main className="flex-1 p-4">
+          <div className="max-w-3xl mx-auto">
+            <h1 className="text-2xl font-semibold mb-4">Avatar AI Starter</h1>
+            <div className="h-96 rounded-lg shadow-lg overflow-hidden">
+              <Suspense fallback={<div className="h-full flex items-center justify-center">Loading avatar...</div>}>
+                <AvatarScene />
+              </Suspense>
+            </div>
+            <p className="mt-2 text-sm text-gray-600">Avatar loaded from <code>/public/models/avatar.glb</code></p>
+          </div>
+        </main>
+
+        <aside className="w-full md:w-96 border-l p-4 bg-white">
+          <ChatUI />
+        </aside>
+      </div>
+    </>
+  )
+}
+```
+
+--- src/AvatarScene.jsx ---
+```jsx
+import React, { useRef, useEffect } from 'react'
+import { Canvas, useFrame } from '@react-three/fiber'
+import { OrbitControls, Environment, useGLTF } from '@react-three/drei'
+
+function AvatarModel({ url = '/models/avatar.glb' }) {
+  const { scene, animations } = useGLTF(url)
+  const ref = useRef()
+
+  useEffect(() => {
+    if (scene) {
+      // Place model nicely
+      scene.traverse((c) => {
+        if (c.isMesh) {
+          c.castShadow = true
+          c.receiveShadow = true
+        }
+      })
+    }
+  }, [scene])
+
+  // Simple breathing animation
+  useFrame((_, delta) => {
+    if (ref.current) {
+      ref.current.rotation.y += delta * 0.1
+    }
+  })
+
+  return <primitive ref={ref} object={scene} />
+}
+
+export default function AvatarScene() {
+  return (
+    <Canvas camera={{ position: [0, 1.6, 2.5], fov: 45 }} shadows>
+      <ambientLight intensity={0.6} />
+      <directionalLight intensity={0.8} position={[5, 10, 5]} castShadow />
+      <Suspense fallback={null}>
+        <AvatarModel />
+        <Environment preset="studio" />
+      </Suspense>
+      <OrbitControls enablePan={false} />
+    </Canvas>
+  )
+}
+
+useGLTF.preload('/models/avatar.glb')
+```
+
+--- src/ChatUI.jsx ---
+```jsx
+import React, { useState } from 'react'
+import useSWR from 'swr'
+
+const fetcher = (url, body) => fetch(url, body).then(r => r.json())
+
+export default function ChatUI() {
+  const [messages, setMessages] = useState([{ from: 'bot', text: 'Hi — ask me something!' }])
+  const [input, setInput] = useState('')
+  const [loading, setLoading] = useState(false)
+
+  async function send() {
+    if (!input.trim()) return
+    const userMsg = { from: 'user', text: input }
+    setMessages(m => [...m, userMsg])
+    setInput('')
+    setLoading(true)
+
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: input })
+    })
+    const data = await res.json()
+    // data: { text: string, audioUrl?: string }
+    setMessages(m => [...m, { from: 'bot', text: data.text }])
+
+    // play audio if provided
+    if (data.audioUrl) {
+      const audio = new Audio(data.audioUrl)
+      audio.play().catch(() => {})
+    }
+
+    setLoading(false)
+  }
+
+  return (
+    <div className="flex flex-col h-full">
+      <div className="flex-1 overflow-auto p-2 space-y-2">
+        {messages.map((m, i) => (
+          <div key={i} className={m.from === 'user' ? 'text-right' : 'text-left'}>
+            <div className={`inline-block rounded px-3 py-2 ${m.from === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-800'}`}>
+              {m.text}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="mt-2">
+        <div className="flex gap-2">
+          <input value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && send()} className="flex-1 border rounded px-3 py-2" placeholder="Say something..." />
+          <button onClick={send} disabled={loading} className="px-4 py-2 bg-indigo-600 text-white rounded">{loading ? '...' : 'Send'}</button>
+        </div>
+      </div>
+    </div>
+  )
+}
+```
+
+--- pages/api/chat.js ---
+```js
+// pages/api/chat.js
+export default async function handler(req, res) {
+  if (req.method !== 'POST') return res.status(405).end()
+  const { message } = req.body || {}
+
+  // === Replace this block with a call to your LLM/TTS ===
+  // Example: call OpenAI / local model and produce an audio file, then return its URL.
+  // For privacy/offline, run local TTS (Coqui/Mimic) on the server and return `/audio/resp.wav`.
+
+  // For now we return a mock reply + optional pre-bundled audio file.
+  const replyText = `You said: "${message}" — this is a mock response. Replace /api/chat with your LLM + TTS.`
+  return res.status(200).json({ text: replyText, audioUrl: null })
+}
+```
+
+--- public directory ---
+```text
+public/
+  models/
+    avatar.glb   <-- PLACEHOLDER: put your GLB file here
+  audio/
+    (generated .wav files if you later implement server-side TTS)
+```
+
+--- tips.md ---
+```md
+# Tips to extend this starter
+
+- **LLM integration:** Implement server-side call inside `pages/api/chat.js`. For local LLMs consider Ollama, Llama.cpp, or direct Python microservice.
+- **TTS:** Generate WAV/MP3 on the server (Coqui TTS, Mimic3). Save to `public/audio/resp-<id>.wav` and return the public URL.
+- **Lip sync:** Use phoneme timestamps from TTS or run a phoneme extractor (e.g., rhubarb-lip-sync) on the audio and drive morph targets / blendshapes in the model.
+- **Security:** If using third-party APIs, keep keys on server and add rate limits.
+- **Avatar size/scale:** Open the `.glb` in Blender to ensure unit scale ~1m, center at origin.
