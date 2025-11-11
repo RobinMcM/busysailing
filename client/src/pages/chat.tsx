@@ -8,6 +8,7 @@ import ExamplePrompts from '@/components/ExamplePrompts';
 import TypingIndicator from '@/components/TypingIndicator';
 import { AvatarWelcome } from '@/components/AvatarWelcome';
 import Avatar3D from '@/components/Avatar3D';
+import RealisticAvatar from '@/components/RealisticAvatar';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
 import { useTTS } from '@/hooks/use-tts';
@@ -510,9 +511,10 @@ export default function Chat() {
                     }`}
                     data-testid="avatar-primary"
                   >
-                    <Avatar3D 
+                    <RealisticAvatar 
                       isActive={activeAvatar === 'primary'}
                       isSpeaking={(primaryTTS.isSpeaking || isParagraphSpeaking) && activeAvatar === 'primary'}
+                      avatarType="consultant"
                       className="w-full h-full"
                     />
                   </div>
@@ -532,9 +534,10 @@ export default function Chat() {
                     }`}
                     data-testid="avatar-support"
                   >
-                    <Avatar3D 
+                    <RealisticAvatar 
                       isActive={activeAvatar === 'support'}
                       isSpeaking={(supportTTS.isSpeaking || isParagraphSpeaking) && activeAvatar === 'support'}
+                      avatarType="partner"
                       className="w-full h-full"
                     />
                   </div>
