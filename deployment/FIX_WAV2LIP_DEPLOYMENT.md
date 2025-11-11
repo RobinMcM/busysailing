@@ -1,10 +1,12 @@
 # Fix Wav2Lip Lip-Sync on Production
 
-## Problem
-The frontend is trying to connect to `localhost:5001` for Wav2Lip service, which fails in production because nginx doesn't have a reverse proxy route configured.
+## Problems Fixed
+1. ❌ Frontend was trying to connect to `localhost:5001` (no nginx reverse proxy)
+2. ❌ Video format was double-wrapped with wrong MIME type causing playback errors
 
-## Solution
-The nginx configuration has been updated to add a reverse proxy that routes `/api/wav2lip/*` requests to the wav2lip container.
+## Solutions
+1. ✅ Added nginx reverse proxy for `/api/wav2lip/*` → `wav2lip:5001`
+2. ✅ Fixed frontend to use server-provided video data URL directly (MP4 format)
 
 ## Deployment Steps
 
@@ -21,22 +23,25 @@ cd /opt/uk-tax-advisor/app
 git pull
 ```
 
-### 3. Restart nginx to load the new configuration
+### 3. Rebuild the app container with updated frontend
 
 ```bash
 cd deployment
-docker compose restart nginx
+docker compose build app
+docker compose up -d app
 ```
 
-### 4. Verify nginx started successfully
+This rebuilds the frontend with:
+- Fixed video format handling (no more double-wrapping)
+- Correct video MIME type (MP4 instead of WebM)
+
+### 4. Verify all services are running
 
 ```bash
-docker compose logs nginx --tail 50
+docker compose ps
 ```
 
-You should see:
-- ✅ No configuration errors
-- ✅ Successfully started listening on port 443
+All containers should show "Up" or "Up (healthy)".
 
 ### 5. Test the Wav2Lip service
 
