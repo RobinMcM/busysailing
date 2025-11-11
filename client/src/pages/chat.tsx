@@ -297,7 +297,9 @@ export default function Chat() {
   // Auto-enable second avatar after 2 AI responses
   useEffect(() => {
     const aiResponseCount = messages.filter(m => m.role === 'assistant').length;
+    console.log(`[Avatar] AI response count: ${aiResponseCount}, Partner enabled: ${isSecondAvatarEnabled}`);
     if (aiResponseCount >= 2 && !isSecondAvatarEnabled) {
+      console.log('[Avatar] Enabling Partner avatar');
       setIsSecondAvatarEnabled(true);
     }
   }, [messages, isSecondAvatarEnabled]);
