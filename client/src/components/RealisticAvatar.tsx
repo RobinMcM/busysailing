@@ -2,7 +2,7 @@ import { useRef, useState, useEffect } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Environment } from '@react-three/drei';
 import * as THREE from 'three';
-import { WebGLFallback } from './WebGLFallback';
+import { ProfessionalAvatarFallback } from './ProfessionalAvatarFallback';
 
 interface RealisticAvatarModelProps {
   isActive: boolean;
@@ -86,9 +86,9 @@ function RealisticAvatarModel({ isActive, isSpeaking, avatarType }: RealisticAva
   
   return (
     <group ref={headRef}>
-      {/* Head - More realistic oval shape */}
-      <mesh position={[0, 0, 0]} castShadow>
-        <sphereGeometry args={[1, 64, 64]} />
+      {/* Head - More realistic oval shape (reduced polygon count for stability) */}
+      <mesh position={[0, 0, 0]}>
+        <sphereGeometry args={[1, 24, 24]} />
         <meshStandardMaterial
           color={skinTone}
           roughness={0.6}
@@ -98,8 +98,8 @@ function RealisticAvatarModel({ isActive, isSpeaking, avatarType }: RealisticAva
       </mesh>
       
       {/* Face oval overlay for better shape */}
-      <mesh position={[0, 0, 0.05]} scale={[0.95, 1.1, 0.8]} castShadow>
-        <sphereGeometry args={[1, 64, 64]} />
+      <mesh position={[0, 0, 0.05]} scale={[0.95, 1.1, 0.8]}>
+        <sphereGeometry args={[1, 24, 24]} />
         <meshStandardMaterial
           color={skinTone}
           roughness={0.5}
@@ -109,11 +109,11 @@ function RealisticAvatarModel({ isActive, isSpeaking, avatarType }: RealisticAva
       
       {/* Cheekbones */}
       <mesh position={[-0.4, -0.1, 0.7]} scale={[0.3, 0.25, 0.3]}>
-        <sphereGeometry args={[1, 32, 32]} />
+        <sphereGeometry args={[1, 16, 16]} />
         <meshStandardMaterial color={skinTone} roughness={0.65} />
       </mesh>
       <mesh position={[0.4, -0.1, 0.7]} scale={[0.3, 0.25, 0.3]}>
-        <sphereGeometry args={[1, 32, 32]} />
+        <sphereGeometry args={[1, 16, 16]} />
         <meshStandardMaterial color={skinTone} roughness={0.65} />
       </mesh>
       
@@ -121,17 +121,17 @@ function RealisticAvatarModel({ isActive, isSpeaking, avatarType }: RealisticAva
       <group ref={leftEyeRef} position={[-0.3, 0.15, 0.75]}>
         {/* Eye white */}
         <mesh scale={[0.18, 0.15, 0.12]}>
-          <sphereGeometry args={[1, 32, 32]} />
+          <sphereGeometry args={[1, 16, 16]} />
           <meshStandardMaterial color="#ffffff" roughness={0.3} />
         </mesh>
         {/* Iris */}
         <mesh position={[0, 0, 0.12]}>
-          <circleGeometry args={[0.08, 32]} />
+          <circleGeometry args={[0.08, 16]} />
           <meshStandardMaterial color={eyeColor} roughness={0.4} />
         </mesh>
         {/* Pupil */}
         <mesh position={[0, 0, 0.13]}>
-          <circleGeometry args={[0.04, 32]} />
+          <circleGeometry args={[0.04, 16]} />
           <meshStandardMaterial color="#000000" roughness={0.2} />
         </mesh>
         {/* Eye highlight */}
@@ -144,17 +144,17 @@ function RealisticAvatarModel({ isActive, isSpeaking, avatarType }: RealisticAva
       <group ref={rightEyeRef} position={[0.3, 0.15, 0.75]}>
         {/* Eye white */}
         <mesh scale={[0.18, 0.15, 0.12]}>
-          <sphereGeometry args={[1, 32, 32]} />
+          <sphereGeometry args={[1, 16, 16]} />
           <meshStandardMaterial color="#ffffff" roughness={0.3} />
         </mesh>
         {/* Iris */}
         <mesh position={[0, 0, 0.12]}>
-          <circleGeometry args={[0.08, 32]} />
+          <circleGeometry args={[0.08, 16]} />
           <meshStandardMaterial color={eyeColor} roughness={0.4} />
         </mesh>
         {/* Pupil */}
         <mesh position={[0, 0, 0.13]}>
-          <circleGeometry args={[0.04, 32]} />
+          <circleGeometry args={[0.04, 16]} />
           <meshStandardMaterial color="#000000" roughness={0.2} />
         </mesh>
         {/* Eye highlight */}
@@ -190,7 +190,7 @@ function RealisticAvatarModel({ isActive, isSpeaking, avatarType }: RealisticAva
         <meshStandardMaterial color={skinTone} roughness={0.55} />
       </mesh>
       <mesh position={[0, -0.1, 0.95]} scale={[0.18, 0.12, 0.2]}>
-        <sphereGeometry args={[1, 32, 32]} />
+        <sphereGeometry args={[1, 16, 16]} />
         <meshStandardMaterial color={skinTone} roughness={0.6} />
       </mesh>
       
@@ -206,43 +206,43 @@ function RealisticAvatarModel({ isActive, isSpeaking, avatarType }: RealisticAva
       
       {/* Lips */}
       <mesh ref={upperLipRef} position={[0, -0.35, 0.85]} scale={[0.35, 0.08, 0.15]}>
-        <sphereGeometry args={[1, 32, 32]} />
+        <sphereGeometry args={[1, 16, 16]} />
         <meshStandardMaterial color="#c77a6a" roughness={0.4} metalness={0.1} />
       </mesh>
       <mesh ref={lowerLipRef} position={[0, -0.45, 0.85]} scale={[0.32, 0.1, 0.15]}>
-        <sphereGeometry args={[1, 32, 32]} />
+        <sphereGeometry args={[1, 16, 16]} />
         <meshStandardMaterial color="#b36959" roughness={0.4} metalness={0.1} />
       </mesh>
       
       {/* Jaw/Chin */}
       <mesh ref={jawRef} position={[0, -0.6, 0.5]} scale={[0.7, 0.5, 0.6]}>
-        <sphereGeometry args={[1, 32, 32]} />
+        <sphereGeometry args={[1, 16, 16]} />
         <meshStandardMaterial color={skinTone} roughness={0.6} />
       </mesh>
       
       {/* Ears */}
       <mesh position={[-0.85, 0, 0.2]} rotation={[0, 0.5, 0]} scale={[0.3, 0.4, 0.2]}>
-        <sphereGeometry args={[1, 32, 32]} />
+        <sphereGeometry args={[1, 16, 16]} />
         <meshStandardMaterial color={skinTone} roughness={0.65} />
       </mesh>
       <mesh position={[0.85, 0, 0.2]} rotation={[0, -0.5, 0]} scale={[0.3, 0.4, 0.2]}>
-        <sphereGeometry args={[1, 32, 32]} />
+        <sphereGeometry args={[1, 16, 16]} />
         <meshStandardMaterial color={skinTone} roughness={0.65} />
       </mesh>
       
       {/* Hair - Professional style */}
       <mesh position={[0, 0.5, 0]} scale={[1.05, 0.7, 1.05]}>
-        <sphereGeometry args={[1, 32, 32]} />
+        <sphereGeometry args={[1, 16, 16]} />
         <meshStandardMaterial color={hairColor} roughness={0.85} />
       </mesh>
       <mesh position={[0, 0.7, -0.2]} scale={[0.9, 0.5, 0.8]}>
-        <sphereGeometry args={[1, 32, 32]} />
+        <sphereGeometry args={[1, 16, 16]} />
         <meshStandardMaterial color={hairColor} roughness={0.85} />
       </mesh>
       
       {/* Neck */}
       <mesh position={[0, -1.1, 0]} scale={[0.35, 0.5, 0.35]}>
-        <cylinderGeometry args={[1, 1, 1, 32]} />
+        <cylinderGeometry args={[1, 1, 1, 16]} />
         <meshStandardMaterial color={skinTone} roughness={0.6} />
       </mesh>
       
@@ -307,22 +307,64 @@ export default function RealisticAvatar({
   avatarType = 'consultant',
   className = '' 
 }: RealisticAvatarProps) {
+  const [hasError, setHasError] = useState(false);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  
   // Check WebGL availability before attempting to render Canvas
   const webglSupported = isWebGLAvailable();
 
-  // If WebGL is not supported, show fallback immediately
-  if (!webglSupported) {
-    console.warn('[RealisticAvatar] WebGL not available, showing fallback');
-    return <WebGLFallback />;
+  // Handle WebGL context loss per-canvas
+  useEffect(() => {
+    const handleContextLost = (event: Event) => {
+      event.preventDefault();
+      console.warn('[RealisticAvatar] WebGL context lost, showing fallback');
+      setHasError(true);
+    };
+
+    const handleContextRestored = () => {
+      console.log('[RealisticAvatar] WebGL context restored');
+      setHasError(false);
+    };
+
+    // Get canvas from Canvas component after it mounts
+    const checkCanvas = setInterval(() => {
+      const canvas = document.querySelector('[data-testid="realistic-avatar-scene"] canvas');
+      if (canvas && canvas !== canvasRef.current) {
+        canvasRef.current = canvas as HTMLCanvasElement;
+        canvas.addEventListener('webglcontextlost', handleContextLost);
+        canvas.addEventListener('webglcontextrestored', handleContextRestored);
+        clearInterval(checkCanvas);
+      }
+    }, 100);
+
+    return () => {
+      clearInterval(checkCanvas);
+      if (canvasRef.current) {
+        canvasRef.current.removeEventListener('webglcontextlost', handleContextLost);
+        canvasRef.current.removeEventListener('webglcontextrestored', handleContextRestored);
+      }
+    };
+  }, []);
+
+  // If WebGL is not supported or error occurred, show professional fallback
+  if (!webglSupported || hasError) {
+    return <ProfessionalAvatarFallback avatarType={avatarType} className={className} />;
   }
 
   return (
     <div className={`${className}`} data-testid="realistic-avatar-scene">
       <Canvas
         camera={{ position: [0, 0.3, 3.5], fov: 45 }}
-        shadows
-        gl={{ antialias: true, alpha: true }}
+        shadows={false}
+        gl={{ 
+          antialias: false,
+          alpha: true,
+          powerPreference: 'low-power'
+        }}
         style={{ background: 'transparent' }}
+        onCreated={({ gl }) => {
+          gl.setClearColor(0x000000, 0);
+        }}
       >
         {/* Lighting setup for realistic faces */}
         <ambientLight intensity={0.4} />
@@ -331,9 +373,6 @@ export default function RealisticAvatar({
         <directionalLight
           position={[2, 3, 4]}
           intensity={1.2}
-          castShadow
-          shadow-mapSize-width={2048}
-          shadow-mapSize-height={2048}
         />
         
         {/* Fill light */}

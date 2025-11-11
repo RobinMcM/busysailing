@@ -1,0 +1,70 @@
+root@ubuntu-s-2vcpu-8gb-amd-lon1-01:/opt/uk-tax-advisor/app/deployment# docker compose logs app
+WARN[0000] /opt/uk-tax-advisor/app/deployment/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion 
+uk-tax-advisor-app  | [Supabase] Checking if analytics table exists...
+uk-tax-advisor-app  | [Supabase] ✓ Analytics table exists and is accessible
+uk-tax-advisor-app  | 12:22:40 PM [express] serving on port 5000
+uk-tax-advisor-app  | [API] Received chat request
+uk-tax-advisor-app  | [API] Request validated, calling AI...
+uk-tax-advisor-app  | Using Groq API for chat
+uk-tax-advisor-app  | [API] Got response from AI, sending to client
+uk-tax-advisor-app  | 12:23:15 PM [express] POST /api/chat 200 in 1526ms :: {"message":"Claiming coffee expenses while work…
+uk-tax-advisor-app  | [Storage] Error creating analytics record: {
+uk-tax-advisor-app  |   code: '42501',
+uk-tax-advisor-app  |   details: null,
+uk-tax-advisor-app  |   hint: null,
+uk-tax-advisor-app  |   message: 'new row violates row-level security policy for table "analytics"'
+uk-tax-advisor-app  | }
+uk-tax-advisor-app  | [Storage] Failed to create analytics record: {
+uk-tax-advisor-app  |   code: '42501',
+uk-tax-advisor-app  |   details: null,
+uk-tax-advisor-app  |   hint: null,
+uk-tax-advisor-app  |   message: 'new row violates row-level security policy for table "analytics"'
+uk-tax-advisor-app  | }
+uk-tax-advisor-app  | [API] Received chat request
+uk-tax-advisor-app  | [API] Request validated, calling AI...
+uk-tax-advisor-app  | [API] Got response from AI, sending to client
+uk-tax-advisor-app  | 12:26:25 PM [express] POST /api/chat 200 in 1458ms :: {"message":"As a UK taxpayer, you may be able t…
+uk-tax-advisor-app  | [Storage] Error creating analytics record: {
+uk-tax-advisor-app  |   code: '42501',
+uk-tax-advisor-app  |   details: null,
+uk-tax-advisor-app  |   hint: null,
+uk-tax-advisor-app  |   message: 'new row violates row-level security policy for table "analytics"'
+uk-tax-advisor-app  | }
+uk-tax-advisor-app  | [Storage] Failed to create analytics record: {
+uk-tax-advisor-app  |   code: '42501',
+uk-tax-advisor-app  |   details: null,
+uk-tax-advisor-app  |   hint: null,
+uk-tax-advisor-app  |   message: 'new row violates row-level security policy for table "analytics"'
+uk-tax-advisor-app  | }
+uk-tax-advisor-app  | [API] Received chat request
+uk-tax-advisor-app  | [API] Request validated, calling AI...
+uk-tax-advisor-app  | [API] Got response from AI, sending to client
+uk-tax-advisor-app  | 12:27:00 PM [express] POST /api/chat 200 in 1768ms :: {"message":"As a UK taxpayer, you may be able t…
+uk-tax-advisor-app  | [Storage] Error creating analytics record: {
+uk-tax-advisor-app  |   code: '42501',
+uk-tax-advisor-app  |   details: null,
+uk-tax-advisor-app  |   hint: null,
+uk-tax-advisor-app  |   message: 'new row violates row-level security policy for table "analytics"'
+uk-tax-advisor-app  | }
+uk-tax-advisor-app  | [Storage] Failed to create analytics record: {
+uk-tax-advisor-app  |   code: '42501',
+uk-tax-advisor-app  |   details: null,
+uk-tax-advisor-app  |   hint: null,
+uk-tax-advisor-app  |   message: 'new row violates row-level security policy for table "analytics"'
+uk-tax-advisor-app  | }
+uk-tax-advisor-app  | [API] Received chat request
+uk-tax-advisor-app  | [API] Request validated, calling AI...
+uk-tax-advisor-app  | [API] Got response from AI, sending to client
+uk-tax-advisor-app  | 12:29:04 PM [express] POST /api/chat 200 in 1990ms :: {"message":"Calculating your Self Assessment ta…
+uk-tax-advisor-app  | [Storage] Error creating analytics record: {
+uk-tax-advisor-app  |   code: '42501',
+uk-tax-advisor-app  |   details: null,
+uk-tax-advisor-app  |   hint: null,
+uk-tax-advisor-app  |   message: 'new row violates row-level security policy for table "analytics"'
+uk-tax-advisor-app  | }
+uk-tax-advisor-app  | [Storage] Failed to create analytics record: {
+uk-tax-advisor-app  |   code: '42501',
+uk-tax-advisor-app  |   details: null,
+uk-tax-advisor-app  |   hint: null,
+uk-tax-advisor-app  |   message: 'new row violates row-level security policy for table "analytics"'
+uk-tax-advisor-app  | }
