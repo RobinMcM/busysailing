@@ -1,10 +1,11 @@
 import { useState } from "react";
+import { Link } from "wouter";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Lock, Unlock, DollarSign, MessageSquare, Volume2, Users, TrendingUp, Download } from "lucide-react";
+import { Lock, Unlock, DollarSign, MessageSquare, Volume2, Users, TrendingUp, Download, ArrowLeft } from "lucide-react";
 import { type AnalyticsSummary, type Analytics } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
 
@@ -158,6 +159,20 @@ export default function Admin() {
       <div className="max-w-7xl mx-auto space-y-6">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
+            <div className="flex items-center gap-3 mb-2">
+              <Link href="/">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="gap-2"
+                  data-testid="button-back-to-chat"
+                  title="Back to Chat"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                  Back to Chat
+                </Button>
+              </Link>
+            </div>
             <h1 className="text-3xl font-bold flex items-center gap-2">
               <TrendingUp className="w-8 h-8" />
               Usage Analytics

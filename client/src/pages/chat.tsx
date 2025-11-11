@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
+import { Link } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Trash2, Sparkles, Volume2, VolumeX, StopCircle, Lock, CheckCircle } from 'lucide-react';
+import { Trash2, Sparkles, Volume2, VolumeX, StopCircle, Lock, CheckCircle, BarChart3 } from 'lucide-react';
 import ChatMessage from '@/components/ChatMessage';
 import MessageInput from '@/components/MessageInput';
 import ExamplePrompts from '@/components/ExamplePrompts';
@@ -378,6 +379,20 @@ export default function Chat() {
                 </Button>
               </>
             )}
+            
+            {/* Admin Link */}
+            <Link href="/admin">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="gap-2"
+                data-testid="button-admin"
+                title="Admin Analytics"
+              >
+                <BarChart3 className="h-4 w-4" />
+                Admin
+              </Button>
+            </Link>
             
             {/* Password Input - Always visible */}
             <div className="relative w-32">
