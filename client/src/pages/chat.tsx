@@ -7,7 +7,6 @@ import MessageInput from '@/components/MessageInput';
 import ExamplePrompts from '@/components/ExamplePrompts';
 import TypingIndicator from '@/components/TypingIndicator';
 import { AvatarWelcome } from '@/components/AvatarWelcome';
-import Avatar3D from '@/components/Avatar3D';
 import RealisticAvatar from '@/components/RealisticAvatar';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
