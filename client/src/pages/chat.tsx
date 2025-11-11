@@ -517,24 +517,24 @@ export default function Chat() {
                   <span className="text-sm font-medium text-foreground">Consultant</span>
                 </div>
 
-                {/* Secondary Partner Avatar */}
-                {isSecondAvatarEnabled && (
-                  <div className="flex flex-col items-center gap-2">
-                    <div 
-                      className={`w-64 h-64 rounded-lg overflow-hidden transition-opacity duration-300 ${
-                        isParagraphSpeaking && activeAvatar === 'primary' ? 'opacity-50' : 'opacity-100'
-                      }`}
-                      data-testid="avatar-support"
-                    >
-                      <Avatar3D 
-                        isActive={activeAvatar === 'support'}
-                        isSpeaking={(supportTTS.isSpeaking || isParagraphSpeaking) && activeAvatar === 'support'}
-                        className="w-full h-full"
-                      />
-                    </div>
-                    <span className="text-sm font-medium text-foreground">Partner</span>
+                {/* Secondary Partner Avatar - Always rendered, visibility controlled by opacity */}
+                <div className={`flex flex-col items-center gap-2 transition-all duration-500 ${
+                  isSecondAvatarEnabled ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'
+                }`}>
+                  <div 
+                    className={`w-64 h-64 rounded-lg overflow-hidden transition-opacity duration-300 ${
+                      isParagraphSpeaking && activeAvatar === 'primary' ? 'opacity-50' : 'opacity-100'
+                    }`}
+                    data-testid="avatar-support"
+                  >
+                    <Avatar3D 
+                      isActive={activeAvatar === 'support'}
+                      isSpeaking={(supportTTS.isSpeaking || isParagraphSpeaking) && activeAvatar === 'support'}
+                      className="w-full h-full"
+                    />
                   </div>
-                )}
+                  <span className="text-sm font-medium text-foreground">Partner</span>
+                </div>
               </div>
             </div>
           )}
