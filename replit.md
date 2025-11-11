@@ -11,17 +11,22 @@ This project is an AI-powered chatbot designed to provide expert guidance on UK 
 - Do not make changes to the file `Y`.
 
 ## System Architecture
-The application features a React/TypeScript frontend with Shadcn UI and Tailwind CSS, and an Express.js backend. Core architectural decisions include a dual AI integration strategy, prioritizing Groq (Llama 3.3) for chat responses due to its speed and cost-effectiveness, and OpenAI TTS for high-quality voice generation. A key feature is the Wav2Lip lip-sync integration, utilizing a self-hosted Flask API with OpenVINO for efficient, CPU-based video generation. The UI/UX emphasizes a mobile-first, WhatsApp-style chat display with dual professional avatars, visual dimming for inactive speakers, and paragraph-based voice alternation using distinct British English female voices. The system incorporates a password gate for access control, rate limiting, and robust error handling. Conversation context is maintained for multi-turn interactions, and all content is localized for the UK.
+The application features a React/TypeScript frontend with Shadcn UI and Tailwind CSS, and an Express.js backend. Core architectural decisions include a dual AI integration strategy, prioritizing Groq (Llama 3.3) for chat responses due to its speed and cost-effectiveness, and OpenAI TTS for high-quality voice generation.
+
+**Avatar System Pivot (Nov 2024):**
+After extensive testing, the project pivoted from CPU-based Wav2Lip video generation (which had 20-30 second delays per paragraph, making it unsuitable for real-time chat) to client-side Three.js 3D avatars. This delivers instant, lightweight animations with basic lip-sync using React Three Fiber (@react-three/fiber), providing a superior user experience with zero server-side processing overhead.
+
+The UI/UX emphasizes a mobile-first, WhatsApp-style chat display with dual professional 3D avatars, visual dimming for inactive speakers, and paragraph-based voice alternation using distinct British English female voices. The system incorporates a password gate for access control, rate limiting, and robust error handling. Conversation context is maintained for multi-turn interactions, and all content is localized for the UK.
 
 ### Technical Implementations
 - **Frontend**: React with TypeScript, Wouter for routing, TanStack Query for state management, Shadcn UI, Tailwind CSS.
-- **Backend**: Express.js, PostgreSQL database (Neon/Drizzle ORM), rate limiting (20 req/min/IP).
+- **Backend**: Express.js, Supabase PostgreSQL database with row-level security, rate limiting (20 req/min/IP).
 - **AI Integration**: Primary: Groq API (Llama 3.3 70B Versatile); Fallback: OpenAI GPT-4o or Replit AI Integrations. System prompt tailored for UK tax law.
-- **Wav2Lip Integration**: Flask API service with OpenVINO-based Wav2Lip inference. Models converted to OpenVINO IR format (113MB, hosted on HuggingFace: RobinMcM/wav2lip-openvino-models). Models are baked into Docker image during build. Supports FPS-synchronized audio processing and promise-based sequential execution. Graceful fallback to Web Speech API.
-- **User Interface**: Mobile-phone-styled chat history, dual independent avatars with visual dimming, auto-scroll, timestamps, and professional UK financial services-themed styling.
-- **Voice Features**: Speech-to-text (Web Speech API), dual text-to-speech with paragraph-based voice alternation (Consultant/Partner voices), mute/unmute, and stop speaking controls.
+- **3D Avatar System**: Client-side Three.js rendering using React Three Fiber (@react-three/fiber) and Drei. Geometric avatars (sphere head, eyes, nose, mouth) with real-time animations. Speaking states trigger mouth movement (8Hz scaling) and blue point-light glow effect. Proactive WebGL detection with graceful fallback card for unsupported browsers. Zero server-side processing, instant rendering.
+- **User Interface**: Mobile-phone-styled chat history, dual independent 3D avatars (256x256 each) with visual dimming (50% opacity for inactive speaker), auto-scroll, timestamps, and professional UK financial services-themed styling.
+- **Voice Features**: Speech-to-text (Web Speech API), dual text-to-speech with paragraph-based voice alternation (Consultant: even paragraphs, Partner: odd paragraphs), OpenAI TTS-1 voices (British English female), mute/unmute, and stop speaking controls.
 - **Security**: Password gate (MKS2005) for chat access; backend-verified admin authentication for analytics dashboard.
-- **Analytics System**: Comprehensive usage tracking with PostgreSQL persistence. Tracks chat/TTS requests, token/character counts, costs, IP addresses, response times. Admin dashboard at /admin with real-time metrics, 100-user cost projections, period filtering, and CSV export.
+- **Analytics System**: Comprehensive usage tracking with Supabase PostgreSQL persistence and row-level security. Tracks chat/TTS requests, token/character counts, costs, IP addresses, response times. Uses service role key for backend writes. Admin dashboard at /admin with real-time metrics, 100-user cost projections, period filtering, and CSV export.
 
 ### Feature Specifications
 - **Password Gate**: 12-character obscured input, visual feedback (lock icon), disables functionality until correct.
@@ -37,66 +42,49 @@ The application features a React/TypeScript frontend with Shadcn UI and Tailwind
 - **Groq API**: For fast and cost-effective AI chat responses (Llama 3.3 70B Versatile).
 - **OpenAI API**: For high-quality Text-to-Speech (TTS) voices (GPT-4o for chat fallback, primary for TTS).
 - **Replit AI Integrations**: As a fallback for both chat and TTS.
-- **Web Speech API**: For client-side Speech-to-Text and as a fallback for Text-to-Speech/Wav2Lip.
-- **OpenVINO**: Used in the Wav2Lip Flask service for optimized, CPU-based model inference.
+- **Web Speech API**: For client-side Speech-to-Text and as a fallback for Text-to-Speech.
+- **Three.js**: Client-side 3D rendering library via React Three Fiber for avatar visualization.
 
 ## Deployment Configuration
 
 ### Recommended: DigitalOcean Deployment
-The application can be deployed to a single DigitalOcean droplet (8GB RAM / 4 vCPU / 160GB SSD) running all services via Docker Compose. This is the most cost-effective option at ~$48-63/month for complete hosting.
+The application can be deployed to a single DigitalOcean droplet (4GB RAM / 2 vCPU / 80GB SSD) running via Docker. With the Three.js client-side rendering, no backend video processing is needed, significantly simplifying deployment.
 
 **Deployment Structure:**
-- **Docker Compose Setup**: All services (Node.js app, Flask Wav2Lip, PostgreSQL, Nginx) run in containers on one server
+- **Docker Compose Setup**: Node.js app with Nginx reverse proxy
 - **Nginx Reverse Proxy**: Handles SSL termination, routing, and rate limiting
 - **Let's Encrypt SSL**: Automatic certificate generation and renewal
-- **Service Communication**: Internal Docker network with health checks
+- **Supabase PostgreSQL**: Managed database (no self-hosting required)
 - **Automated Deployment**: Git-based deployment with one-command updates
 
 **Key Features:**
 - ✅ Single-server deployment (no vendor lock-in)
-- ✅ Full resource control and flexibility
+- ✅ Simplified architecture (no video processing backend)
+- ✅ Client-side 3D rendering (zero server overhead for avatars)
 - ✅ Automated SSL certificate management
-- ✅ Database backups and restore scripts
 - ✅ Zero-downtime deployments
-- ✅ Comprehensive logging and monitoring
-- ✅ Cost-effective ($48-63/month vs $100+/month for managed services)
+- ✅ Cost-effective (~$24/month for droplet + Supabase free tier)
 
 **Deployment Files:**
-- `deployment/docker-compose.yml` - Multi-service orchestration
+- `deployment/docker-compose.yml` - Application orchestration
 - `deployment/nginx/nginx.conf` - Reverse proxy with SSL and rate limiting
-- `deployment/scripts/setup.sh` - One-command server setup
-- `deployment/scripts/deploy.sh` - Git-based deployment updates
-- `deployment/scripts/backup.sh` - Database backup automation
-- `deployment/DIGITALOCEAN_DEPLOYMENT.md` - Complete deployment guide
+- `deployment/Dockerfile.app` - Node.js application container
+- `deployment/supabase-schema.sql` - Database schema with RLS policies
+
+**Database Setup:**
+1. Create Supabase project (free tier available)
+2. Run `deployment/supabase-schema.sql` in Supabase SQL Editor
+3. Copy `SUPABASE_URL` and `SUPABASE_SERVICE_KEY` from project settings
+4. Add to environment variables for deployment
 
 **Quick Start:**
-1. Create DigitalOcean droplet (Ubuntu 22.04, 8GB RAM)
-2. Run `curl -fsSL https://raw.githubusercontent.com/YOUR_REPO/main/deployment/scripts/setup.sh | sudo bash`
-3. Follow prompts for SSH keys, environment variables, and SSL certificates
-4. Access at your domain with full lip-sync functionality
+1. Create DigitalOcean droplet (Ubuntu 22.04, 4GB RAM)
+2. Set up environment variables (GROQ_API_KEY, SUPABASE_URL, SUPABASE_SERVICE_KEY)
+3. Deploy via Docker Compose
+4. Configure SSL with Let's Encrypt
+5. Access at busysailing.com with full 3D avatar functionality
 
-See `deployment/DIGITALOCEAN_DEPLOYMENT.md` for complete step-by-step instructions.
-
-### Alternative: Render.com Deployment
-The Wav2Lip Flask service can also be deployed as a separate web service on Render (requires Standard tier $25/month minimum for 2GB RAM).
-
-**Critical Configuration:**
-- **Start Command**: `python app.py` (NOT `./start.sh`)
-- **Instance Type**: Standard ($25/mo) or higher - requires 2GB+ RAM for OpenVINO inference
-- **Memory Limit**: Free/Starter tiers (512MB) will cause out-of-memory errors during video generation
-- **Docker Build**: Models are pre-built into image during build time (113MB total)
-
-**Render Service Settings:**
-- Service Type: Web Service
-- Docker Context: `server/wav2lip_service`
-- Dockerfile Path: `server/wav2lip_service/Dockerfile`
-- Port: 10000 (auto-assigned by Render via PORT env var)
-- Health Check Endpoint: `/health`
-
-**Troubleshooting:**
-- If service crashes with "Ran out of memory" → Upgrade to Standard tier or higher
-- If `/health` reports `models_available: false` → Check Docker build logs for model extraction
-- Bootstrap code auto-extracts models from tarball if missing at runtime
+**Note:** The deployment files may reference Wav2Lip service from the previous implementation. These can be ignored as the Three.js avatars render entirely in the browser with no backend processing required.
 
 ## Analytics & Cost Monitoring
 
