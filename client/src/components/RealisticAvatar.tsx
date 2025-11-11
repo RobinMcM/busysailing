@@ -3,6 +3,7 @@ import { Canvas, useFrame } from '@react-three/fiber';
 import { Environment } from '@react-three/drei';
 import * as THREE from 'three';
 import { ProfessionalAvatarFallback } from './ProfessionalAvatarFallback';
+import { CanvasErrorBoundary } from './CanvasErrorBoundary';
 
 interface RealisticAvatarModelProps {
   isActive: boolean;
@@ -352,45 +353,53 @@ export default function RealisticAvatar({
   }
 
   return (
-    <div className={`${className}`} data-testid="realistic-avatar-scene">
-      <Canvas
-        camera={{ position: [0, 0.3, 3.5], fov: 45 }}
-        shadows={false}
-        gl={{ 
-          antialias: false,
-          alpha: true,
-          powerPreference: 'low-power'
-        }}
-        style={{ background: 'transparent' }}
-        onCreated={({ gl }) => {
-          gl.setClearColor(0x000000, 0);
-        }}
-      >
-        {/* Lighting setup for realistic faces */}
-        <ambientLight intensity={0.4} />
-        
-        {/* Key light (main) */}
-        <directionalLight
-          position={[2, 3, 4]}
-          intensity={1.2}
-        />
-        
-        {/* Fill light */}
-        <pointLight position={[-2, 1, 3]} intensity={0.6} color="#f0e4d7" />
-        
-        {/* Back light */}
-        <pointLight position={[0, 2, -2]} intensity={0.4} color="#a8c5dd" />
-        
-        {/* Avatar Model */}
-        <RealisticAvatarModel 
-          isActive={isActive} 
-          isSpeaking={isSpeaking}
-          avatarType={avatarType}
-        />
-        
-        {/* Environment for realistic reflections */}
-        <Environment preset="studio" />
-      </Canvas>
-    </div>
+    <CanvasErrorBoundary
+      fallback={<ProfessionalAvatarFallback avatarType={avatarType} className={className} />}
+      onError={() => {
+        console.warn('[RealisticAvatar] ErrorBoundary caught rendering error, switching to fallback');
+        setHasError(true);
+      }}
+    >
+      <div className={`${className}`} data-testid="realistic-avatar-scene">
+        <Canvas
+          camera={{ position: [0, 0.3, 3.5], fov: 45 }}
+          shadows={false}
+          gl={{ 
+            antialias: false,
+            alpha: true,
+            powerPreference: 'low-power'
+          }}
+          style={{ background: 'transparent' }}
+          onCreated={({ gl }) => {
+            gl.setClearColor(0x000000, 0);
+          }}
+        >
+          {/* Lighting setup for realistic faces */}
+          <ambientLight intensity={0.4} />
+          
+          {/* Key light (main) */}
+          <directionalLight
+            position={[2, 3, 4]}
+            intensity={1.2}
+          />
+          
+          {/* Fill light */}
+          <pointLight position={[-2, 1, 3]} intensity={0.6} color="#f0e4d7" />
+          
+          {/* Back light */}
+          <pointLight position={[0, 2, -2]} intensity={0.4} color="#a8c5dd" />
+          
+          {/* Avatar Model */}
+          <RealisticAvatarModel 
+            isActive={isActive} 
+            isSpeaking={isSpeaking}
+            avatarType={avatarType}
+          />
+          
+          {/* Environment for realistic reflections */}
+          <Environment preset="studio" />
+        </Canvas>
+      </div>
+    </CanvasErrorBoundary>
   );
 }
