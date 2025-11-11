@@ -1,0 +1,40 @@
+root@ubuntu-s-2vcpu-8gb-amd-lon1-01:/opt/uk-tax-advisor/app/deployment# docker compose run --rm certbot cat /var/log/letsencrypt/letsencrypt.log | tail -50
+WARN[0000] /opt/uk-tax-advisor/app/deployment/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion 
+Saving debug log to /var/log/letsencrypt/letsencrypt.log
+^C
+
+root@ubuntu-s-2vcpu-8gb-amd-lon1-01:/opt/uk-tax-advisor/app/deployment# cd /var/log/letsencrypt/l
+-bash: cd: /var/log/letsencrypt/l: No such file or directory
+root@ubuntu-s-2vcpu-8gb-amd-lon1-01:/opt/uk-tax-advisor/app/deployment# cd ..
+root@ubuntu-s-2vcpu-8gb-amd-lon1-01:/opt/uk-tax-advisor/app# cd /
+root@ubuntu-s-2vcpu-8gb-amd-lon1-01:/# ls
+bin   dev  home  lib32  libx32      media  opt   root  sbin  srv  tmp  var
+boot  etc  lib   lib64  lost+found  mnt    proc  run   snap  sys  usr
+root@ubuntu-s-2vcpu-8gb-amd-lon1-01:/# cd var
+root@ubuntu-s-2vcpu-8gb-amd-lon1-01:/var# cd lob
+-bash: cd: lob: No such file or directory
+root@ubuntu-s-2vcpu-8gb-amd-lon1-01:/var# cd log
+root@ubuntu-s-2vcpu-8gb-amd-lon1-01:/var/log# ls -ls
+total 2932
+   8 -rw-r--r--  1 root      root               8037 Nov 10 20:06 alternatives.log
+   4 drwxr-xr-x  2 root      root               4096 Nov 10 20:06 apt
+ 176 -rw-r-----  1 syslog    adm              175775 Nov 10 22:40 auth.log
+ 188 -rw-rw----  1 root      utmp             187776 Nov 10 22:31 btmp
+  12 -rw-r-----  1 root      adm               11702 Nov 10 19:18 cloud-init-output.log
+ 140 -rw-r-----  1 syslog    adm              139279 Nov 10 19:18 cloud-init.log
+   4 drwxr-xr-x  2 root      root               4096 Feb 13  2024 dist-upgrade
+  48 -rw-r-----  1 root      adm               48523 Nov 10 19:17 dmesg
+ 144 -rw-r--r--  1 root      root             142151 Nov 10 20:06 dpkg.log
+   4 -rw-r--r--  1 root      root                451 Nov 10 22:27 droplet-agent.update.log
+   4 drwxr-sr-x+ 4 root      systemd-journal    4096 Nov 10 20:05 journal
+ 372 -rw-r-----  1 syslog    adm              379074 Nov 10 22:44 kern.log
+   4 drwxr-xr-x  2 landscape landscape          4096 Nov 10 19:58 landscape
+   8 -rw-rw-r--  1 root      utmp             292000 Nov 10 22:06 lastlog
+   4 drwx------  2 root      root               4096 Nov 10 19:17 private
+1800 -rw-r-----  1 syslog    adm             1842945 Nov 10 22:44 syslog
+   0 -rw-r--r--  1 root      root                  0 Nov 10 20:06 ubuntu-advantage.log
+   4 drwxr-x---  2 root      adm                4096 Nov 10 19:17 unattended-upgrades
+   8 -rw-rw-r--  1 root      utmp               4608 Nov 10 22:06 wtmp
+root@ubuntu-s-2vcpu-8gb-amd-lon1-01:/var/log# cat /var/log/letsencrypt/letsencrypt.log | tail -50
+cat: /var/log/letsencrypt/letsencrypt.log: No such file or directory
+root@ubuntu-s-2vcpu-8gb-amd-lon1-01:/var/log# 

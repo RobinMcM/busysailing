@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react';
 
 // Wav2Lip service URL - defaults to localhost for development
 // Set VITE_WAV2LIP_SERVICE_URL environment variable for production deployment
-const WAV2LIP_SERVICE_URL = import.meta.env.VITE_WAV2LIP_SERVICE_URL || 'http://localhost:5001';
+const WAV2LIP_SERVICE_URL = import.meta.env.VITE_WAV2LIP_SERVICE_URL || '/api/wav2lip';
 
 export interface Wav2LipOptions {
   voice?: 'alloy' | 'echo' | 'fable' | 'onyx' | 'nova' | 'shimmer';

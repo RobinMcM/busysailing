@@ -1,0 +1,41 @@
+root@ubuntu-s-2vcpu-8gb-amd-lon1-01:/opt/uk-tax-advisor/app/deployment# sed -i 's|./nginx/nginx-bootstrap.conf:/etc/nginx/nginx.conf:ro|./nginx/nginx.conf:/etc/nginx/nginx.conf:ro|' docker-compose.yml
+root@ubuntu-s-2vcpu-8gb-amd-lon1-01:/opt/uk-tax-advisor/app/deployment# # Verify the change was made
+grep "nginx.conf" docker-compose.yml
+      # After certs exist, switch to: ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+root@ubuntu-s-2vcpu-8gb-amd-lon1-01:/opt/uk-tax-advisor/app/deployment# docker compose restart nginx
+WARN[0000] /opt/uk-tax-advisor/app/deployment/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion 
+[+] Restarting 1/1
+ ✔ Container uk-tax-advisor-nginx  Started                                                            0.5s 
+root@ubuntu-s-2vcpu-8gb-amd-lon1-01:/opt/uk-tax-advisor/app/deployment# docker compose logs nginx --tail=30
+WARN[0000] /opt/uk-tax-advisor/app/deployment/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion 
+uk-tax-advisor-nginx  | 142.93.0.66 - - [10/Nov/2025:22:51:18 +0000] "GET /s/7323e24333e2338313e28363/_/;/META-INF/maven/com.atlassian.jira/jira-webapp-dist/pom.properties HTTP/1.1" 200 963 "-" "Go-http-client/1.1"
+uk-tax-advisor-nginx  | 142.93.0.66 - - [10/Nov/2025:22:51:18 +0000] "GET /config.json HTTP/1.1" 200 963 "-" "Go-http-client/1.1"
+uk-tax-advisor-nginx  | 142.93.0.66 - - [10/Nov/2025:22:51:18 +0000] "GET /telescope/requests HTTP/1.1" 200 963 "-" "Go-http-client/1.1"
+uk-tax-advisor-nginx  | 142.93.0.66 - - [10/Nov/2025:22:51:18 +0000] "GET /info.php HTTP/1.1" 200 963 "-" "Go-http-client/1.1"
+uk-tax-advisor-nginx  | 142.93.0.66 - - [10/Nov/2025:22:51:18 +0000] "GET /?rest_route=/wp/v2/users/ HTTP/1.1" 200 963 "-" "Go-http-client/1.1"
+uk-tax-advisor-nginx  | 45.249.101.171 - - [10/Nov/2025:22:52:09 +0000] "GET /admin/config.php HTTP/1.0" 200 963 "-" "xfa1"
+uk-tax-advisor-nginx  | 104.253.247.106 - - [10/Nov/2025:22:52:15 +0000] "GET / HTTP/1.1" 200 963 "-" "Mozilla/5.0 (iPhone; CPU iPhone OS 18_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/138.0.7204.156 Mobile/15E148 Safari/604.1"
+uk-tax-advisor-nginx  | 104.253.247.106 - - [10/Nov/2025:22:52:15 +0000] "GET /assets/index-_-FrLIP-.css HTTP/1.1" 200 72450 "http://www.busysailing.com/" "Mozilla/5.0 (iPhone; CPU iPhone OS 18_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/138.0.7204.156 Mobile/15E148 Safari/604.1"
+uk-tax-advisor-nginx  | 104.253.247.106 - - [10/Nov/2025:22:52:15 +0000] "GET /assets/index-MkEWS5qb.js HTTP/1.1" 200 351703 "http://www.busysailing.com/" "Mozilla/5.0 (iPhone; CPU iPhone OS 18_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/138.0.7204.156 Mobile/15E148 Safari/604.1"
+uk-tax-advisor-nginx  | 104.253.247.106 - - [10/Nov/2025:22:52:16 +0000] "GET /favicon.png HTTP/1.1" 200 1145 "http://www.busysailing.com/" "Mozilla/5.0 (iPhone; CPU iPhone OS 18_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/138.0.7204.156 Mobile/15E148 Safari/604.1"
+uk-tax-advisor-nginx  | 104.253.247.106 - - [10/Nov/2025:22:52:16 +0000] "GET /assets/Video_call_tax_advisor_3ce91073-CNh21lPi.png HTTP/1.1" 200 1360539 "http://www.busysailing.com/" "Mozilla/5.0 (iPhone; CPU iPhone OS 18_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/138.0.7204.156 Mobile/15E148 Safari/604.1"
+uk-tax-advisor-nginx  | 195.123.244.84 - - [10/Nov/2025:22:53:05 +0000] "HEAD / HTTP/1.1" 200 0 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36 Edg/121.0.0.0"
+uk-tax-advisor-nginx  | 195.123.244.84 - - [10/Nov/2025:22:53:05 +0000] "GET / HTTP/1.1" 200 963 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
+uk-tax-advisor-nginx  | /docker-entrypoint.sh: /docker-entrypoint.d/ is not empty, will attempt to perform configuration
+uk-tax-advisor-nginx  | /docker-entrypoint.sh: Looking for shell scripts in /docker-entrypoint.d/
+uk-tax-advisor-nginx  | /docker-entrypoint.sh: Launching /docker-entrypoint.d/10-listen-on-ipv6-by-default.sh
+uk-tax-advisor-nginx  | 10-listen-on-ipv6-by-default.sh: info: IPv6 listen already enabled
+uk-tax-advisor-nginx  | /docker-entrypoint.sh: Sourcing /docker-entrypoint.d/15-local-resolvers.envsh
+uk-tax-advisor-nginx  | /docker-entrypoint.sh: Launching /docker-entrypoint.d/20-envsubst-on-templates.sh
+uk-tax-advisor-nginx  | /docker-entrypoint.sh: Launching /docker-entrypoint.d/30-tune-worker-processes.sh
+uk-tax-advisor-nginx  | /docker-entrypoint.sh: Configuration complete; ready for start up
+uk-tax-advisor-nginx  | 45.249.101.171 - - [10/Nov/2025:22:58:00 +0000] "GET /robots.txt HTTP/1.1" 200 963 "-" "Mozilla/5.0"
+uk-tax-advisor-nginx  | /docker-entrypoint.sh: /docker-entrypoint.d/ is not empty, will attempt to perform configuration
+uk-tax-advisor-nginx  | /docker-entrypoint.sh: Looking for shell scripts in /docker-entrypoint.d/
+uk-tax-advisor-nginx  | /docker-entrypoint.sh: Launching /docker-entrypoint.d/10-listen-on-ipv6-by-default.sh
+uk-tax-advisor-nginx  | 10-listen-on-ipv6-by-default.sh: info: IPv6 listen already enabled
+uk-tax-advisor-nginx  | /docker-entrypoint.sh: Sourcing /docker-entrypoint.d/15-local-resolvers.envsh
+uk-tax-advisor-nginx  | /docker-entrypoint.sh: Launching /docker-entrypoint.d/20-envsubst-on-templates.sh
+uk-tax-advisor-nginx  | /docker-entrypoint.sh: Launching /docker-entrypoint.d/30-tune-worker-processes.sh
+uk-tax-advisor-nginx  | /docker-entrypoint.sh: Configuration complete; ready for start up
