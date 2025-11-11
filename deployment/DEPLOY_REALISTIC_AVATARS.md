@@ -103,6 +103,31 @@ WebGL context loss is common on low-power devices and is now handled gracefully.
 3. Network tab in browser to verify assets loading
 4. Try incognito/private browsing to rule out cache
 
+### Problem: "Row violates row-level security policy" in server logs
+
+**Solution:**
+This occurs when analytics tracking fails due to missing Supabase RLS policies.
+
+1. Log into your Supabase project dashboard
+2. Go to SQL Editor
+3. Run the SQL from `deployment/supabase-schema.sql`
+4. This creates the analytics table with proper RLS policies
+5. Restart the app: `docker compose restart app`
+
+**Note:** Chat and avatars work fine even without analytics. This only affects usage tracking.
+
+### Problem: "synthesis-failed" or TTS warnings in browser console
+
+**Solution:**
+This is expected behavior when OpenAI TTS fails or is unavailable.
+The app automatically falls back to browser's built-in speech synthesis.
+
+**Expected warnings:**
+- "No voice selected, will use browser default"
+- Speech synthesis errors
+
+These don't affect functionality - the fallback chain ensures TTS always works.
+
 ## Verification Checklist
 
 ✅ Latest code pulled from GitHub  
