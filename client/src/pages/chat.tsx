@@ -123,7 +123,7 @@ export default function Chat() {
       utterance.lang = 'en-GB';
       
       if (usePrimary) {
-        utterance.pitch = 1.5;
+        utterance.pitch = 1.3;
         utterance.rate = 0.95;
       } else {
         utterance.pitch = 0.95;
