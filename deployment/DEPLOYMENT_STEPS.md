@@ -211,6 +211,22 @@ docker compose build
 docker compose up -d
 ```
 
+### Update nginx configuration only
+
+If you've updated only the nginx configuration (like adding new proxy routes):
+
+```bash
+cd /opt/uk-tax-advisor/app
+git pull
+cd deployment
+
+# Restart nginx to reload configuration
+docker compose restart nginx
+
+# Verify nginx is running correctly
+docker compose logs nginx --tail 50
+```
+
 ### SSL certificate renewal
 
 Certbot automatically renews certificates every 12 hours (handled by certbot container).
