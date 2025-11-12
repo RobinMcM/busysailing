@@ -32,7 +32,7 @@ interface ParagraphVideo {
 export default function Chat() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [isMuted, setIsMuted] = useState(true); // Start muted for autoplay compliance
+  const [isMuted, setIsMuted] = useState(true); // Start muted for autoplay compliance, will auto-unmute
   const [isSecondAvatarEnabled, setIsSecondAvatarEnabled] = useState(false);
   const [passwordInput, setPasswordInput] = useState('');
   const [isUnlocked, setIsUnlocked] = useState(false);
@@ -103,6 +103,12 @@ export default function Chat() {
         
         setCurrentIndex(nextIndex);
         setQueueStatus('playing');
+        
+        // Auto-unmute when video starts playing (users want to hear the avatar)
+        if (isMuted) {
+          setIsMuted(false);
+          console.log('[Video] Auto-unmuted for playback');
+        }
         
         // Enable Partner avatar when she first appears
         if (nextVideo.avatarType === 'old_european_woman' && !isSecondAvatarEnabled) {
