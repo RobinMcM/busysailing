@@ -11,7 +11,7 @@ import { AvatarWelcome } from '@/components/AvatarWelcome';
 import RealisticAvatar from '@/components/RealisticAvatar';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
-import { useTTS } from '@/hooks/use-tts';
+import { useAvatarTalk, type AvatarType } from '@/hooks/use-avatartalk';
 
 interface Message {
   id: string;
@@ -20,136 +20,187 @@ interface Message {
   timestamp: string;
 }
 
+interface ParagraphVideo {
+  id: string;
+  paragraph: string;
+  avatarType: AvatarType;
+  status: 'pending' | 'ready' | 'failed';
+  videoUrl: string | null;
+  error: string | null;
+}
+
 export default function Chat() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [isMuted, setIsMuted] = useState(false);
+  const [isMuted, setIsMuted] = useState(true); // Start muted for autoplay compliance
   const [isSecondAvatarEnabled, setIsSecondAvatarEnabled] = useState(false);
-  const [activeAvatar, setActiveAvatar] = useState<'primary' | 'support'>('primary');
-  const [isParagraphSpeaking, setIsParagraphSpeaking] = useState(false);
   const [passwordInput, setPasswordInput] = useState('');
   const [isUnlocked, setIsUnlocked] = useState(false);
-  const paragraphCancelledRef = useRef(false);
+  
+  // Avatar video queue state
+  const [paragraphQueue, setParagraphQueue] = useState<ParagraphVideo[]>([]);
+  const [currentIndex, setCurrentIndex] = useState<number>(-1);
+  const [queueStatus, setQueueStatus] = useState<'idle' | 'generating' | 'playing'>('idle');
+  const [isGeneratingVideos, setIsGeneratingVideos] = useState(false);
+  
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const { toast } = useToast();
+  const cleanupUrlsRef = useRef<string[]>([]);
+  const primaryVideoRef = useRef<HTMLVideoElement>(null);
+  const supportVideoRef = useRef<HTMLVideoElement>(null);
+  const { toast} = useToast();
   
   const CORRECT_PASSWORD = 'MKS2005';
   
-  // Dual TTS hooks - one for each avatar with different voice characteristics
-  const primaryTTS = useTTS();
-  const supportTTS = useTTS();
+  // AvatarTalk hook for video generation
+  const avatarTalk = useAvatarTalk();
   
   // Track which avatar is currently speaking
-  const isSpeaking = primaryTTS.isSpeaking || supportTTS.isSpeaking || isParagraphSpeaking;
-  const isSupported = primaryTTS.isSupported;
+  const isPlaybackActive = queueStatus === 'playing' && !isMuted;
+  const isSpeaking = isPlaybackActive;
+  const activeAvatar = currentIndex >= 0 && currentIndex < paragraphQueue.length
+    ? (paragraphQueue[currentIndex].avatarType === 'european_woman' ? 'primary' : 'support')
+    : 'primary';
 
-  // Function to speak response by alternating advisors per paragraph
-  const speakResponseInParagraphs = (text: string) => {
-    // Reset cancellation flag
-    paragraphCancelledRef.current = false;
+  // Cleanup function to revoke object URLs
+  const cleanupUrls = () => {
+    cleanupUrlsRef.current.forEach(url => URL.revokeObjectURL(url));
+    cleanupUrlsRef.current = [];
+  };
+
+  // Stop playback and cleanup
+  const stopPlayback = () => {
+    console.log('[Video] Stopping playback');
+    setQueueStatus('idle');
+    setCurrentIndex(-1);
     
+    // Pause any active videos
+    if (primaryVideoRef.current) {
+      primaryVideoRef.current.pause();
+    }
+    if (supportVideoRef.current) {
+      supportVideoRef.current.pause();
+    }
+    
+    // Cleanup URLs
+    cleanupUrls();
+  };
+
+  // Play next video in queue
+  const playNext = (indexOverride?: number) => {
+    let nextIndex = indexOverride !== undefined ? indexOverride : currentIndex + 1;
+    
+    // Find next playable video (skip failed ones)
+    while (nextIndex < paragraphQueue.length) {
+      const nextVideo = paragraphQueue[nextIndex];
+      
+      if (nextVideo.status === 'ready' && nextVideo.videoUrl) {
+        // Found a playable video
+        console.log(`[Video] Playing paragraph ${nextIndex + 1}/${paragraphQueue.length} with ${nextVideo.avatarType}`);
+        
+        setCurrentIndex(nextIndex);
+        setQueueStatus('playing');
+        
+        // Enable Partner avatar when she first appears
+        if (nextVideo.avatarType === 'old_european_woman' && !isSecondAvatarEnabled) {
+          setIsSecondAvatarEnabled(true);
+          console.log('[Avatar] Partner avatar enabled');
+        }
+        
+        return;
+      }
+      
+      console.warn(`[Video] Skipping paragraph ${nextIndex + 1} (not ready)`);
+      nextIndex++;
+    }
+    
+    // No more playable videos
+    console.log('[Video] Playback complete - no more videos');
+    setQueueStatus('idle');
+    setCurrentIndex(-1);
+  };
+
+  // Generate all paragraph videos upfront
+  const generateParagraphVideos = async (text: string) => {
     // Split by double line breaks to get paragraphs
     const paragraphs = text
       .split(/\n\n+/)
       .map(p => p.trim())
       .filter(p => p.length > 0);
     
-    console.log(`TTS: Split response into ${paragraphs.length} paragraphs`);
+    console.log(`[Video] Split response into ${paragraphs.length} paragraphs`);
     
     if (paragraphs.length === 0) {
-      console.warn('TTS: No paragraphs found in response');
+      console.warn('[Video] No paragraphs found in response');
       return;
     }
     
-    // Create a chain of utterances that alternate between advisors
-    let paragraphIndex = 0;
+    // Stop any existing playback
+    stopPlayback();
     
-    const speakNextParagraph = () => {
-      // Check if cancelled
-      if (paragraphCancelledRef.current) {
-        console.log('TTS: Paragraph chain cancelled');
-        setIsParagraphSpeaking(false);
-        return;
-      }
-      
-      if (paragraphIndex >= paragraphs.length) {
-        // All done
-        setIsParagraphSpeaking(false);
-        return;
-      }
-      
-      const paragraph = paragraphs[paragraphIndex];
-      const usePrimary = paragraphIndex % 2 === 0; // Even indices use primary, odd use support
-      
-      console.log(`TTS: Speaking paragraph ${paragraphIndex + 1}/${paragraphs.length} with ${usePrimary ? 'Primary' : 'Support'} advisor`);
-      
-      // Mark as speaking
-      setIsParagraphSpeaking(true);
-      
-      // Update active avatar for speaking indicator
-      setActiveAvatar(usePrimary ? 'primary' : 'support');
-      
-      // Enable Partner avatar when she first speaks (odd paragraph)
-      if (!usePrimary && !isSecondAvatarEnabled) {
-        setIsSecondAvatarEnabled(true);
-        console.log('[Avatar] Partner avatar enabled due to voice alternation');
-      }
-      
-      // Get available voices
-      const voices = window.speechSynthesis.getVoices();
-      const femaleUKVoices = voices.filter((voice) => {
-        const name = voice.name.toLowerCase();
-        const lang = voice.lang.toLowerCase();
-        const isUK = lang.startsWith('en-gb') || name.includes('uk') || name.includes('british');
-        const isFemale = name.includes('female') || name.includes('woman') ||
-                         name.includes('hazel') || name.includes('susan') || 
-                         name.includes('kate') || name.includes('serena') ||
-                         name.includes('karen') || name.includes('fiona') ||
-                         name.includes('libby') || name.includes('olivia');
-        return isUK && isFemale;
-      });
-      const ukVoice = voices.find(v => v.lang.startsWith('en-GB'));
-      const selectedVoice = femaleUKVoices[0] || ukVoice || voices[0] || null;
-      
-      if (selectedVoice) {
-        console.log(`TTS: Using voice: ${selectedVoice.name} (${selectedVoice.lang})`);
-      } else {
-        console.warn('TTS: No voice selected, will use browser default');
-      }
-      
-      // Create utterance
-      const utterance = new SpeechSynthesisUtterance(paragraph);
-      utterance.voice = selectedVoice;
-      utterance.lang = 'en-GB';
-      
-      if (usePrimary) {
-        utterance.pitch = 1.3;
-        utterance.rate = 1.05;
-      } else {
-        utterance.pitch = 0.95;
-        utterance.rate = 1.0;
-      }
-      
-      // When this paragraph finishes, speak the next one
-      utterance.onend = () => {
-        paragraphIndex++;
-        // Small pause between paragraphs
-        setTimeout(speakNextParagraph, 400);
-      };
-      
-      utterance.onerror = (event) => {
-        console.error('Speech synthesis error:', event.error);
-        // Try to continue anyway
-        paragraphIndex++;
-        setTimeout(speakNextParagraph, 400);
-      };
-      
-      // Speak this paragraph
-      window.speechSynthesis.speak(utterance);
-    };
+    // Initialize queue with pending status
+    const initialQueue: ParagraphVideo[] = paragraphs.map((paragraph, index) => ({
+      id: `${Date.now()}-${index}`,
+      paragraph,
+      avatarType: index % 2 === 0 ? 'european_woman' : 'old_european_woman',
+      status: 'pending',
+      videoUrl: null,
+      error: null
+    }));
     
-    // Start with the first paragraph
-    speakNextParagraph();
+    setParagraphQueue(initialQueue);
+    setQueueStatus('generating');
+    setIsGeneratingVideos(true);
+    
+    // Generate videos sequentially
+    let hasStartedPlayback = false;
+    
+    for (let i = 0; i < paragraphs.length; i++) {
+      const paragraphData = initialQueue[i];
+      
+      try {
+        console.log(`[Video] Generating video ${i + 1}/${paragraphs.length}...`);
+        
+        const videoUrl = await avatarTalk.generateVideo(
+          paragraphData.paragraph,
+          paragraphData.avatarType,
+          'neutral'
+        );
+        
+        // Store URL for cleanup
+        cleanupUrlsRef.current.push(videoUrl);
+        
+        // Update queue with ready video
+        setParagraphQueue(prev => prev.map((item, idx) => 
+          idx === i ? { ...item, status: 'ready', videoUrl } : item
+        ));
+        
+        console.log(`[Video] Video ${i + 1} generated successfully`);
+        
+        // Start playback with first successful video (if not already started)
+        if (!hasStartedPlayback) {
+          hasStartedPlayback = true;
+          setIsGeneratingVideos(false);
+          playNext(i);
+        }
+      } catch (error: any) {
+        console.error(`[Video] Failed to generate video ${i + 1}:`, error);
+        
+        // Update queue with error
+        setParagraphQueue(prev => prev.map((item, idx) => 
+          idx === i ? { ...item, status: 'failed', error: error.message } : item
+        ));
+        
+        toast({
+          title: 'Video Generation Failed',
+          description: `Failed to generate video for paragraph ${i + 1}. Skipping to next.`,
+          variant: 'destructive'
+        });
+      }
+    }
+    
+    setIsGeneratingVideos(false);
+    // Don't set queueStatus to idle here - playNext() manages it
+    console.log('[Video] All videos generated');
   };
 
   const handleSendMessage = async (content: string) => {
@@ -193,12 +244,10 @@ export default function Chat() {
         // Partner avatar will be enabled automatically during voice alternation (first odd paragraph)
         // No need to enable based on message count
         
-        // Auto-play TTS for AI responses if not muted
-        if (!isMuted && isSupported) {
-          setTimeout(() => {
-            speakResponseInParagraphs(data.message);
-          }, 100);
-        }
+        // Auto-generate videos for AI responses (regardless of mute state)
+        setTimeout(() => {
+          generateParagraphVideos(data.message);
+        }, 100);
         
         return updated;
       });
@@ -237,58 +286,25 @@ export default function Chat() {
   };
 
   const stopAllSpeech = () => {
-    // Set cancellation flag to prevent paragraph chaining
-    paragraphCancelledRef.current = true;
-    
-    // Stop Web Speech API
-    primaryTTS.stop();
-    supportTTS.stop();
-    window.speechSynthesis.cancel();
-    
-    // Clear speaking states
-    setIsParagraphSpeaking(false);
-    setActiveAvatar('primary');
+    stopPlayback();
   };
 
   const handleClearChat = () => {
-    stopAllSpeech();
+    stopPlayback();
     setMessages([]);
     setIsSecondAvatarEnabled(false);
-    setActiveAvatar('primary');
   };
 
   const handleToggleMute = () => {
     if (!isMuted) {
-      stopAllSpeech();
+      stopPlayback();
     }
     setIsMuted(!isMuted);
   };
 
   const handleReplayMessage = (content: string) => {
-    if (isMuted) {
-      toast({
-        title: "Voice is muted",
-        description: "Please unmute to replay this message.",
-        variant: "default",
-      });
-      return;
-    }
-    
-    if (!isSupported) {
-      toast({
-        title: "Text-to-speech not supported",
-        description: "Your browser doesn't support text-to-speech.",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    // Use primary avatar for replays
-    primaryTTS.speak(content, {
-      pitch: 1.5,
-      rate: 0.95,
-      lang: 'en-GB'
-    });
+    // Generate videos for replay (regardless of mute state)
+    generateParagraphVideos(content);
   };
 
   // Partner avatar is now enabled automatically during voice alternation (first odd paragraph)
@@ -308,10 +324,17 @@ export default function Chat() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isLoading]);
 
-  // Stop speech when component unmounts
+  // Stop playback when component unmounts
   useEffect(() => {
     return () => {
-      stopAllSpeech();
+      stopPlayback();
+    };
+  }, []);
+
+  // Cleanup video URLs when component unmounts
+  useEffect(() => {
+    return () => {
+      cleanupUrls();
     };
   }, []);
 
@@ -336,7 +359,7 @@ export default function Chat() {
                   <Button
                     variant="default"
                     size="sm"
-                    onClick={stopAllSpeech}
+                    onClick={stopPlayback}
                     className="gap-2 animate-pulse"
                     data-testid="button-stop-speaking"
                     title="Stop speaking"
@@ -345,28 +368,26 @@ export default function Chat() {
                     Stop Speaking
                   </Button>
                 )}
-                {isSupported && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleToggleMute}
-                    className="gap-2"
-                    data-testid="button-mute-toggle"
-                    title={isMuted ? "Unmute avatar voice" : "Mute avatar voice"}
-                  >
-                    {isMuted ? (
-                      <>
-                        <VolumeX className="h-4 w-4" />
-                        Unmute
-                      </>
-                    ) : (
-                      <>
-                        <Volume2 className="h-4 w-4" />
-                        Mute
-                      </>
-                    )}
-                  </Button>
-                )}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleToggleMute}
+                  className="gap-2"
+                  data-testid="button-mute-toggle"
+                  title={isMuted ? "Unmute avatar voice" : "Mute avatar voice"}
+                >
+                  {isMuted ? (
+                    <>
+                      <VolumeX className="h-4 w-4" />
+                      Unmute
+                    </>
+                  ) : (
+                    <>
+                      <Volume2 className="h-4 w-4" />
+                      Mute
+                    </>
+                  )}
+                </Button>
                 <Button
                   variant="ghost"
                   size="sm"
@@ -495,15 +516,26 @@ export default function Chat() {
                 <div className="flex flex-col items-center gap-2">
                   <div 
                     className={`w-64 h-64 rounded-lg overflow-hidden transition-opacity duration-300 ${
-                      isParagraphSpeaking && activeAvatar === 'support' ? 'opacity-50' : 'opacity-100'
+                      isSpeaking && activeAvatar === 'support' ? 'opacity-50' : 'opacity-100'
                     }`}
                     data-testid="avatar-primary"
                   >
                     <RealisticAvatar 
                       isActive={activeAvatar === 'primary'}
-                      isSpeaking={(primaryTTS.isSpeaking || isParagraphSpeaking) && activeAvatar === 'primary'}
+                      isSpeaking={isSpeaking && activeAvatar === 'primary'}
                       avatarType="consultant"
                       className="w-full h-full"
+                      videoUrl={
+                        currentIndex >= 0 && 
+                        currentIndex < paragraphQueue.length && 
+                        paragraphQueue[currentIndex].avatarType === 'european_woman'
+                          ? paragraphQueue[currentIndex].videoUrl
+                          : null
+                      }
+                      videoRef={primaryVideoRef}
+                      onEnded={() => playNext()}
+                      isGenerating={isGeneratingVideos}
+                      isMuted={isMuted}
                     />
                   </div>
                   <span className="text-sm font-medium text-foreground">Consultant</span>
@@ -519,15 +551,26 @@ export default function Chat() {
                 >
                   <div 
                     className={`w-64 h-64 rounded-lg overflow-hidden transition-opacity duration-300 ${
-                      isParagraphSpeaking && activeAvatar === 'primary' ? 'opacity-50' : 'opacity-100'
+                      isSpeaking && activeAvatar === 'primary' ? 'opacity-50' : 'opacity-100'
                     }`}
                     data-testid="avatar-support"
                   >
                     <RealisticAvatar 
                       isActive={activeAvatar === 'support'}
-                      isSpeaking={(supportTTS.isSpeaking || isParagraphSpeaking) && activeAvatar === 'support'}
+                      isSpeaking={isSpeaking && activeAvatar === 'support'}
                       avatarType="partner"
                       className="w-full h-full"
+                      videoUrl={
+                        currentIndex >= 0 && 
+                        currentIndex < paragraphQueue.length && 
+                        paragraphQueue[currentIndex].avatarType === 'old_european_woman'
+                          ? paragraphQueue[currentIndex].videoUrl
+                          : null
+                      }
+                      videoRef={supportVideoRef}
+                      onEnded={() => playNext()}
+                      isGenerating={isGeneratingVideos}
+                      isMuted={isMuted}
                     />
                   </div>
                   <span className="text-sm font-medium text-foreground">Partner</span>

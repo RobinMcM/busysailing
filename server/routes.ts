@@ -109,6 +109,91 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // AvatarTalk.ai endpoint for talking avatar videos
+  const avatarTalkRequestSchema = z.object({
+    text: z.string().min(1).max(2000),
+    avatar: z.enum(['european_woman', 'old_european_woman']),
+    emotion: z.enum(['happy', 'neutral', 'angry']).default('neutral'),
+    language: z.string().default('en')
+  });
+
+  app.post("/api/avatartalk", async (req, res) => {
+    console.log('[API] Received AvatarTalk video generation request');
+    const startTime = Date.now();
+    try {
+      const validatedData = avatarTalkRequestSchema.parse(req.body);
+      const apiKey = process.env.AVATARTALK_API_KEY;
+      
+      if (!apiKey) {
+        console.error('[API] AVATARTALK_API_KEY not configured');
+        return res.status(500).json({
+          error: 'AvatarTalk API key not configured',
+          success: false
+        });
+      }
+
+      console.log(`[API] Generating avatar video: ${validatedData.avatar}, ${validatedData.text.substring(0, 50)}...`);
+      
+      // Call AvatarTalk.ai API
+      const response = await fetch('https://api.avatartalk.ai/inference', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          text: validatedData.text,
+          avatar: validatedData.avatar,
+          emotion: validatedData.emotion,
+          language: validatedData.language
+        }),
+        signal: AbortSignal.timeout(60000) // 60 second timeout
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text().catch(() => 'Unknown error');
+        console.error('[API] AvatarTalk API error:', response.status, errorText);
+        return res.status(response.status).json({
+          error: `AvatarTalk API error: ${response.status}`,
+          details: errorText,
+          success: false
+        });
+      }
+
+      // AvatarTalk returns video data directly
+      const videoBuffer = await response.arrayBuffer();
+      const duration = Date.now() - startTime;
+      
+      console.log(`[API] Avatar video generated successfully in ${duration}ms`);
+      
+      // Return video as MP4
+      res.setHeader('Content-Type', 'video/mp4');
+      res.setHeader('Content-Length', videoBuffer.byteLength);
+      res.send(Buffer.from(videoBuffer));
+    } catch (error: any) {
+      console.error('[API] AvatarTalk endpoint error:', error);
+      
+      if (error.name === 'ZodError') {
+        return res.status(400).json({
+          error: 'Invalid request format',
+          success: false
+        });
+      }
+
+      if (error.name === 'AbortError') {
+        return res.status(504).json({
+          error: 'Video generation timed out',
+          success: false
+        });
+      }
+
+      res.status(500).json({
+        error: error.message || 'Failed to generate avatar video',
+        success: false
+      });
+    }
+  });
+
   // Admin verification endpoint
   const adminPasswordSchema = z.object({
     password: z.string().min(1),
