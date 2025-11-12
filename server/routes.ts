@@ -171,7 +171,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.log('[API] AvatarTalk returned JSON:', JSON.stringify(jsonData).substring(0, 200));
         
         // Extract video URL from JSON response
-        const videoUrl = jsonData.video_url || jsonData.url || jsonData.video || jsonData.result;
+        const videoUrl = jsonData.mp4_url || jsonData.video_url || jsonData.url || jsonData.video || jsonData.result;
         
         if (!videoUrl) {
           console.error('[API] No video URL found in AvatarTalk response:', jsonData);
