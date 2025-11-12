@@ -82,6 +82,7 @@ export default function RealisticAvatar({
           className="w-full h-full object-cover rounded-lg"
           playsInline
           muted={isMuted}
+          loop={false}
           data-testid={`video-avatar-${avatarType}`}
           style={{ opacity: isSpeaking ? 1 : 0.5 }}
           preload="auto"

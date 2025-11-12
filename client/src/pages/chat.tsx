@@ -73,15 +73,19 @@ export default function Chat() {
     setQueueStatus('idle');
     setCurrentIndex(-1);
     
-    // Pause any active videos
+    // Pause and clear video sources before cleanup
     if (primaryVideoRef.current) {
       primaryVideoRef.current.pause();
+      primaryVideoRef.current.removeAttribute('src');
+      primaryVideoRef.current.load(); // Reset video element
     }
     if (supportVideoRef.current) {
       supportVideoRef.current.pause();
+      supportVideoRef.current.removeAttribute('src');
+      supportVideoRef.current.load(); // Reset video element
     }
     
-    // Cleanup URLs
+    // Now safe to cleanup blob URLs
     cleanupUrls();
   };
 
