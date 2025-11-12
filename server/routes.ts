@@ -1,9 +1,9 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { generateFinancialResponse, generateTTSAudio } from "./openai";
+import { generateFinancialResponse } from "./chat";
 import { chatRateLimiter } from "./rateLimiter";
-import { trackChatRequest, trackTTSRequest, estimateTokenCount } from "./analytics";
+import { trackChatRequest, estimateTokenCount } from "./analytics";
 import { z } from "zod";
 
 const chatRequestSchema = z.object({
@@ -73,7 +73,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const inputTokens = estimateTokenCount(validatedData.message);
       const outputTokens = estimateTokenCount(response);
-      const model = process.env.GROQ_API_KEY ? "llama-3.3-70b-versatile" : "gpt-4o";
+      const model = "llama-3.3-70b-versatile";
       
       trackChatRequest(clientIp, inputTokens, outputTokens, model, duration).catch((err: any) => {
         console.error('Failed to track chat request:', err);
@@ -104,64 +104,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       res.status(500).json({ 
         error: error.message || 'Failed to process your request',
-        success: false 
-      });
-    }
-  });
-
-  // TTS endpoint
-  const ttsRequestSchema = z.object({
-    text: z.string().min(1).max(4096),
-    voice: z.enum(['alloy', 'echo', 'fable', 'onyx', 'nova', 'shimmer']).default('nova'),
-    speed: z.number().min(0.25).max(4.0).default(1.0),
-  });
-
-  app.post("/api/tts", async (req, res) => {
-    console.log('[API] Received TTS request');
-    const startTime = Date.now();
-    try {
-      const clientIp = req.ip || req.socket.remoteAddress || 'unknown';
-      const validatedData = ttsRequestSchema.parse(req.body);
-      console.log('[API] Generating TTS audio...');
-      
-      const audioBuffer = await generateTTSAudio(
-        validatedData.text,
-        validatedData.voice,
-        validatedData.speed
-      );
-
-      const duration = Date.now() - startTime;
-      console.log('[API] TTS audio generated, sending to client');
-      
-      trackTTSRequest(clientIp, validatedData.text.length, 'tts-1', duration).catch((err: any) => {
-        console.error('Failed to track TTS request:', err);
-      });
-      
-      res.setHeader('Content-Type', 'audio/mpeg');
-      res.setHeader('Content-Length', audioBuffer.length);
-      res.send(Buffer.from(audioBuffer));
-    } catch (error: any) {
-      console.error('TTS endpoint error:', error);
-      
-      if (error.name === 'ZodError') {
-        return res.status(400).json({ 
-          error: 'Invalid request format',
-          success: false 
-        });
-      }
-
-      // Handle TTS not available gracefully - let frontend fall back to Web Speech API
-      if (error.message === 'TTS_NOT_AVAILABLE') {
-        return res.status(503).json({ 
-          error: 'TTS service not configured',
-          message: 'OpenAI TTS is unavailable. Please use Web Speech API fallback.',
-          ttsAvailable: false,
-          success: false 
-        });
-      }
-
-      res.status(500).json({ 
-        error: error.message || 'Failed to generate audio',
         success: false 
       });
     }
