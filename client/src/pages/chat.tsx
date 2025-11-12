@@ -129,10 +129,30 @@ export default function Chat() {
     // Determine which avatar to use based on AI message count (alternate per message)
     const avatarType = messageIndex % 2 === 0 ? 'european_woman' : 'old_european_woman';
     
+    // Truncate text to 2000 characters (AvatarTalk API limit)
+    const maxLength = 2000;
+    let truncatedText = text;
+    if (text.length > maxLength) {
+      // Truncate at sentence boundary if possible
+      const truncated = text.substring(0, maxLength);
+      const lastPeriod = truncated.lastIndexOf('.');
+      const lastQuestion = truncated.lastIndexOf('?');
+      const lastExclamation = truncated.lastIndexOf('!');
+      const lastSentenceEnd = Math.max(lastPeriod, lastQuestion, lastExclamation);
+      
+      if (lastSentenceEnd > maxLength * 0.8) {
+        truncatedText = truncated.substring(0, lastSentenceEnd + 1);
+      } else {
+        truncatedText = truncated + '...';
+      }
+      
+      console.log(`[Video] Text truncated from ${text.length} to ${truncatedText.length} characters`);
+    }
+    
     // Initialize queue with single video
     const initialQueue: ParagraphVideo[] = [{
       id: `${Date.now()}`,
-      paragraph: text,
+      paragraph: truncatedText,
       avatarType,
       status: 'pending',
       videoUrl: null,
@@ -147,7 +167,7 @@ export default function Chat() {
       console.log(`[Video] Calling AvatarTalk API with ${avatarType}...`);
       
       const videoUrl = await avatarTalk.generateVideo(
-        text,
+        truncatedText,
         avatarType,
         'neutral'
       );
@@ -157,10 +177,10 @@ export default function Chat() {
       
       console.log(`[Video] Video generated successfully`);
       
-      // Update queue with ready video
+      // Update queue with ready video (use truncated text)
       setParagraphQueue([{
         id: `${Date.now()}`,
-        paragraph: text,
+        paragraph: truncatedText,
         avatarType,
         status: 'ready',
         videoUrl,
@@ -179,10 +199,10 @@ export default function Chat() {
     } catch (error: any) {
       console.error(`[Video] Failed to generate video:`, error);
       
-      // Update queue with error
+      // Update queue with error (use truncated text)
       setParagraphQueue([{
         id: `${Date.now()}`,
-        paragraph: text,
+        paragraph: truncatedText,
         avatarType,
         status: 'failed',
         videoUrl: null,
