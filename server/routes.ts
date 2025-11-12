@@ -161,14 +161,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // AvatarTalk returns video data directly
+      const contentType = response.headers.get('content-type');
       const videoBuffer = await response.arrayBuffer();
       const duration = Date.now() - startTime;
       
       console.log(`[API] Avatar video generated successfully in ${duration}ms`);
+      console.log(`[API] Video size: ${videoBuffer.byteLength} bytes, Content-Type: ${contentType}`);
       
-      // Return video as MP4
-      res.setHeader('Content-Type', 'video/mp4');
+      // Check if we actually got video data
+      if (videoBuffer.byteLength === 0) {
+        console.error('[API] Received empty video buffer from AvatarTalk');
+        return res.status(500).json({
+          error: 'Received empty video from AvatarTalk API',
+          success: false
+        });
+      }
+      
+      // Return video with correct content type from AvatarTalk
+      res.setHeader('Content-Type', contentType || 'video/mp4');
       res.setHeader('Content-Length', videoBuffer.byteLength);
+      res.setHeader('Accept-Ranges', 'bytes');
       res.send(Buffer.from(videoBuffer));
     } catch (error: any) {
       console.error('[API] AvatarTalk endpoint error:', error);
