@@ -33,14 +33,25 @@ export default function RealisticAvatar({
   useEffect(() => {
     if (videoUrl && activeVideoRef.current && isActive) {
       const video = activeVideoRef.current;
-      video.src = videoUrl;
       
+      console.log('[Avatar] Loading video URL:', videoUrl);
+      
+      // Load the video
+      video.src = videoUrl;
+      video.load(); // Ensure video is loaded
+      
+      // Play once loaded
       video.play()
         .then(() => {
           console.log(`[Avatar] Video playing (${isMuted ? 'muted' : 'with audio'})`);
         })
         .catch((error) => {
           console.error('[Avatar] Failed to play video:', error);
+          console.error('[Avatar] Video element state:', {
+            readyState: video.readyState,
+            networkState: video.networkState,
+            error: video.error
+          });
           onError?.(error.message);
         });
     }
@@ -73,7 +84,11 @@ export default function RealisticAvatar({
           muted={isMuted}
           data-testid={`video-avatar-${avatarType}`}
           style={{ opacity: isSpeaking ? 1 : 0.5 }}
-        />
+          preload="auto"
+        >
+          <source src={videoUrl} type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
       ) : (
         <div style={{ opacity: isGenerating || isSpeaking ? 1 : 0.5 }}>
           <ProfessionalAvatarFallback avatarType={avatarType} className={className} />
