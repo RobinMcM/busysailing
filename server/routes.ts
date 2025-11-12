@@ -6,6 +6,23 @@ import { chatRateLimiter } from "./rateLimiter";
 import { trackChatRequest, estimateTokenCount } from "./analytics";
 import { z } from "zod";
 
+// Helper function to extract synopsis from AI response
+function extractSynopsis(text: string): string {
+  // Use same regex pattern as frontend ChatMessage.tsx
+  const synopsisMatch = text.match(/\*\*SYNOPSIS:\*\*\s*([\s\S]*?)(?:\s*---DETAILS---|$)/);
+  
+  if (synopsisMatch) {
+    const synopsis = synopsisMatch[1].trim();
+    // Safeguard: ensure synopsis has meaningful content (at least 10 characters)
+    if (synopsis.length >= 10) {
+      return synopsis;
+    }
+  }
+  
+  // Fallback: return full text if no synopsis marker found or synopsis is too short
+  return text;
+}
+
 const chatRequestSchema = z.object({
   message: z.string().min(1).max(4000),
   conversationHistory: z.array(z.object({
@@ -132,9 +149,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      console.log(`[API] Generating avatar video: ${validatedData.avatar}, ${validatedData.text.substring(0, 50)}...`);
+      // Extract only synopsis from the full text for faster, smoother video generation
+      const synopsisOnly = extractSynopsis(validatedData.text);
+      console.log(`[API] Extracted synopsis (${synopsisOnly.length} chars) from full text (${validatedData.text.length} chars)`);
+      console.log(`[API] Generating avatar video: ${validatedData.avatar}, ${synopsisOnly.substring(0, 50)}...`);
       
-      // Call AvatarTalk.ai API
+      // Call AvatarTalk.ai API with synopsis only
       const response = await fetch('https://api.avatartalk.ai/inference', {
         method: 'POST',
         headers: {
@@ -142,7 +162,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          text: validatedData.text,
+          text: synopsisOnly,
           avatar: validatedData.avatar,
           emotion: validatedData.emotion,
           language: validatedData.language
