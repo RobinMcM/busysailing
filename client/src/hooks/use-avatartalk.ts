@@ -45,10 +45,21 @@ export function useAvatarTalk(): UseAvatarTalkReturn {
       // Get the video blob
       const videoBlob = await response.blob();
       
-      // Create object URL for the video
-      const videoUrl = URL.createObjectURL(videoBlob);
+      console.log(`[AvatarTalk] Blob received - Size: ${videoBlob.size} bytes, Type: ${videoBlob.type}`);
       
-      console.log(`[AvatarTalk] Video generated successfully`);
+      // Verify blob is not empty
+      if (videoBlob.size === 0) {
+        throw new Error('Received empty video blob from API');
+      }
+      
+      // Ensure correct MIME type for video
+      const videoType = videoBlob.type || 'video/mp4';
+      const typedBlob = new Blob([videoBlob], { type: videoType });
+      
+      // Create object URL for the video
+      const videoUrl = URL.createObjectURL(typedBlob);
+      
+      console.log(`[AvatarTalk] Video URL created: ${videoUrl}`);
       
       return videoUrl;
     } catch (err: any) {
