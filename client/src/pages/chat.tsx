@@ -124,7 +124,7 @@ export default function Chat() {
       
       if (usePrimary) {
         utterance.pitch = 1.3;
-        utterance.rate = 0.95;
+        utterance.rate = 1.05;
       } else {
         utterance.pitch = 0.95;
         utterance.rate = 1.0;
