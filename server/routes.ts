@@ -160,28 +160,67 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      // AvatarTalk returns video data directly
       const contentType = response.headers.get('content-type');
-      const videoBuffer = await response.arrayBuffer();
       const duration = Date.now() - startTime;
       
-      console.log(`[API] Avatar video generated successfully in ${duration}ms`);
-      console.log(`[API] Video size: ${videoBuffer.byteLength} bytes, Content-Type: ${contentType}`);
+      console.log(`[API] AvatarTalk response Content-Type: ${contentType}`);
       
-      // Check if we actually got video data
-      if (videoBuffer.byteLength === 0) {
-        console.error('[API] Received empty video buffer from AvatarTalk');
-        return res.status(500).json({
-          error: 'Received empty video from AvatarTalk API',
-          success: false
-        });
+      // Check if response is JSON (likely contains video URL)
+      if (contentType?.includes('application/json')) {
+        const jsonData = await response.json();
+        console.log('[API] AvatarTalk returned JSON:', JSON.stringify(jsonData).substring(0, 200));
+        
+        // Extract video URL from JSON response
+        const videoUrl = jsonData.video_url || jsonData.url || jsonData.video || jsonData.result;
+        
+        if (!videoUrl) {
+          console.error('[API] No video URL found in AvatarTalk response:', jsonData);
+          return res.status(500).json({
+            error: 'AvatarTalk did not return a video URL',
+            details: jsonData,
+            success: false
+          });
+        }
+        
+        console.log(`[API] Fetching video from URL: ${videoUrl}`);
+        
+        // Fetch the actual video from the URL
+        const videoResponse = await fetch(videoUrl);
+        
+        if (!videoResponse.ok) {
+          console.error('[API] Failed to fetch video from URL:', videoResponse.status);
+          return res.status(500).json({
+            error: 'Failed to download video from AvatarTalk URL',
+            success: false
+          });
+        }
+        
+        const videoBuffer = await videoResponse.arrayBuffer();
+        console.log(`[API] Video downloaded: ${videoBuffer.byteLength} bytes in ${Date.now() - startTime}ms`);
+        
+        // Return video
+        res.setHeader('Content-Type', 'video/mp4');
+        res.setHeader('Content-Length', videoBuffer.byteLength);
+        res.setHeader('Accept-Ranges', 'bytes');
+        res.send(Buffer.from(videoBuffer));
+      } else {
+        // Direct video response
+        const videoBuffer = await response.arrayBuffer();
+        console.log(`[API] Direct video received: ${videoBuffer.byteLength} bytes`);
+        
+        if (videoBuffer.byteLength === 0) {
+          console.error('[API] Received empty video buffer');
+          return res.status(500).json({
+            error: 'Received empty video from AvatarTalk',
+            success: false
+          });
+        }
+        
+        res.setHeader('Content-Type', contentType || 'video/mp4');
+        res.setHeader('Content-Length', videoBuffer.byteLength);
+        res.setHeader('Accept-Ranges', 'bytes');
+        res.send(Buffer.from(videoBuffer));
       }
-      
-      // Return video with correct content type from AvatarTalk
-      res.setHeader('Content-Type', contentType || 'video/mp4');
-      res.setHeader('Content-Length', videoBuffer.byteLength);
-      res.setHeader('Accept-Ranges', 'bytes');
-      res.send(Buffer.from(videoBuffer));
     } catch (error: any) {
       console.error('[API] AvatarTalk endpoint error:', error);
       
