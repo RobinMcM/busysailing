@@ -119,88 +119,85 @@ export default function Chat() {
     setCurrentIndex(-1);
   };
 
-  // Generate all paragraph videos upfront
-  const generateParagraphVideos = async (text: string) => {
-    // Split by double line breaks to get paragraphs
-    const paragraphs = text
-      .split(/\n\n+/)
-      .map(p => p.trim())
-      .filter(p => p.length > 0);
-    
-    console.log(`[Video] Split response into ${paragraphs.length} paragraphs`);
-    
-    if (paragraphs.length === 0) {
-      console.warn('[Video] No paragraphs found in response');
-      return;
-    }
+  // Generate ONE video per AI response to save credits (not per paragraph)
+  const generateSingleVideo = async (text: string, messageIndex: number) => {
+    console.log(`[Video] Generating single video for AI message ${messageIndex}`);
     
     // Stop any existing playback
     stopPlayback();
     
-    // Initialize queue with pending status
-    const initialQueue: ParagraphVideo[] = paragraphs.map((paragraph, index) => ({
-      id: `${Date.now()}-${index}`,
-      paragraph,
-      avatarType: index % 2 === 0 ? 'european_woman' : 'old_european_woman',
+    // Determine which avatar to use based on AI message count (alternate per message)
+    const avatarType = messageIndex % 2 === 0 ? 'european_woman' : 'old_european_woman';
+    
+    // Initialize queue with single video
+    const initialQueue: ParagraphVideo[] = [{
+      id: `${Date.now()}`,
+      paragraph: text,
+      avatarType,
       status: 'pending',
       videoUrl: null,
       error: null
-    }));
+    }];
     
     setParagraphQueue(initialQueue);
     setQueueStatus('generating');
     setIsGeneratingVideos(true);
     
-    // Generate videos sequentially
-    let hasStartedPlayback = false;
-    
-    for (let i = 0; i < paragraphs.length; i++) {
-      const paragraphData = initialQueue[i];
+    try {
+      console.log(`[Video] Calling AvatarTalk API with ${avatarType}...`);
       
-      try {
-        console.log(`[Video] Generating video ${i + 1}/${paragraphs.length}...`);
-        
-        const videoUrl = await avatarTalk.generateVideo(
-          paragraphData.paragraph,
-          paragraphData.avatarType,
-          'neutral'
-        );
-        
-        // Store URL for cleanup
-        cleanupUrlsRef.current.push(videoUrl);
-        
-        // Update queue with ready video
-        setParagraphQueue(prev => prev.map((item, idx) => 
-          idx === i ? { ...item, status: 'ready', videoUrl } : item
-        ));
-        
-        console.log(`[Video] Video ${i + 1} generated successfully`);
-        
-        // Start playback with first successful video (if not already started)
-        if (!hasStartedPlayback) {
-          hasStartedPlayback = true;
-          setIsGeneratingVideos(false);
-          playNext(i);
-        }
-      } catch (error: any) {
-        console.error(`[Video] Failed to generate video ${i + 1}:`, error);
-        
-        // Update queue with error
-        setParagraphQueue(prev => prev.map((item, idx) => 
-          idx === i ? { ...item, status: 'failed', error: error.message } : item
-        ));
-        
-        toast({
-          title: 'Video Generation Failed',
-          description: `Failed to generate video for paragraph ${i + 1}. Skipping to next.`,
-          variant: 'destructive'
-        });
+      const videoUrl = await avatarTalk.generateVideo(
+        text,
+        avatarType,
+        'neutral'
+      );
+      
+      // Store URL for cleanup
+      cleanupUrlsRef.current.push(videoUrl);
+      
+      console.log(`[Video] Video generated successfully`);
+      
+      // Update queue with ready video
+      setParagraphQueue([{
+        id: `${Date.now()}`,
+        paragraph: text,
+        avatarType,
+        status: 'ready',
+        videoUrl,
+        error: null
+      }]);
+      
+      setIsGeneratingVideos(false);
+      setQueueStatus('idle'); // Set to idle so useEffect can trigger playback
+      
+      // Enable Partner avatar when she first appears
+      if (avatarType === 'old_european_woman' && !isSecondAvatarEnabled) {
+        setIsSecondAvatarEnabled(true);
+        console.log('[Avatar] Partner avatar enabled');
       }
+      
+    } catch (error: any) {
+      console.error(`[Video] Failed to generate video:`, error);
+      
+      // Update queue with error
+      setParagraphQueue([{
+        id: `${Date.now()}`,
+        paragraph: text,
+        avatarType,
+        status: 'failed',
+        videoUrl: null,
+        error: error.message
+      }]);
+      
+      setIsGeneratingVideos(false);
+      setQueueStatus('idle');
+      
+      toast({
+        title: 'Video Generation Failed',
+        description: error.message || 'Failed to generate video',
+        variant: 'destructive'
+      });
     }
-    
-    setIsGeneratingVideos(false);
-    // Don't set queueStatus to idle here - playNext() manages it
-    console.log('[Video] All videos generated');
   };
 
   const handleSendMessage = async (content: string) => {
@@ -241,12 +238,12 @@ export default function Chat() {
       setMessages((prev) => {
         const updated = [...prev, aiMessage];
         
-        // Partner avatar will be enabled automatically during voice alternation (first odd paragraph)
-        // No need to enable based on message count
+        // Count AI messages to determine which avatar to use
+        const aiMessageCount = updated.filter(m => m.role === 'assistant').length;
         
-        // Auto-generate videos for AI responses (regardless of mute state)
+        // Auto-generate single video for AI response (saves credits)
         setTimeout(() => {
-          generateParagraphVideos(data.message);
+          generateSingleVideo(data.message, aiMessageCount - 1);
         }, 100);
         
         return updated;
@@ -303,12 +300,27 @@ export default function Chat() {
   };
 
   const handleReplayMessage = (content: string) => {
-    // Generate videos for replay (regardless of mute state)
-    generateParagraphVideos(content);
+    // Count AI messages to determine which avatar to use for replay
+    const aiMessageCount = messages.filter(m => m.role === 'assistant').length;
+    const messageIndex = messages.findIndex(m => m.content === content && m.role === 'assistant');
+    const aiMessagesBeforeThis = messages.slice(0, messageIndex).filter(m => m.role === 'assistant').length;
+    
+    // Generate single video for replay (saves credits)
+    generateSingleVideo(content, aiMessagesBeforeThis);
   };
 
-  // Partner avatar is now enabled automatically during voice alternation (first odd paragraph)
-  // No need to enable based on message count anymore
+  // Partner avatar is now enabled automatically when she first appears (odd-numbered AI messages)
+
+  // Auto-start playback when video is ready
+  useEffect(() => {
+    if (paragraphQueue.length > 0 && 
+        paragraphQueue[0].status === 'ready' && 
+        queueStatus === 'idle' &&
+        currentIndex === -1) {
+      console.log('[Video] Auto-starting playback for ready video');
+      playNext(0);
+    }
+  }, [paragraphQueue, queueStatus, currentIndex]);
 
   // Check password when input changes
   useEffect(() => {
