@@ -111,10 +111,10 @@ export default function Chat() {
       nextIndex++;
     }
     
-    // No more playable videos
+    // No more playable videos - clear queue to prevent auto-restart
     console.log('[Video] Playback complete - no more videos');
-    setQueueStatus('idle');
-    setCurrentIndex(-1);
+    setParagraphQueue([]);
+    stopPlayback();
   };
 
   // Generate ONE video per AI response to save credits (not per paragraph)
