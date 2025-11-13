@@ -29,16 +29,17 @@ export default function RealisticAvatar({
   const localVideoRef = useRef<HTMLVideoElement>(null);
   const activeVideoRef = videoRef || localVideoRef;
 
-  // Auto-play video when URL changes
+  // Auto-play video when URL changes and avatar becomes active speaker
   useEffect(() => {
-    if (videoUrl && activeVideoRef.current && isActive) {
+    if (videoUrl && activeVideoRef.current && isActive && isSpeaking) {
       const video = activeVideoRef.current;
       
       console.log('[Avatar] Loading video URL:', videoUrl);
+      console.log('[Avatar] Video element ready, starting playback');
       
-      // Load the video
+      // Set src directly (no <source> child to avoid conflicts)
       video.src = videoUrl;
-      video.load(); // Ensure video is loaded
+      video.load();
       
       // Play once loaded
       video.play()
@@ -50,12 +51,14 @@ export default function RealisticAvatar({
           console.error('[Avatar] Video element state:', {
             readyState: video.readyState,
             networkState: video.networkState,
-            error: video.error
+            error: video.error,
+            src: video.src,
+            currentSrc: video.currentSrc
           });
           onError?.(error.message);
         });
     }
-  }, [videoUrl, isActive]);
+  }, [videoUrl, isActive, isSpeaking]);
 
   // Handle video ended event
   useEffect(() => {
@@ -79,6 +82,7 @@ export default function RealisticAvatar({
       {videoUrl ? (
         <>
           {/* Video element - always rendered when URL exists so refs/effects work */}
+          {/* src set via useEffect to avoid conflicts with <source> tag */}
           <video
             ref={activeVideoRef}
             className="w-full h-full object-cover rounded-lg"
@@ -87,10 +91,7 @@ export default function RealisticAvatar({
             loop={false}
             data-testid={`video-avatar-${avatarType}`}
             preload="auto"
-          >
-            <source src={videoUrl} type="video/mp4" />
-            Your browser does not support the video tag.
-          </video>
+          />
           
           {/* Overlay fallback image when not actively speaking */}
           {showFallbackOverlay && (
