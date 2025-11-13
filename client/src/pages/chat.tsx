@@ -7,7 +7,6 @@ import ChatMessage from '@/components/ChatMessage';
 import MessageInput from '@/components/MessageInput';
 import ExamplePrompts from '@/components/ExamplePrompts';
 import TypingIndicator from '@/components/TypingIndicator';
-import { AvatarWelcome } from '@/components/AvatarWelcome';
 import RealisticAvatar from '@/components/RealisticAvatar';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
@@ -477,10 +476,9 @@ export default function Chat() {
 
       <main className="flex-1 overflow-hidden">
         <div className="h-full max-w-6xl mx-auto px-6 py-6">
-          {messages.length === 0 ? (
-            <div className="flex flex-col items-center justify-center min-h-[calc(100vh-280px)]">
-              <AvatarWelcome />
-              <div className="text-center mb-8 max-w-lg" data-testid="welcome-prompt">
+          <div className="flex flex-col gap-6 items-center justify-center h-full">
+            {messages.length === 0 && (
+              <div className="text-center mb-4 max-w-lg" data-testid="welcome-prompt">
                 <h2 className="text-xl font-semibold text-foreground mb-2">
                   How can I help you today?
                 </h2>
@@ -488,11 +486,9 @@ export default function Chat() {
                   Ask me anything about UK taxes, HMRC regulations, and personal finance
                 </p>
               </div>
-              
-              <ExamplePrompts onPromptClick={handlePromptClick} disabled={!isUnlocked} />
-            </div>
-          ) : (
-            <div className="flex flex-col lg:flex-row gap-6 items-center justify-center h-full">
+            )}
+            
+            <div className="flex flex-col lg:flex-row gap-6 items-center justify-center w-full">
               {/* Text Output Box - Mobile Phone Style */}
               <div className="relative w-full max-w-[307px] h-[400px] lg:h-[520px] flex-shrink-0" data-testid="phone-container">
                 {/* Phone bezel/frame */}
@@ -543,7 +539,7 @@ export default function Chat() {
                 {/* Primary Consultant Avatar */}
                 <div className="flex flex-col items-center gap-2">
                   <div 
-                    className={`w-64 h-64 lg:w-72 lg:h-72 rounded-lg overflow-hidden transition-opacity duration-300 ${
+                    className={`w-64 h-64 lg:w-72 lg:h-72 rounded-full overflow-hidden transition-opacity duration-300 ${
                       isSpeaking && activeAvatar === 'support' ? 'opacity-50' : 'opacity-100'
                     }`}
                     data-testid="avatar-primary"
@@ -575,7 +571,7 @@ export default function Chat() {
                   data-testid="avatar-support-container"
                 >
                   <div 
-                    className={`w-64 h-64 lg:w-72 lg:h-72 rounded-lg overflow-hidden transition-opacity duration-300 ${
+                    className={`w-64 h-64 lg:w-72 lg:h-72 rounded-full overflow-hidden transition-opacity duration-300 ${
                       isSpeaking && activeAvatar === 'primary' ? 'opacity-50' : 'opacity-100'
                     }`}
                     data-testid="avatar-support"
@@ -602,7 +598,11 @@ export default function Chat() {
                 </div>
               </div>
             </div>
-          )}
+            
+            {messages.length === 0 && (
+              <ExamplePrompts onPromptClick={handlePromptClick} disabled={!isUnlocked} />
+            )}
+          </div>
         </div>
       </main>
 

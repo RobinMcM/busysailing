@@ -14,7 +14,7 @@ export function ProfessionalAvatarFallback({
   const altText = avatarType === 'consultant' ? 'Consultant' : 'Partner';
 
   return (
-    <div className={`${className} w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/5 to-primary/10 rounded-lg overflow-hidden`}>
+    <div className={`${className} w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/5 to-primary/10 rounded-full overflow-hidden`}>
       <img 
         src={image} 
         alt={`${altText} Avatar`}
