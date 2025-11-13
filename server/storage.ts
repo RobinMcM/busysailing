@@ -1,6 +1,6 @@
 import { db } from './db';
-import { analytics, conversations } from '../shared/schema';
-import { eq, gte, lte, desc } from 'drizzle-orm';
+import { analytics, conversations, settings } from '../shared/schema';
+import { eq, gte, lte, desc, sql } from 'drizzle-orm';
 
 export interface Analytics {
   id: string;
@@ -180,6 +180,61 @@ class SupabaseStorage {
       };
     } catch (error) {
       console.error('[Storage] Failed to save conversation:', error);
+      throw error;
+    }
+  }
+
+  async getSettings(): Promise<{ companyName: string; avatarName: string }> {
+    try {
+      const result = await db.select().from(settings).limit(1);
+      
+      if (result.length === 0) {
+        // Create default settings if none exist
+        const [inserted] = await db
+          .insert(settings)
+          .values({
+            companyName: 'UK Tax Advisors',
+            avatarName: 'Sarah Davies'
+          })
+          .returning();
+        
+        return {
+          companyName: inserted.companyName,
+          avatarName: inserted.avatarName
+        };
+      }
+
+      return {
+        companyName: result[0].companyName,
+        avatarName: result[0].avatarName
+      };
+    } catch (error) {
+      console.error('[Storage] Failed to get settings:', error);
+      throw error;
+    }
+  }
+
+  async updateSettings(companyName: string, avatarName: string): Promise<void> {
+    try {
+      const existing = await db.select().from(settings).limit(1);
+      
+      if (existing.length === 0) {
+        await db.insert(settings).values({
+          companyName,
+          avatarName
+        });
+      } else {
+        await db
+          .update(settings)
+          .set({
+            companyName,
+            avatarName,
+            updatedAt: sql`NOW()`
+          })
+          .where(eq(settings.id, existing[0].id));
+      }
+    } catch (error) {
+      console.error('[Storage] Failed to update settings:', error);
       throw error;
     }
   }

@@ -119,3 +119,18 @@ export const insertConversationSchema = createInsertSchema(conversations).omit({
 
 export type InsertConversation = z.infer<typeof insertConversationSchema>;
 export type Conversation = typeof conversations.$inferSelect;
+
+export const settings = pgTable("settings", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  companyName: text("company_name").notNull().default('UK Tax Advisors'),
+  avatarName: text("avatar_name").notNull().default('Sarah Davies'),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export const insertSettingsSchema = createInsertSchema(settings).omit({
+  id: true,
+  updatedAt: true,
+});
+
+export type InsertSettings = z.infer<typeof insertSettingsSchema>;
+export type Settings = typeof settings.$inferSelect;
