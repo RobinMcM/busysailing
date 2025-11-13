@@ -628,7 +628,7 @@ export default function Chat() {
                     {/* Company name label at top */}
                     <div className="text-center">
                       <p className="text-sm font-semibold text-foreground" data-testid="text-company-name">
-                        {settings?.companyName || 'UK Tax Advisors'}
+                        {settings?.companyName || 'Busy Sailing'}
                       </p>
                     </div>
                     
