@@ -71,29 +71,43 @@ export default function RealisticAvatar({
     return () => video.removeEventListener('ended', handleEnded);
   }, [onEnded]);
 
-  // Show video if available and active, otherwise show fallback
-  const showVideo = videoUrl && isActive;
+  // Always show fallback when not speaking, overlay it on top of video if video exists
+  const showFallbackOverlay = !isSpeaking || !isActive;
 
   return (
     <div className={`${className} relative w-full h-full`}>
-      {showVideo ? (
-        <video
-          ref={activeVideoRef}
-          className="w-full h-full object-cover rounded-lg"
-          playsInline
-          muted={isMuted}
-          loop={false}
-          data-testid={`video-avatar-${avatarType}`}
-          style={{ opacity: isSpeaking ? 1 : 0.5 }}
-          preload="auto"
-        >
-          <source src={videoUrl} type="video/mp4" />
-          Your browser does not support the video tag.
-        </video>
+      {videoUrl ? (
+        <>
+          {/* Video element - always rendered when URL exists so refs/effects work */}
+          <video
+            ref={activeVideoRef}
+            className="w-full h-full object-cover rounded-lg"
+            playsInline
+            muted={isMuted}
+            loop={false}
+            data-testid={`video-avatar-${avatarType}`}
+            preload="auto"
+          >
+            <source src={videoUrl} type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
+          
+          {/* Overlay fallback image when not actively speaking */}
+          {showFallbackOverlay && (
+            <div className="absolute inset-0 z-10">
+              <ProfessionalAvatarFallback 
+                avatarType={avatarType} 
+                className="w-full h-full"
+              />
+            </div>
+          )}
+        </>
       ) : (
-        <div style={{ opacity: isGenerating || isSpeaking ? 1 : 0.5 }}>
-          <ProfessionalAvatarFallback avatarType={avatarType} className={className} />
-        </div>
+        /* No video available yet - show fallback */
+        <ProfessionalAvatarFallback 
+          avatarType={avatarType} 
+          className={className}
+        />
       )}
     </div>
   );
