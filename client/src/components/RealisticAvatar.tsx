@@ -77,7 +77,9 @@ export default function RealisticAvatar({
       isCleaningUpRef.current = false;
       
       // Set src directly (no <source> child to avoid conflicts)
+      // Ensure video element can handle MP4
       video.src = videoUrl;
+      video.setAttribute('type', 'video/mp4');
       video.load();
       
       // Track that we've loaded this video
