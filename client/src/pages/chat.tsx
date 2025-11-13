@@ -627,7 +627,7 @@ export default function Chat() {
                     isMuted={isMuted}
                   />
                 </div>
-                <span className="text-sm font-medium text-foreground">Consultant</span>
+                <span className="text-sm font-medium text-foreground">Advisor</span>
               </div>
             </div>
             
