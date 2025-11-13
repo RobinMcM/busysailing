@@ -613,7 +613,7 @@ export default function Chat() {
                   <div className="relative w-full h-full bg-card rounded-2xl flex items-center justify-center p-6">
                     {/* Circular avatar with light grey border */}
                     <div 
-                      className="w-56 h-56 rounded-full overflow-hidden border-4 border-gray-300"
+                      className="w-56 h-56 rounded-full overflow-hidden border-8 border-gray-300"
                       data-testid="avatar-primary"
                     >
                       <RealisticAvatar 
