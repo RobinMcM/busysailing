@@ -608,7 +608,7 @@ export default function Chat() {
               {/* Consultant Avatar */}
               <div className="flex flex-col items-center gap-2">
                 <div 
-                  className="w-64 h-64 lg:w-72 lg:h-72 rounded-full overflow-hidden"
+                  className="w-64 h-64 lg:w-72 lg:h-72 rounded-full overflow-hidden border-4 border-blue-600"
                   data-testid="avatar-primary"
                 >
                   <RealisticAvatar 
