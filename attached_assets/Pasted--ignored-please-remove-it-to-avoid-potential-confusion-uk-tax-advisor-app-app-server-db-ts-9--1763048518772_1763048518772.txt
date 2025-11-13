@@ -1,0 +1,121 @@
+ ignored, please remove it to avoid potential confusion 
+uk-tax-advisor-app  | /app/server/db.ts:9
+uk-tax-advisor-app  |   throw new Error(
+uk-tax-advisor-app  |         ^
+uk-tax-advisor-app  | 
+uk-tax-advisor-app  | 
+uk-tax-advisor-app  | Error: DATABASE_URL must be set. Did you forget to provision a database?
+uk-tax-advisor-app  |     at <anonymous> (/app/server/db.ts:9:9)
+uk-tax-advisor-app  |     at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+uk-tax-advisor-app  |     at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+uk-tax-advisor-app  |     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+uk-tax-advisor-app  | 
+uk-tax-advisor-app  | Node.js v20.19.5
+uk-tax-advisor-app  | /app/server/db.ts:9
+uk-tax-advisor-app  |   throw new Error(
+uk-tax-advisor-app  |         ^
+uk-tax-advisor-app  | 
+uk-tax-advisor-app  | 
+uk-tax-advisor-app  | Error: DATABASE_URL must be set. Did you forget to provision a database?
+uk-tax-advisor-app  |     at <anonymous> (/app/server/db.ts:9:9)
+uk-tax-advisor-app  |     at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+uk-tax-advisor-app  |     at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+uk-tax-advisor-app  |     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+uk-tax-advisor-app  | 
+uk-tax-advisor-app  | Node.js v20.19.5
+uk-tax-advisor-app  | /app/server/db.ts:9
+uk-tax-advisor-app  |   throw new Error(
+uk-tax-advisor-app  |         ^
+uk-tax-advisor-app  | 
+uk-tax-advisor-app  | 
+uk-tax-advisor-app  | Error: DATABASE_URL must be set. Did you forget to provision a database?
+uk-tax-advisor-app  |     at <anonymous> (/app/server/db.ts:9:9)
+uk-tax-advisor-app  |     at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+uk-tax-advisor-app  |     at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+uk-tax-advisor-app  |     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+uk-tax-advisor-app  | 
+uk-tax-advisor-app  | Node.js v20.19.5
+uk-tax-advisor-app  | /app/server/db.ts:9
+uk-tax-advisor-app  |   throw new Error(
+uk-tax-advisor-app  |         ^
+uk-tax-advisor-app  | 
+uk-tax-advisor-app  | 
+uk-tax-advisor-app  | Error: DATABASE_URL must be set. Did you forget to provision a database?
+uk-tax-advisor-app  |     at <anonymous> (/app/server/db.ts:9:9)
+uk-tax-advisor-app  |     at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+uk-tax-advisor-app  |     at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+uk-tax-advisor-app  |     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+uk-tax-advisor-app  | 
+uk-tax-advisor-app  | Node.js v20.19.5
+uk-tax-advisor-app  | /app/server/db.ts:9
+uk-tax-advisor-app  |   throw new Error(
+uk-tax-advisor-app  |         ^
+uk-tax-advisor-app  | 
+uk-tax-advisor-app  | 
+uk-tax-advisor-app  | Error: DATABASE_URL must be set. Did you forget to provision a database?
+uk-tax-advisor-app  |     at <anonymous> (/app/server/db.ts:9:9)
+uk-tax-advisor-app  |     at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+uk-tax-advisor-app  |     at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+uk-tax-advisor-app  |     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+uk-tax-advisor-app  | 
+uk-tax-advisor-app  | Node.js v20.19.5
+uk-tax-advisor-app  | /app/server/db.ts:9
+uk-tax-advisor-app  |   throw new Error(
+uk-tax-advisor-app  |         ^
+uk-tax-advisor-app  | 
+uk-tax-advisor-app  | 
+uk-tax-advisor-app  | Error: DATABASE_URL must be set. Did you forget to provision a database?
+uk-tax-advisor-app  |     at <anonymous> (/app/server/db.ts:9:9)
+uk-tax-advisor-app  |     at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+uk-tax-advisor-app  |     at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+uk-tax-advisor-app  |     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+uk-tax-advisor-app  | 
+uk-tax-advisor-app  | Node.js v20.19.5
+uk-tax-advisor-app  | /app/server/db.ts:9
+uk-tax-advisor-app  |   throw new Error(
+uk-tax-advisor-app  |         ^
+uk-tax-advisor-app  | 
+uk-tax-advisor-app  | 
+uk-tax-advisor-app  | Error: DATABASE_URL must be set. Did you forget to provision a database?
+uk-tax-advisor-app  |     at <anonymous> (/app/server/db.ts:9:9)
+uk-tax-advisor-app  |     at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+uk-tax-advisor-app  |     at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+uk-tax-advisor-app  |     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+uk-tax-advisor-app  | 
+uk-tax-advisor-app  | Node.js v20.19.5
+uk-tax-advisor-app  | /app/server/db.ts:9
+uk-tax-advisor-app  |   throw new Error(
+uk-tax-advisor-app  |         ^
+uk-tax-advisor-app  | 
+uk-tax-advisor-app  | 
+uk-tax-advisor-app  | Error: DATABASE_URL must be set. Did you forget to provision a database?
+uk-tax-advisor-app  |     at <anonymous> (/app/server/db.ts:9:9)
+uk-tax-advisor-app  |     at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+uk-tax-advisor-app  |     at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+uk-tax-advisor-app  |     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+uk-tax-advisor-app  | 
+uk-tax-advisor-app  | Node.js v20.19.5
+uk-tax-advisor-app  | /app/server/db.ts:9
+uk-tax-advisor-app  |   throw new Error(
+uk-tax-advisor-app  |         ^
+uk-tax-advisor-app  | 
+uk-tax-advisor-app  | 
+uk-tax-advisor-app  | Error: DATABASE_URL must be set. Did you forget to provision a database?
+uk-tax-advisor-app  |     at <anonymous> (/app/server/db.ts:9:9)
+uk-tax-advisor-app  |     at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+uk-tax-advisor-app  |     at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+uk-tax-advisor-app  |     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+uk-tax-advisor-app  | 
+uk-tax-advisor-app  | Node.js v20.19.5
+uk-tax-advisor-app  | /app/server/db.ts:9
+uk-tax-advisor-app  |   throw new Error(
+uk-tax-advisor-app  |         ^
+uk-tax-advisor-app  | 
+uk-tax-advisor-app  | 
+uk-tax-advisor-app  | Error: DATABASE_URL must be set. Did you forget to provision a database?
+uk-tax-advisor-app  |     at <anonymous> (/app/server/db.ts:9:9)
+uk-tax-advisor-app  |     at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+uk-tax-advisor-app  |     at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+uk-tax-advisor-app  |     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+uk-tax-advisor-app  | 
+uk-tax-advisor-app  | Node.js v20.19.5
