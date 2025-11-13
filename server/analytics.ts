@@ -12,6 +12,9 @@ export const PRICING = {
   OPENAI_TTS_1: {
     perCharacter: 0.000015,
   },
+  AVATARTALK_VIDEO: {
+    perVideo: 0.10, // Placeholder: $0.10 per video - adjust based on actual pricing
+  },
 } as const;
 
 export function calculateChatCost(
@@ -71,6 +74,29 @@ export async function trackTTSRequest(
     inputTokens: null,
     outputTokens: null,
     characters,
+    model,
+    cost: cost.toString(),
+    duration,
+  });
+}
+
+export function calculateVideoCost(): number {
+  return PRICING.AVATARTALK_VIDEO.perVideo;
+}
+
+export async function trackVideoRequest(
+  ipAddress: string,
+  model: string,
+  duration: number
+): Promise<void> {
+  const cost = calculateVideoCost();
+  
+  await storage.createAnalyticsRecord({
+    type: 'video',
+    ipAddress,
+    inputTokens: null,
+    outputTokens: null,
+    characters: null,
     model,
     cost: cost.toString(),
     duration,
