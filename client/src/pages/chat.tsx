@@ -465,9 +465,9 @@ export default function Chat() {
         </div>
       </header>
 
-      <main className="flex-1 overflow-hidden">
-        <div className="h-full max-w-6xl mx-auto px-6 py-6">
-          <div className="flex flex-col gap-6 items-center justify-center h-full">
+      <main className="flex-1 overflow-y-auto">
+        <div className="max-w-6xl mx-auto px-6 py-6">
+          <div className="flex flex-col gap-6 items-center">
             {messages.length === 0 && (
               <div className="text-center mb-4 max-w-lg" data-testid="welcome-prompt">
                 <h2 className="text-xl font-semibold text-foreground mb-2">
