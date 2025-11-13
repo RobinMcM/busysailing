@@ -40,10 +40,13 @@ export default function Chat() {
   const [currentIndex, setCurrentIndex] = useState<number>(-1);
   const [queueStatus, setQueueStatus] = useState<'idle' | 'generating' | 'playing'>('idle');
   const [isGeneratingVideos, setIsGeneratingVideos] = useState(false);
+  const [welcomeVideoUrl, setWelcomeVideoUrl] = useState<string | null>(null);
+  const [isGeneratingWelcome, setIsGeneratingWelcome] = useState(false);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const cleanupUrlsRef = useRef<string[]>([]);
   const primaryVideoRef = useRef<HTMLVideoElement>(null);
+  const hasPlayedWelcome = useRef(false);
   const { toast} = useToast();
   
   const CORRECT_PASSWORD = 'MKS2005';
@@ -116,8 +119,16 @@ export default function Chat() {
   const generateSingleVideo = async (text: string, messageIndex: number) => {
     console.log(`[Video] Generating single video for AI message ${messageIndex}`);
     
-    // Stop any existing playback
-    stopPlayback();
+    // Pause any playing welcome video before starting queue playback
+    if (welcomeVideoUrl && primaryVideoRef.current) {
+      primaryVideoRef.current.pause();
+      console.log('[Video] Paused welcome video to start queue playback');
+    }
+    
+    // Only stop playback if something is actually playing
+    if (queueStatus === 'playing' || queueStatus === 'generating') {
+      stopPlayback();
+    }
     
     // Always use Consultant avatar
     const avatarType: AvatarType = 'european_woman';
@@ -296,6 +307,9 @@ export default function Chat() {
   const handleClearChat = () => {
     stopPlayback();
     setMessages([]);
+    // Clear welcome video to allow it to replay
+    setWelcomeVideoUrl(null);
+    hasPlayedWelcome.current = false;
   };
 
   const handleToggleMute = () => {
@@ -355,6 +369,46 @@ export default function Chat() {
       cleanupUrls();
     };
   }, []);
+
+  // Auto-play welcome message when page loads or after chat is cleared
+  useEffect(() => {
+    // Only generate if chat is empty, avatarTalk is ready, and we haven't generated yet
+    if (messages.length > 0 || !avatarTalk || isGeneratingWelcome || hasPlayedWelcome.current || welcomeVideoUrl) {
+      return;
+    }
+    
+    const generateWelcomeVideo = async () => {
+      const welcomeText = "How can I help you today? Ask me anything about UK taxes, HMRC regulations, and personal finance.";
+      
+      try {
+        console.log('[Welcome] Generating welcome video');
+        setIsGeneratingWelcome(true);
+        
+        const videoUrl = await avatarTalk.generateVideo(
+          welcomeText,
+          'european_woman',
+          'neutral'
+        );
+        
+        console.log('[Welcome] Welcome video generated successfully');
+        setWelcomeVideoUrl(videoUrl);
+        cleanupUrlsRef.current.push(videoUrl);
+        hasPlayedWelcome.current = true; // Only set after successful generation
+        
+        // Auto-unmute when welcome video plays
+        setIsMuted(false);
+      } catch (error) {
+        console.error('[Welcome] Failed to generate welcome video:', error);
+        // Don't set hasPlayedWelcome so it can retry
+      } finally {
+        setIsGeneratingWelcome(false);
+      }
+    };
+    
+    // Small delay to ensure component is fully mounted
+    const timer = setTimeout(generateWelcomeVideo, 1000);
+    return () => clearTimeout(timer);
+  }, [avatarTalk, isGeneratingWelcome, messages.length, welcomeVideoUrl]);
 
   return (
     <div className="flex flex-col h-screen bg-background">
@@ -526,14 +580,23 @@ export default function Chat() {
                     avatarType="consultant"
                     className="w-full h-full"
                     videoUrl={
-                      currentIndex >= 0 && 
-                      currentIndex < paragraphQueue.length
-                        ? paragraphQueue[currentIndex].videoUrl
-                        : null
+                      // Show welcome video if chat is empty and welcome is ready
+                      messages.length === 0 && welcomeVideoUrl && queueStatus !== 'playing'
+                        ? welcomeVideoUrl
+                        : (currentIndex >= 0 && currentIndex < paragraphQueue.length
+                            ? paragraphQueue[currentIndex].videoUrl
+                            : null)
                     }
                     videoRef={primaryVideoRef}
-                    onEnded={() => playNext()}
-                    isGenerating={isGeneratingVideos}
+                    onEnded={() => {
+                      // If welcome video ended, don't do anything
+                      if (messages.length === 0 && welcomeVideoUrl) {
+                        return;
+                      }
+                      // Otherwise play next queue video
+                      playNext();
+                    }}
+                    isGenerating={isGeneratingWelcome || isGeneratingVideos}
                     isMuted={isMuted}
                   />
                 </div>
