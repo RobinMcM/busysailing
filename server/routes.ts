@@ -3,7 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { generateFinancialResponse } from "./chat";
 import { chatRateLimiter } from "./rateLimiter";
-import { trackChatRequest, estimateTokenCount } from "./analytics";
+import { trackChatRequest, trackVideoRequest, estimateTokenCount } from "./analytics";
 import { z } from "zod";
 
 // Helper function to extract synopsis from AI response
@@ -218,6 +218,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const videoBuffer = await videoResponse.arrayBuffer();
         console.log(`[API] Video downloaded: ${videoBuffer.byteLength} bytes in ${Date.now() - startTime}ms`);
         
+        // Track video generation analytics
+        const clientIp = (req.headers['x-forwarded-for'] as string)?.split(',')[0] || 
+                        req.socket.remoteAddress || 
+                        'unknown';
+        await trackVideoRequest(clientIp, 'AvatarTalk', duration).catch(err => {
+          console.error('[Analytics] Failed to track video request:', err);
+        });
+        
         // Return video
         res.setHeader('Content-Type', 'video/mp4');
         res.setHeader('Content-Length', videoBuffer.byteLength);
@@ -235,6 +243,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
             success: false
           });
         }
+        
+        // Track video generation analytics
+        const clientIp = (req.headers['x-forwarded-for'] as string)?.split(',')[0] || 
+                        req.socket.remoteAddress || 
+                        'unknown';
+        await trackVideoRequest(clientIp, 'AvatarTalk', duration).catch(err => {
+          console.error('[Analytics] Failed to track video request:', err);
+        });
         
         res.setHeader('Content-Type', contentType || 'video/mp4');
         res.setHeader('Content-Length', videoBuffer.byteLength);

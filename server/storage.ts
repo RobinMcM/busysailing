@@ -137,10 +137,12 @@ class SupabaseStorage {
     
     const chatRecords = records.filter(r => r.type === 'chat');
     const ttsRecords = records.filter(r => r.type === 'tts');
+    const videoRecords = records.filter(r => r.type === 'video');
     
     const totalCost = records.reduce((sum, r) => sum + parseFloat(r.cost || '0'), 0);
     const chatCost = chatRecords.reduce((sum, r) => sum + parseFloat(r.cost || '0'), 0);
     const ttsCost = ttsRecords.reduce((sum, r) => sum + parseFloat(r.cost || '0'), 0);
+    const videoCost = videoRecords.reduce((sum, r) => sum + parseFloat(r.cost || '0'), 0);
     
     const uniqueIPs = new Set(records.map(r => r.ipAddress));
     const avgDuration = records.length > 0 
@@ -158,13 +160,18 @@ class SupabaseStorage {
       totalRequests: records.length,
       chatRequests: chatRecords.length,
       ttsRequests: ttsRecords.length,
+      videoRequests: videoRecords.length,
       totalCost,
       chatCost,
       ttsCost,
+      videoCost,
       uniqueUsers: uniqueIPs.size,
       averageResponseTime: avgDuration,
       totalTokens,
-      totalCharacters
+      totalCharacters,
+      period: 'custom',
+      startDate,
+      endDate
     };
   }
 
