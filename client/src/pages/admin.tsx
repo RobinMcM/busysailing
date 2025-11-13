@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "wouter";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,6 +14,9 @@ export default function Admin() {
   const [password, setPassword] = useState("");
   const [period, setPeriod] = useState("today");
   const [showError, setShowError] = useState(false);
+  const [companyName, setCompanyName] = useState("");
+  const [avatarName, setAvatarName] = useState("");
+  const [settingsSaved, setSettingsSaved] = useState(false);
 
   const { data: analyticsData, isLoading } = useQuery<{
     summary: AnalyticsSummary;
@@ -31,6 +34,40 @@ export default function Admin() {
       return res.json();
     },
     enabled: isUnlocked,
+  });
+
+  const { data: settingsData } = useQuery<{
+    companyName: string;
+    avatarName: string;
+  }>({
+    queryKey: ["/api/settings"],
+    queryFn: async () => {
+      const res = await fetch("/api/settings");
+      if (!res.ok) throw new Error("Failed to fetch settings");
+      return res.json();
+    },
+    enabled: isUnlocked,
+  });
+
+  useEffect(() => {
+    if (settingsData) {
+      setCompanyName(settingsData.companyName);
+      setAvatarName(settingsData.avatarName);
+    }
+  }, [settingsData]);
+
+  const updateSettingsMutation = useMutation({
+    mutationFn: async () => {
+      const res = await apiRequest("PUT", "/api/settings", {
+        companyName,
+        avatarName,
+      });
+      return res.json();
+    },
+    onSuccess: () => {
+      setSettingsSaved(true);
+      setTimeout(() => setSettingsSaved(false), 2000);
+    },
   });
 
   const verifyPasswordMutation = useMutation({
@@ -199,6 +236,50 @@ export default function Admin() {
             </Button>
           </div>
         </div>
+
+        {/* Avatar Settings Configuration */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Avatar Settings</CardTitle>
+            <CardDescription>
+              Configure the labels displayed on the avatar ID card
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Company Name (Top Label)</label>
+                <Input
+                  data-testid="input-company-name"
+                  value={companyName}
+                  onChange={(e) => setCompanyName(e.target.value)}
+                  placeholder="UK Tax Advisors"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Avatar Name (Bottom Label)</label>
+                <Input
+                  data-testid="input-avatar-name"
+                  value={avatarName}
+                  onChange={(e) => setAvatarName(e.target.value)}
+                  placeholder="Sarah Davies"
+                />
+              </div>
+            </div>
+            <div className="mt-4 flex items-center gap-3">
+              <Button
+                data-testid="button-save-settings"
+                onClick={() => updateSettingsMutation.mutate()}
+                disabled={updateSettingsMutation.isPending}
+              >
+                {updateSettingsMutation.isPending ? "Saving..." : "Save Settings"}
+              </Button>
+              {settingsSaved && (
+                <p className="text-sm text-green-600">Settings saved successfully!</p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
 
         {summary && (
           <>
