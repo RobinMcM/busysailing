@@ -506,9 +506,9 @@ export default function Chat() {
               <ExamplePrompts onPromptClick={handlePromptClick} disabled={!isUnlocked} />
             </div>
           ) : (
-            <div className="flex flex-col gap-6 items-center justify-center h-full">
+            <div className="flex flex-col lg:flex-row gap-6 items-center justify-center h-full">
               {/* Text Output Box - Mobile Phone Style */}
-              <div className="relative w-full max-w-[307px] h-[400px] lg:h-[480px]" data-testid="phone-container">
+              <div className="relative w-full max-w-[307px] h-[400px] lg:h-[520px] flex-shrink-0" data-testid="phone-container">
                 {/* Phone bezel/frame */}
                 <div className="absolute inset-0 bg-gradient-to-b from-border to-muted/30 rounded-[2.5rem] p-[12px] shadow-2xl">
                   {/* Phone screen */}
@@ -552,12 +552,12 @@ export default function Chat() {
                 </div>
               </div>
 
-              {/* 3D Avatars - Side by Side */}
-              <div className="flex flex-row gap-4 sm:gap-6 flex-shrink-0 items-start justify-center">
+              {/* 3D Avatars - Stacked on mobile, side-by-side on desktop */}
+              <div className="flex flex-col lg:flex-row gap-6 flex-shrink-0 items-center justify-center">
                 {/* Primary Consultant Avatar */}
                 <div className="flex flex-col items-center gap-2">
                   <div 
-                    className={`w-48 h-48 sm:w-64 sm:h-64 rounded-lg overflow-hidden transition-opacity duration-300 ${
+                    className={`w-64 h-64 lg:w-72 lg:h-72 rounded-lg overflow-hidden transition-opacity duration-300 ${
                       isSpeaking && activeAvatar === 'support' ? 'opacity-50' : 'opacity-100'
                     }`}
                     data-testid="avatar-primary"
@@ -592,7 +592,7 @@ export default function Chat() {
                   aria-hidden={!isSecondAvatarEnabled}
                 >
                   <div 
-                    className={`w-48 h-48 sm:w-64 sm:h-64 rounded-lg overflow-hidden transition-opacity duration-300 ${
+                    className={`w-64 h-64 lg:w-72 lg:h-72 rounded-lg overflow-hidden transition-opacity duration-300 ${
                       isSpeaking && activeAvatar === 'primary' ? 'opacity-50' : 'opacity-100'
                     }`}
                     data-testid="avatar-support"
