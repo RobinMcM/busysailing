@@ -49,6 +49,7 @@ export default function Chat() {
   const primaryVideoRef = useRef<HTMLVideoElement>(null);
   const hasPlayedWelcome = useRef(false);
   const hasAttemptedWelcome = useRef(false);
+  const prevReadyIdsRef = useRef<Set<string>>(new Set());
   const { toast} = useToast();
   
   const CORRECT_PASSWORD = 'MKS2005';
@@ -111,9 +112,10 @@ export default function Chat() {
       nextIndex++;
     }
     
-    // No more playable videos - clear queue to prevent auto-restart
+    // No more playable videos - clear queue and reset tracking to prevent auto-restart
     console.log('[Video] Playback complete - no more videos');
     setParagraphQueue([]);
+    prevReadyIdsRef.current.clear();
     stopPlayback();
   };
 
@@ -352,15 +354,33 @@ export default function Chat() {
 
   // Partner avatar is now enabled automatically when she first appears (odd-numbered AI messages)
 
-  // Auto-start playback when video is ready
+  // Auto-start playback when NEW ready video is added (prevents loop on idle transitions)
   useEffect(() => {
-    if (paragraphQueue.length > 0 && 
-        paragraphQueue[0].status === 'ready' && 
+    // Get current ready video IDs
+    const currentReadyIds = new Set(
+      paragraphQueue
+        .filter(v => v.status === 'ready' && v.videoUrl)
+        .map(v => v.id)
+    );
+    
+    // Check if there's a new ready ID we haven't seen before
+    const hasNewReady = Array.from(currentReadyIds).some(id => !prevReadyIdsRef.current.has(id));
+    
+    // Only auto-start if:
+    // 1. We have a new ready video
+    // 2. Queue is idle (not already playing)
+    // 3. No current video playing
+    if (hasNewReady && 
         queueStatus === 'idle' &&
-        currentIndex === -1) {
-      console.log('[Video] Auto-starting playback for ready video');
+        currentIndex === -1 &&
+        paragraphQueue.length > 0 &&
+        paragraphQueue[0].status === 'ready') {
+      console.log('[Video] Auto-starting playback for newly ready video');
       playNext(0);
     }
+    
+    // Update ref with current ready IDs
+    prevReadyIdsRef.current = currentReadyIds;
   }, [paragraphQueue, queueStatus, currentIndex]);
 
   // Check password when input changes
