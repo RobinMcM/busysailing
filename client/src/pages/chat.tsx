@@ -617,20 +617,20 @@ export default function Chat() {
                     avatarType="consultant"
                     className="w-full h-full"
                     videoUrl={
-                      // Show welcome video if chat is empty and welcome is ready
-                      messages.length === 0 && welcomeVideoUrl && queueStatus !== 'playing'
+                      // Show welcome video if chat has no real messages and welcome is ready
+                      !hasRealMessages() && welcomeVideoUrl && queueStatus !== 'playing'
                         ? welcomeVideoUrl
                         : (currentIndex >= 0 && currentIndex < paragraphQueue.length
                             ? paragraphQueue[currentIndex].videoUrl
                             : null)
                     }
                     videoRef={primaryVideoRef}
-                    onPlay={messages.length === 0 ? handleWelcomePlay : undefined}
-                    onPause={messages.length === 0 ? handleWelcomePause : undefined}
-                    onAutoplayReject={messages.length === 0 ? handleWelcomeAutoplayReject : undefined}
+                    onPlay={!hasRealMessages() ? handleWelcomePlay : undefined}
+                    onPause={!hasRealMessages() ? handleWelcomePause : undefined}
+                    onAutoplayReject={!hasRealMessages() ? handleWelcomeAutoplayReject : undefined}
                     onEnded={() => {
                       // If welcome video ended, clear playing state
-                      if (messages.length === 0 && welcomeVideoUrl) {
+                      if (!hasRealMessages() && welcomeVideoUrl) {
                         setWelcomeIsPlaying(false);
                         return;
                       }
@@ -645,7 +645,7 @@ export default function Chat() {
               </div>
             </div>
             
-            {messages.length === 0 && (
+            {!hasRealMessages() && (
               <div className="text-center mt-4 max-w-lg" data-testid="welcome-prompt">
                 <h2 className="text-xl font-semibold text-foreground mb-2">
                   How can I help you today?
@@ -656,7 +656,7 @@ export default function Chat() {
               </div>
             )}
             
-            {messages.length === 0 && (
+            {!hasRealMessages() && (
               <ExamplePrompts onPromptClick={handlePromptClick} disabled={!isUnlocked} />
             )}
           </div>
