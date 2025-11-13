@@ -1,4 +1,6 @@
-import { supabase } from './supabase';
+import { db } from './db';
+import { analytics, conversations } from '../shared/schema';
+import { eq, gte, lte, desc } from 'drizzle-orm';
 
 export interface Analytics {
   id: string;
@@ -41,95 +43,73 @@ export interface Conversation {
 
 class SupabaseStorage {
   async createAnalyticsRecord(record: Omit<Analytics, 'id' | 'timestamp'>): Promise<Analytics> {
-    if (!supabase) {
-      console.warn('[Storage] Supabase not available, analytics will not be persisted');
-      return {
-        id: crypto.randomUUID(),
-        timestamp: new Date(),
-        ...record
-      };
-    }
-
     try {
-      const { data, error } = await supabase
-        .from('analytics')
-        .insert([{
+      const [inserted] = await db
+        .insert(analytics)
+        .values({
           type: record.type,
-          ip_address: record.ipAddress,
-          input_tokens: record.inputTokens,
-          output_tokens: record.outputTokens,
-          character_count: record.characters,
+          ipAddress: record.ipAddress,
+          inputTokens: record.inputTokens,
+          outputTokens: record.outputTokens,
+          characters: record.characters,
           model: record.model,
-          duration_ms: record.duration,
-          cost: parseFloat(record.cost)
-        }])
-        .select()
-        .single();
-
-      if (error) {
-        console.error('[Storage] Error creating analytics record:', error);
-        throw error;
-      }
+          cost: record.cost,
+          duration: record.duration,
+        })
+        .returning();
 
       return {
-        id: data.id,
-        timestamp: new Date(data.timestamp),
-        type: data.type,
-        ipAddress: data.ip_address,
-        inputTokens: data.input_tokens,
-        outputTokens: data.output_tokens,
-        characters: data.character_count,
-        model: data.model,
-        cost: data.cost.toString(),
-        duration: data.duration_ms
+        id: inserted.id,
+        timestamp: inserted.timestamp,
+        type: inserted.type as 'chat' | 'tts' | 'video',
+        ipAddress: inserted.ipAddress,
+        inputTokens: inserted.inputTokens,
+        outputTokens: inserted.outputTokens,
+        characters: inserted.characters,
+        model: inserted.model,
+        cost: inserted.cost,
+        duration: inserted.duration
       };
     } catch (error) {
       console.error('[Storage] Failed to create analytics record:', error);
-      return {
-        id: crypto.randomUUID(),
-        timestamp: new Date(),
-        ...record
-      };
+      throw error;
     }
   }
 
   async getAllAnalytics(startDate?: Date, endDate?: Date): Promise<Analytics[]> {
-    if (!supabase) {
-      console.warn('[Storage] Supabase not available');
-      return [];
-    }
-
     try {
-      let query = supabase
-        .from('analytics')
-        .select('*')
-        .order('timestamp', { ascending: false });
+      let query = db
+        .select()
+        .from(analytics)
+        .orderBy(desc(analytics.timestamp))
+        .limit(1000);
 
+      const conditions = [];
       if (startDate) {
-        query = query.gte('timestamp', startDate.toISOString());
+        conditions.push(gte(analytics.timestamp, startDate));
       }
       if (endDate) {
-        query = query.lte('timestamp', endDate.toISOString());
+        conditions.push(lte(analytics.timestamp, endDate));
       }
 
-      const { data, error } = await query.limit(1000);
-
-      if (error) {
-        console.error('[Storage] Error fetching analytics:', error);
-        return [];
+      let results;
+      if (conditions.length > 0) {
+        results = await query.where(conditions.length === 1 ? conditions[0] : undefined);
+      } else {
+        results = await query;
       }
 
-      return (data || []).map(row => ({
+      return results.map(row => ({
         id: row.id,
-        timestamp: new Date(row.timestamp),
-        type: row.type,
-        ipAddress: row.ip_address,
-        inputTokens: row.input_tokens,
-        outputTokens: row.output_tokens,
-        characters: row.character_count,
+        timestamp: row.timestamp,
+        type: row.type as 'chat' | 'tts' | 'video',
+        ipAddress: row.ipAddress,
+        inputTokens: row.inputTokens,
+        outputTokens: row.outputTokens,
+        characters: row.characters,
         model: row.model,
-        cost: row.cost.toString(),
-        duration: row.duration_ms
+        cost: row.cost,
+        duration: row.duration
       }));
     } catch (error) {
       console.error('[Storage] Failed to fetch analytics:', error);
@@ -181,45 +161,26 @@ class SupabaseStorage {
   }
 
   async saveConversation(conversation: Omit<Conversation, 'id' | 'timestamp'>): Promise<Conversation> {
-    if (!supabase) {
-      console.warn('[Storage] Supabase not available, conversation will not be persisted');
-      return {
-        id: crypto.randomUUID(),
-        timestamp: new Date(),
-        ...conversation
-      };
-    }
-
     try {
-      const { data, error } = await supabase
-        .from('conversations')
-        .insert([{
-          user_question: conversation.userQuestion,
-          ai_response: conversation.aiResponse,
-          ip_address: conversation.ipAddress
-        }])
-        .select()
-        .single();
-
-      if (error) {
-        console.error('[Storage] Error saving conversation:', error);
-        throw error;
-      }
+      const [inserted] = await db
+        .insert(conversations)
+        .values({
+          userQuestion: conversation.userQuestion,
+          aiResponse: conversation.aiResponse,
+          ipAddress: conversation.ipAddress
+        })
+        .returning();
 
       return {
-        id: data.id,
-        timestamp: new Date(data.timestamp),
-        userQuestion: data.user_question,
-        aiResponse: data.ai_response,
-        ipAddress: data.ip_address
+        id: inserted.id,
+        timestamp: inserted.timestamp,
+        userQuestion: inserted.userQuestion,
+        aiResponse: inserted.aiResponse,
+        ipAddress: inserted.ipAddress
       };
     } catch (error) {
       console.error('[Storage] Failed to save conversation:', error);
-      return {
-        id: crypto.randomUUID(),
-        timestamp: new Date(),
-        ...conversation
-      };
+      throw error;
     }
   }
 }
