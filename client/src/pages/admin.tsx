@@ -213,7 +213,7 @@ export default function Admin() {
                     ${summary.totalCost.toFixed(4)}
                   </div>
                   <p className="text-xs text-muted-foreground mt-1">
-                    Chat: ${summary.chatCost.toFixed(4)} | TTS: ${summary.ttsCost.toFixed(4)}
+                    Chat: ${summary.chatCost.toFixed(4)} | TTS: ${summary.ttsCost.toFixed(4)} | Video: ${summary.videoCost.toFixed(4)}
                   </p>
                 </CardContent>
               </Card>
@@ -228,7 +228,7 @@ export default function Admin() {
                     {summary.totalRequests}
                   </div>
                   <p className="text-xs text-muted-foreground mt-1">
-                    Chat: {summary.chatRequests} | TTS: {summary.ttsRequests}
+                    Chat: {summary.chatRequests} | TTS: {summary.ttsRequests} | Video: {summary.videoRequests}
                   </p>
                 </CardContent>
               </Card>
