@@ -3,7 +3,7 @@ import { supabase } from './supabase';
 export interface Analytics {
   id: string;
   timestamp: Date;
-  type: 'chat' | 'tts';
+  type: 'chat' | 'tts' | 'video';
   ipAddress: string;
   inputTokens: number | null;
   outputTokens: number | null;
@@ -17,13 +17,18 @@ export interface AnalyticsSummary {
   totalRequests: number;
   chatRequests: number;
   ttsRequests: number;
+  videoRequests: number;
   totalCost: number;
   chatCost: number;
   ttsCost: number;
+  videoCost: number;
   uniqueUsers: number;
   averageResponseTime: number;
   totalTokens: number;
   totalCharacters: number;
+  period: string;
+  startDate: Date;
+  endDate: Date;
 }
 
 export interface Conversation {
