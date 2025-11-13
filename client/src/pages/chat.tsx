@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'wouter';
+import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Trash2, Sparkles, Volume2, VolumeX, StopCircle, Lock, CheckCircle, BarChart3 } from 'lucide-react';
@@ -53,6 +54,19 @@ export default function Chat() {
   const { toast} = useToast();
   
   const CORRECT_PASSWORD = 'MKS2005';
+
+  // Fetch avatar settings for labels
+  const { data: settings } = useQuery<{
+    companyName: string;
+    avatarName: string;
+  }>({
+    queryKey: ["/api/settings"],
+    queryFn: async () => {
+      const res = await fetch("/api/settings");
+      if (!res.ok) throw new Error("Failed to fetch settings");
+      return res.json();
+    },
+  });
   
   // Helper to check if chat has real messages (excluding welcome message)
   const hasRealMessages = () => {
@@ -610,7 +624,14 @@ export default function Chat() {
                 {/* Rectangular ID card container with shaded border (2:3 width:height ratio) */}
                 <div className="relative w-[280px] h-[420px] bg-gradient-to-b from-border to-muted/30 rounded-3xl p-3 shadow-2xl">
                   {/* Inner card background */}
-                  <div className="relative w-full h-full bg-card rounded-2xl flex items-center justify-center p-6">
+                  <div className="relative w-full h-full bg-card rounded-2xl flex flex-col items-center justify-between p-6">
+                    {/* Company name label at top */}
+                    <div className="text-center">
+                      <p className="text-sm font-semibold text-foreground" data-testid="text-company-name">
+                        {settings?.companyName || 'UK Tax Advisors'}
+                      </p>
+                    </div>
+                    
                     {/* Circular avatar with light grey border */}
                     <div 
                       className="w-56 h-56 rounded-full overflow-hidden border-8 border-gray-300"
@@ -646,9 +667,15 @@ export default function Chat() {
                         isMuted={isMuted}
                       />
                     </div>
+
+                    {/* Avatar name label at bottom */}
+                    <div className="text-center">
+                      <p className="text-sm font-semibold text-foreground" data-testid="text-avatar-name">
+                        {settings?.avatarName || 'Sarah Davies'}
+                      </p>
+                    </div>
                   </div>
                 </div>
-                <span className="text-sm font-medium text-foreground">Advisor</span>
               </div>
             </div>
             
