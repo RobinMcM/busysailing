@@ -605,41 +605,48 @@ export default function Chat() {
                 </div>
               </div>
 
-              {/* Consultant Avatar */}
+              {/* Consultant Avatar - ID Card Style */}
               <div className="flex flex-col items-center gap-2">
-                <div 
-                  className="w-64 h-64 lg:w-72 lg:h-72 rounded-full overflow-hidden border-4 border-blue-600"
-                  data-testid="avatar-primary"
-                >
-                  <RealisticAvatar 
-                    isActive={true}
-                    isSpeaking={isSpeaking}
-                    avatarType="consultant"
-                    className="w-full h-full"
-                    videoUrl={
-                      // Show welcome video if chat has no real messages and welcome is ready
-                      !hasRealMessages() && welcomeVideoUrl && queueStatus !== 'playing'
-                        ? welcomeVideoUrl
-                        : (currentIndex >= 0 && currentIndex < paragraphQueue.length
-                            ? paragraphQueue[currentIndex].videoUrl
-                            : null)
-                    }
-                    videoRef={primaryVideoRef}
-                    onPlay={!hasRealMessages() ? handleWelcomePlay : undefined}
-                    onPause={!hasRealMessages() ? handleWelcomePause : undefined}
-                    onAutoplayReject={!hasRealMessages() ? handleWelcomeAutoplayReject : undefined}
-                    onEnded={() => {
-                      // If welcome video ended, clear playing state
-                      if (!hasRealMessages() && welcomeVideoUrl) {
-                        setWelcomeIsPlaying(false);
-                        return;
-                      }
-                      // Otherwise play next queue video
-                      playNext();
-                    }}
-                    isGenerating={isGeneratingVideos}
-                    isMuted={isMuted}
-                  />
+                {/* Rectangular ID card container with shaded border (2:3 width:height ratio) */}
+                <div className="relative w-[280px] h-[420px] bg-gradient-to-b from-border to-muted/30 rounded-3xl p-3 shadow-2xl">
+                  {/* Inner card background */}
+                  <div className="relative w-full h-full bg-card rounded-2xl flex items-center justify-center p-6">
+                    {/* Circular avatar with blue border */}
+                    <div 
+                      className="w-56 h-56 rounded-full overflow-hidden border-4 border-blue-600"
+                      data-testid="avatar-primary"
+                    >
+                      <RealisticAvatar 
+                        isActive={true}
+                        isSpeaking={isSpeaking}
+                        avatarType="consultant"
+                        className="w-full h-full"
+                        videoUrl={
+                          // Show welcome video if chat has no real messages and welcome is ready
+                          !hasRealMessages() && welcomeVideoUrl && queueStatus !== 'playing'
+                            ? welcomeVideoUrl
+                            : (currentIndex >= 0 && currentIndex < paragraphQueue.length
+                                ? paragraphQueue[currentIndex].videoUrl
+                                : null)
+                        }
+                        videoRef={primaryVideoRef}
+                        onPlay={!hasRealMessages() ? handleWelcomePlay : undefined}
+                        onPause={!hasRealMessages() ? handleWelcomePause : undefined}
+                        onAutoplayReject={!hasRealMessages() ? handleWelcomeAutoplayReject : undefined}
+                        onEnded={() => {
+                          // If welcome video ended, clear playing state
+                          if (!hasRealMessages() && welcomeVideoUrl) {
+                            setWelcomeIsPlaying(false);
+                            return;
+                          }
+                          // Otherwise play next queue video
+                          playNext();
+                        }}
+                        isGenerating={isGeneratingVideos}
+                        isMuted={isMuted}
+                      />
+                    </div>
+                  </div>
                 </div>
                 <span className="text-sm font-medium text-foreground">Advisor</span>
               </div>
