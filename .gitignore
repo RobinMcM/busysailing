@@ -5,6 +5,12 @@ server/public
 vite.config.ts.*
 *.tar.gz
 
+# Environment variables (NEVER commit secrets!)
+.env
+.env.local
+.env.production
+deployment/.env
+
 # Wav2Lip models (too large for GitHub, downloaded during deployment)
 server/wav2lip_service/models/
 server/wav2lip_service/checkpoints/
