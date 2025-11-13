@@ -411,17 +411,18 @@ export default function Chat() {
     };
   }, []);
 
-  // Load static welcome video when page loads or after chat is cleared
+  // Load static welcome video when page unlocks (not on page load)
   useEffect(() => {
-    // Only load if chat is empty and we haven't loaded yet
-    if (messages.length > 0 || hasPlayedWelcome.current || welcomeVideoUrl) {
+    // Only load if page is unlocked, chat is empty, and we haven't played yet
+    if (!isUnlocked || messages.length > 0 || hasPlayedWelcome.current || welcomeVideoUrl) {
       return;
     }
     
-    console.log('[Welcome] Loading static welcome video');
+    console.log('[Welcome] Loading static welcome video after unlock');
     setWelcomeVideoUrl(welcomeVideoFile);
+    setIsMuted(false); // Unmute for welcome message with audio
     hasPlayedWelcome.current = true;
-  }, [messages.length, welcomeVideoUrl]);
+  }, [isUnlocked, messages.length, welcomeVideoUrl]);
 
   // Pre-set welcomeIsPlaying when URL becomes available to trigger playback effect (once)
   useEffect(() => {
