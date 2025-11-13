@@ -33,7 +33,6 @@ export default function Chat() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isMuted, setIsMuted] = useState(true); // Start muted for autoplay compliance, will auto-unmute
-  const [isSecondAvatarEnabled, setIsSecondAvatarEnabled] = useState(false);
   const [passwordInput, setPasswordInput] = useState('');
   const [isUnlocked, setIsUnlocked] = useState(false);
   
@@ -108,12 +107,6 @@ export default function Chat() {
         if (isMuted) {
           setIsMuted(false);
           console.log('[Video] Auto-unmuted for playback');
-        }
-        
-        // Enable Partner avatar when she first appears
-        if (nextVideo.avatarType === 'old_european_woman' && !isSecondAvatarEnabled) {
-          setIsSecondAvatarEnabled(true);
-          console.log('[Avatar] Partner avatar enabled');
         }
         
         return;
@@ -199,12 +192,6 @@ export default function Chat() {
       
       setIsGeneratingVideos(false);
       setQueueStatus('idle'); // Set to idle so useEffect can trigger playback
-      
-      // Enable Partner avatar when she first appears
-      if (avatarType === 'old_european_woman' && !isSecondAvatarEnabled) {
-        setIsSecondAvatarEnabled(true);
-        console.log('[Avatar] Partner avatar enabled');
-      }
       
     } catch (error: any) {
       console.error(`[Video] Failed to generate video:`, error);
@@ -319,7 +306,6 @@ export default function Chat() {
   const handleClearChat = () => {
     stopPlayback();
     setMessages([]);
-    setIsSecondAvatarEnabled(false);
   };
 
   const handleToggleMute = () => {
@@ -583,13 +569,10 @@ export default function Chat() {
                   <span className="text-sm font-medium text-foreground">Consultant</span>
                 </div>
 
-                {/* Secondary Partner Avatar - Always rendered, visibility controlled by opacity only */}
+                {/* Secondary Partner Avatar - Always visible */}
                 <div 
-                  className={`flex flex-col items-center gap-2 transition-all duration-500 ${
-                    isSecondAvatarEnabled ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'
-                  }`}
+                  className="flex flex-col items-center gap-2"
                   data-testid="avatar-support-container"
-                  aria-hidden={!isSecondAvatarEnabled}
                 >
                   <div 
                     className={`w-64 h-64 lg:w-72 lg:h-72 rounded-lg overflow-hidden transition-opacity duration-300 ${
