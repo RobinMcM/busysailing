@@ -11,17 +11,16 @@ if (!AVATARTALK_API_KEY) {
 async function generateWelcomeVideo() {
   console.log('🎬 Generating welcome video with AvatarTalk API...');
   
-  const welcomeText = "Hello, how may I help you?";
+  const welcomeText = "How can I help you today? Ask me anything about UK taxes, HMRC regulations, and personal finance.";
   const avatar = 'european_woman';
   const emotion = 'neutral';
-  const language = 'en';
   
   try {
     // Call AvatarTalk API
     console.log(`📝 Text: "${welcomeText}"`);
     console.log(`👤 Avatar: ${avatar}`);
     
-    const response = await fetch('https://api.avatartalk.ai/inference', {
+    const response = await fetch('https://avatartalk.ai/api/inference', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${AVATARTALK_API_KEY}`,
@@ -31,7 +30,7 @@ async function generateWelcomeVideo() {
         text: welcomeText,
         avatar,
         emotion,
-        language
+        stream: false
       })
     });
 
@@ -43,39 +42,32 @@ async function generateWelcomeVideo() {
     const contentType = response.headers.get('content-type');
     console.log(`📦 Response Content-Type: ${contentType}`);
 
-    let videoBuffer: ArrayBuffer;
-
-    // Check if response is JSON (contains video URL)
-    if (contentType?.includes('application/json')) {
-      const jsonData = await response.json();
-      console.log('📄 JSON response received, extracting video URL...');
-      
-      const videoUrl = jsonData.mp4_url || jsonData.video_url || jsonData.url || jsonData.video || jsonData.result;
-      
-      if (!videoUrl) {
-        throw new Error('No video URL found in AvatarTalk response');
-      }
-      
-      console.log(`🔗 Fetching video from: ${videoUrl}`);
-      
-      // Fetch the actual video
-      const videoResponse = await fetch(videoUrl);
-      
-      if (!videoResponse.ok) {
-        throw new Error(`Failed to fetch video from URL: ${videoResponse.status}`);
-      }
-      
-      videoBuffer = await videoResponse.arrayBuffer();
-    } else {
-      // Direct video response
-      videoBuffer = await response.arrayBuffer();
+    // AvatarTalk returns JSON with an ID
+    const jsonData = await response.json() as { id: string; status: string };
+    console.log('📄 JSON response received, ID:', jsonData.id);
+    
+    // Construct video URL from the response ID
+    const videoUrl = `https://avatartalk.ai/api/inference/${jsonData.id}/video.mp4`;
+    console.log(`🔗 Fetching video from: ${videoUrl}`);
+    
+    // Fetch the actual video
+    const videoResponse = await fetch(videoUrl);
+    
+    if (!videoResponse.ok) {
+      throw new Error(`Failed to fetch video from URL: ${videoResponse.status}`);
     }
+    
+    const videoBuffer = await videoResponse.arrayBuffer();
 
     console.log(`✅ Video downloaded: ${videoBuffer.byteLength} bytes`);
 
-    // Save to attached_assets/videos/welcome.mp4
-    const outputPath = path.join(process.cwd(), 'attached_assets', 'videos', 'welcome.mp4');
+    // Save to attached_assets/welcome-video.mp4
+    const outputDir = path.join(process.cwd(), 'attached_assets');
+    if (!fs.existsSync(outputDir)) {
+      fs.mkdirSync(outputDir, { recursive: true });
+    }
     
+    const outputPath = path.join(outputDir, 'welcome-video.mp4');
     fs.writeFileSync(outputPath, Buffer.from(videoBuffer));
     
     console.log(`💾 Video saved to: ${outputPath}`);
