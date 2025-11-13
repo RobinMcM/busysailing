@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import idleAvatarImage from '@assets/generated_images/Older_European_female_advisor_portrait_b60fd6fc.png';
+import idleAvatarImage from '@assets/FemaleAvatar_1763041095394.png';
 
 interface RealisticAvatarProps {
   isActive: boolean;
