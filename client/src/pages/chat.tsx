@@ -430,6 +430,15 @@ export default function Chat() {
       console.log('[Welcome] Pre-setting welcomeIsPlaying to trigger autoplay (first attempt)');
       setWelcomeIsPlaying(true);
       hasAttemptedWelcome.current = true;
+      
+      // Add welcome message to chat
+      const welcomeMessage: Message = {
+        id: 'welcome-' + Date.now(),
+        role: 'assistant',
+        content: 'How can I help you today?\n\nAsk me anything about UK taxes, HMRC regulations, and personal finance.',
+        timestamp: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }),
+      };
+      setMessages([welcomeMessage]);
     }
   }, [welcomeVideoUrl, messages.length, welcomeIsPlaying]);
 
