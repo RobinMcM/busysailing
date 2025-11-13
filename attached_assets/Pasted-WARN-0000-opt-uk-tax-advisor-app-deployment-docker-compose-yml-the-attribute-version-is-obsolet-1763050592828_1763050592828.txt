@@ -1,0 +1,18 @@
+WARN[0000] /opt/uk-tax-advisor/app/deployment/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion 
+uk-tax-advisor-app  | [Supabase] Checking if analytics table exists...
+uk-tax-advisor-app  | [Supabase] ✓ Analytics table exists and is accessible
+uk-tax-advisor-app  | 4:12:25 PM [express] serving on port 5000
+^C
+root@ubuntu-s-2vcpu-8gb-amd-lon1-01:/opt/uk-tax-advisor/app/deployment# docker compose ps
+WARN[0000] /opt/uk-tax-advisor/app/deployment/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion 
+NAME                     IMAGE                COMMAND                  SERVICE   CREATED          STATUS                   PORTS
+uk-tax-advisor-app       deployment-app       "docker-entrypoint.s…"   app       3 minutes ago    Up 3 minutes             0.0.0.0:5000->5000/tcp, [::]:5000->5000/tcp
+uk-tax-advisor-certbot   certbot/certbot      "/bin/sh -c 'trap ex…"   certbot   3 minutes ago    Up 3 minutes             80/tcp, 443/tcp
+uk-tax-advisor-nginx     nginx:alpine         "/docker-entrypoint.…"   nginx     3 minutes ago    Up 3 minutes             0.0.0.0:80->80/tcp, [::]:80->80/tcp, 0.0.0.0:443->443/tcp, [::]:443->443/tcp
+uk-tax-advisor-wav2lip   deployment-wav2lip   "python app.py"          wav2lip   36 minutes ago   Up 4 minutes (healthy)   0.0.0.0:5001->5001/tcp, [::]:5001->5001/tcp
+root@ubuntu-s-2vcpu-8gb-amd-lon1-01:/opt/uk-tax-advisor/app/deployment# ^C
+root@ubuntu-s-2vcpu-8gb-amd-lon1-01:/opt/uk-tax-advisor/app/deployment# docker compose logs -f app
+WARN[0000] /opt/uk-tax-advisor/app/deployment/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion 
+uk-tax-advisor-app  | [Supabase] Checking if analytics table exists...
+uk-tax-advisor-app  | [Supabase] ✓ Analytics table exists and is accessible
+uk-tax-advisor-app  | 4:12:25 PM [express] serving on port 5000
