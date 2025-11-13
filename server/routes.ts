@@ -441,6 +441,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get settings endpoint
+  app.get("/api/settings", async (req, res) => {
+    try {
+      const settings = await storage.getSettings();
+      res.json(settings);
+    } catch (error: any) {
+      console.error('Settings endpoint error:', error);
+      res.status(500).json({ 
+        error: error.message || 'Failed to fetch settings'
+      });
+    }
+  });
+
+  // Update settings endpoint
+  app.put("/api/settings", async (req, res) => {
+    try {
+      const { companyName, avatarName } = req.body;
+      
+      if (!companyName || !avatarName) {
+        return res.status(400).json({ 
+          error: 'Company name and avatar name are required' 
+        });
+      }
+
+      await storage.updateSettings(companyName, avatarName);
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error('Update settings error:', error);
+      res.status(500).json({ 
+        error: error.message || 'Failed to update settings'
+      });
+    }
+  });
+
   const httpServer = createServer(app);
 
   return httpServer;
