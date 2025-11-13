@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Lock, Unlock, DollarSign, MessageSquare, Volume2, Users, TrendingUp, Download, ArrowLeft } from "lucide-react";
+import { Lock, Unlock, DollarSign, MessageSquare, Volume2, Users, TrendingUp, Download, ArrowLeft, Video } from "lucide-react";
 import { type AnalyticsSummary, type Analytics } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
 
@@ -202,7 +202,7 @@ export default function Admin() {
 
         {summary && (
           <>
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">Total Cost</CardTitle>
@@ -213,22 +213,52 @@ export default function Admin() {
                     ${summary.totalCost.toFixed(4)}
                   </div>
                   <p className="text-xs text-muted-foreground mt-1">
-                    Chat: ${summary.chatCost.toFixed(4)} | TTS: ${summary.ttsCost.toFixed(4)} | Video: ${summary.videoCost.toFixed(4)}
+                    Across all services
                   </p>
                 </CardContent>
               </Card>
 
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Total Requests</CardTitle>
+                  <CardTitle className="text-sm font-medium">Chat Requests</CardTitle>
                   <MessageSquare className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div data-testid="text-total-requests" className="text-2xl font-bold">
-                    {summary.totalRequests}
+                  <div data-testid="text-chat-requests" className="text-2xl font-bold">
+                    {summary.chatRequests}
                   </div>
                   <p className="text-xs text-muted-foreground mt-1">
-                    Chat: {summary.chatRequests} | TTS: {summary.ttsRequests} | Video: {summary.videoRequests}
+                    ${summary.chatCost.toFixed(4)} total
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">TTS Requests</CardTitle>
+                  <Volume2 className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div data-testid="text-tts-requests" className="text-2xl font-bold">
+                    {summary.ttsRequests}
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    ${summary.ttsCost.toFixed(4)} total
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Video Generation</CardTitle>
+                  <Video className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div data-testid="text-video-requests" className="text-2xl font-bold">
+                    {summary.videoRequests}
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    ${summary.videoCost.toFixed(4)} total
                   </p>
                 </CardContent>
               </Card>
@@ -244,21 +274,6 @@ export default function Admin() {
                   </div>
                   <p className="text-xs text-muted-foreground mt-1">
                     By IP address
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Avg Response</CardTitle>
-                  <Volume2 className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div data-testid="text-avg-response" className="text-2xl font-bold">
-                    {(summary.averageResponseTime / 1000).toFixed(2)}s
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Average API latency
                   </p>
                 </CardContent>
               </Card>
@@ -296,6 +311,9 @@ export default function Admin() {
                   </p>
                   <p className="text-sm text-muted-foreground">
                     • TTS requests: {summary.ttsRequests} (${summary.ttsCost.toFixed(4)})
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    • Video generation: {summary.videoRequests} (${summary.videoCost.toFixed(4)})
                   </p>
                   <p className="text-sm text-muted-foreground">
                     • Total tokens processed: {(summary.totalTokens || 0).toLocaleString()}
