@@ -44,7 +44,6 @@ export default function Chat() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const cleanupUrlsRef = useRef<string[]>([]);
   const primaryVideoRef = useRef<HTMLVideoElement>(null);
-  const supportVideoRef = useRef<HTMLVideoElement>(null);
   const { toast} = useToast();
   
   const CORRECT_PASSWORD = 'MKS2005';
@@ -52,12 +51,9 @@ export default function Chat() {
   // AvatarTalk hook for video generation
   const avatarTalk = useAvatarTalk();
   
-  // Track which avatar is currently speaking
+  // Track when avatar is speaking
   const isPlaybackActive = queueStatus === 'playing' && !isMuted;
   const isSpeaking = isPlaybackActive;
-  const activeAvatar = currentIndex >= 0 && currentIndex < paragraphQueue.length
-    ? (paragraphQueue[currentIndex].avatarType === 'european_woman' ? 'primary' : 'support')
-    : 'primary';
 
   // Cleanup function to revoke object URLs
   const cleanupUrls = () => {
@@ -71,16 +67,11 @@ export default function Chat() {
     setQueueStatus('idle');
     setCurrentIndex(-1);
     
-    // Pause and clear video sources before cleanup
+    // Pause and clear video source before cleanup
     if (primaryVideoRef.current) {
       primaryVideoRef.current.pause();
       primaryVideoRef.current.removeAttribute('src');
       primaryVideoRef.current.load(); // Reset video element
-    }
-    if (supportVideoRef.current) {
-      supportVideoRef.current.pause();
-      supportVideoRef.current.removeAttribute('src');
-      supportVideoRef.current.load(); // Reset video element
     }
     
     // Now safe to cleanup blob URLs
@@ -128,8 +119,8 @@ export default function Chat() {
     // Stop any existing playback
     stopPlayback();
     
-    // Determine which avatar to use based on AI message count (alternate per message)
-    const avatarType = messageIndex % 2 === 0 ? 'european_woman' : 'old_european_woman';
+    // Always use Consultant avatar
+    const avatarType: AvatarType = 'european_woman';
     
     // Truncate text to 2000 characters (AvatarTalk API limit)
     const maxLength = 2000;
@@ -534,68 +525,30 @@ export default function Chat() {
                 </div>
               </div>
 
-              {/* 3D Avatars - Stacked on mobile, side-by-side on desktop */}
-              <div className="flex flex-col lg:flex-row gap-6 flex-shrink-0 items-center justify-center">
-                {/* Primary Consultant Avatar */}
-                <div className="flex flex-col items-center gap-2">
-                  <div 
-                    className={`w-64 h-64 lg:w-72 lg:h-72 rounded-full overflow-hidden transition-opacity duration-300 ${
-                      isSpeaking && activeAvatar === 'support' ? 'opacity-50' : 'opacity-100'
-                    }`}
-                    data-testid="avatar-primary"
-                  >
-                    <RealisticAvatar 
-                      isActive={activeAvatar === 'primary'}
-                      isSpeaking={isSpeaking && activeAvatar === 'primary'}
-                      avatarType="consultant"
-                      className="w-full h-full"
-                      videoUrl={
-                        currentIndex >= 0 && 
-                        currentIndex < paragraphQueue.length && 
-                        paragraphQueue[currentIndex].avatarType === 'european_woman'
-                          ? paragraphQueue[currentIndex].videoUrl
-                          : null
-                      }
-                      videoRef={primaryVideoRef}
-                      onEnded={() => playNext()}
-                      isGenerating={isGeneratingVideos}
-                      isMuted={isMuted}
-                    />
-                  </div>
-                  <span className="text-sm font-medium text-foreground">Consultant</span>
-                </div>
-
-                {/* Secondary Partner Avatar - Always visible */}
+              {/* Consultant Avatar */}
+              <div className="flex flex-col items-center gap-2">
                 <div 
-                  className="flex flex-col items-center gap-2"
-                  data-testid="avatar-support-container"
+                  className="w-64 h-64 lg:w-72 lg:h-72 rounded-full overflow-hidden"
+                  data-testid="avatar-primary"
                 >
-                  <div 
-                    className={`w-64 h-64 lg:w-72 lg:h-72 rounded-full overflow-hidden transition-opacity duration-300 ${
-                      isSpeaking && activeAvatar === 'primary' ? 'opacity-50' : 'opacity-100'
-                    }`}
-                    data-testid="avatar-support"
-                  >
-                    <RealisticAvatar 
-                      isActive={activeAvatar === 'support'}
-                      isSpeaking={isSpeaking && activeAvatar === 'support'}
-                      avatarType="partner"
-                      className="w-full h-full"
-                      videoUrl={
-                        currentIndex >= 0 && 
-                        currentIndex < paragraphQueue.length && 
-                        paragraphQueue[currentIndex].avatarType === 'old_european_woman'
-                          ? paragraphQueue[currentIndex].videoUrl
-                          : null
-                      }
-                      videoRef={supportVideoRef}
-                      onEnded={() => playNext()}
-                      isGenerating={isGeneratingVideos}
-                      isMuted={isMuted}
-                    />
-                  </div>
-                  <span className="text-sm font-medium text-foreground">Partner</span>
+                  <RealisticAvatar 
+                    isActive={true}
+                    isSpeaking={isSpeaking}
+                    avatarType="consultant"
+                    className="w-full h-full"
+                    videoUrl={
+                      currentIndex >= 0 && 
+                      currentIndex < paragraphQueue.length
+                        ? paragraphQueue[currentIndex].videoUrl
+                        : null
+                    }
+                    videoRef={primaryVideoRef}
+                    onEnded={() => playNext()}
+                    isGenerating={isGeneratingVideos}
+                    isMuted={isMuted}
+                  />
                 </div>
+                <span className="text-sm font-medium text-foreground">Consultant</span>
               </div>
             </div>
             
