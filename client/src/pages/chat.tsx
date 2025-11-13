@@ -468,17 +468,6 @@ export default function Chat() {
       <main className="flex-1 overflow-y-auto">
         <div className="max-w-6xl mx-auto px-6 py-6">
           <div className="flex flex-col gap-6 items-center">
-            {messages.length === 0 && (
-              <div className="text-center mb-4 max-w-lg" data-testid="welcome-prompt">
-                <h2 className="text-xl font-semibold text-foreground mb-2">
-                  How can I help you today?
-                </h2>
-                <p className="text-base text-muted-foreground">
-                  Ask me anything about UK taxes, HMRC regulations, and personal finance
-                </p>
-              </div>
-            )}
-            
             <div className="flex flex-col lg:flex-row gap-6 items-center justify-center w-full">
               {/* Text Output Box - Mobile Phone Style */}
               <div className="relative w-full max-w-[307px] h-[400px] lg:h-[520px] flex-shrink-0" data-testid="phone-container">
@@ -551,6 +540,17 @@ export default function Chat() {
                 <span className="text-sm font-medium text-foreground">Consultant</span>
               </div>
             </div>
+            
+            {messages.length === 0 && (
+              <div className="text-center mt-4 max-w-lg" data-testid="welcome-prompt">
+                <h2 className="text-xl font-semibold text-foreground mb-2">
+                  How can I help you today?
+                </h2>
+                <p className="text-base text-muted-foreground">
+                  Ask me anything about UK taxes, HMRC regulations, and personal finance
+                </p>
+              </div>
+            )}
             
             {messages.length === 0 && (
               <ExamplePrompts onPromptClick={handlePromptClick} disabled={!isUnlocked} />
