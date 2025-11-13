@@ -17,6 +17,20 @@ interface RealisticAvatarProps {
   isMuted?: boolean;
 }
 
+// Friendly loading messages to show while generating video
+const LOADING_MESSAGES = [
+  "That's a great question, let me think...",
+  "Let me check on that for you...",
+  "Hmm, let me look into that...",
+  "Give me just a moment...",
+  "Let me consult my resources...",
+  "Interesting question, one moment...",
+  "Let me find that information...",
+  "Good question, looking into it now...",
+  "Just checking the details for you...",
+  "Let me get you an answer...",
+];
+
 export default function RealisticAvatar({ 
   isActive, 
   isSpeaking, 
@@ -37,6 +51,9 @@ export default function RealisticAvatar({
   
   // Track currently loaded video URL to prevent re-loading same video
   const [loadedVideoUrl, setLoadedVideoUrl] = useState<string | null>(null);
+  
+  // Random loading message
+  const [loadingMessage, setLoadingMessage] = useState<string>(LOADING_MESSAGES[0]);
   
   // Track cleanup state with ref (synchronous, no race conditions)
   const isCleaningUpRef = useRef(false);
@@ -151,6 +168,14 @@ export default function RealisticAvatar({
     return () => video.removeEventListener('pause', handlePause);
   }, [onPause]);
 
+  // Pick a random loading message when generating starts
+  useEffect(() => {
+    if (isGenerating) {
+      const randomIndex = Math.floor(Math.random() * LOADING_MESSAGES.length);
+      setLoadingMessage(LOADING_MESSAGES[randomIndex]);
+    }
+  }, [isGenerating]);
+
   return (
     <div className={`${className} relative w-full h-full`}>
       {/* Idle avatar image - shows when no video is playing */}
@@ -176,7 +201,7 @@ export default function RealisticAvatar({
       {/* Loading indicator when generating video */}
       {isGenerating && (
         <div className="absolute inset-0 flex items-center justify-center bg-black/20 backdrop-blur-sm">
-          <div className="text-white text-sm font-medium">Generating...</div>
+          <div className="text-white text-sm font-medium px-4 text-center">{loadingMessage}</div>
         </div>
       )}
     </div>
