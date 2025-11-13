@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import idleAvatarImage from '@assets/generated_images/Older_European_female_advisor_portrait_b60fd6fc.png';
 
 interface RealisticAvatarProps {
   isActive: boolean;
@@ -151,12 +152,20 @@ export default function RealisticAvatar({
   }, [onPause]);
 
   return (
-    <div className={`${className} relative w-full h-full bg-gradient-to-br from-primary/5 to-primary/10`}>
-      {/* Video element - always rendered to show AvatarTalk player (idle or speaking) */}
+    <div className={`${className} relative w-full h-full`}>
+      {/* Idle avatar image - shows when no video is playing */}
+      <img 
+        src={idleAvatarImage} 
+        alt="Avatar"
+        className="absolute inset-0 w-full h-full object-cover"
+        data-testid="img-avatar-idle"
+      />
+      
+      {/* Video element - overlays idle image when playing */}
       {/* src set via useEffect to avoid conflicts with <source> tag */}
       <video
         ref={activeVideoRef}
-        className="w-full h-full object-cover"
+        className={`absolute inset-0 w-full h-full object-cover ${loadedVideoUrl ? 'opacity-100' : 'opacity-0'}`}
         playsInline
         muted={isMuted}
         loop={false}
