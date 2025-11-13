@@ -54,6 +54,11 @@ export default function Chat() {
   
   const CORRECT_PASSWORD = 'MKS2005';
   
+  // Helper to check if chat has real messages (excluding welcome message)
+  const hasRealMessages = () => {
+    return messages.some(m => !m.id.startsWith('welcome-'));
+  };
+  
   // AvatarTalk hook for video generation
   const avatarTalk = useAvatarTalk();
   
@@ -343,7 +348,7 @@ export default function Chat() {
   };
 
   const handleWelcomePause = () => {
-    if (messages.length === 0) setWelcomeIsPlaying(false);
+    if (!hasRealMessages()) setWelcomeIsPlaying(false);
   };
 
   const handleWelcomeAutoplayReject = (message: string) => {
@@ -413,8 +418,8 @@ export default function Chat() {
 
   // Load static welcome video when page unlocks (not on page load)
   useEffect(() => {
-    // Only load if page is unlocked, chat is empty, and we haven't played yet
-    if (!isUnlocked || messages.length > 0 || hasPlayedWelcome.current || welcomeVideoUrl) {
+    // Only load if page is unlocked, chat has no real messages, and we haven't played yet
+    if (!isUnlocked || hasRealMessages() || hasPlayedWelcome.current || welcomeVideoUrl) {
       return;
     }
     
@@ -422,11 +427,11 @@ export default function Chat() {
     setWelcomeVideoUrl(welcomeVideoFile);
     setIsMuted(false); // Unmute for welcome message with audio
     hasPlayedWelcome.current = true;
-  }, [isUnlocked, messages.length, welcomeVideoUrl]);
+  }, [isUnlocked, messages, welcomeVideoUrl]);
 
   // Pre-set welcomeIsPlaying when URL becomes available to trigger playback effect (once)
   useEffect(() => {
-    if (welcomeVideoUrl && messages.length === 0 && !welcomeIsPlaying && !hasAttemptedWelcome.current) {
+    if (welcomeVideoUrl && !hasRealMessages() && !welcomeIsPlaying && !hasAttemptedWelcome.current) {
       console.log('[Welcome] Pre-setting welcomeIsPlaying to trigger autoplay (first attempt)');
       setWelcomeIsPlaying(true);
       hasAttemptedWelcome.current = true;
@@ -440,7 +445,7 @@ export default function Chat() {
       };
       setMessages([welcomeMessage]);
     }
-  }, [welcomeVideoUrl, messages.length, welcomeIsPlaying]);
+  }, [welcomeVideoUrl, messages, welcomeIsPlaying]);
 
   return (
     <div className="flex flex-col h-screen bg-background">
