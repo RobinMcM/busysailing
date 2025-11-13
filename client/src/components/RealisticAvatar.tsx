@@ -8,6 +8,9 @@ interface RealisticAvatarProps {
   videoUrl?: string | null;
   videoRef?: React.RefObject<HTMLVideoElement>;
   onEnded?: () => void;
+  onPlay?: () => void;
+  onPause?: () => void;
+  onAutoplayReject?: (error: string) => void;
   onError?: (error: string) => void;
   isGenerating?: boolean;
   isMuted?: boolean;
@@ -21,6 +24,9 @@ export default function RealisticAvatar({
   videoUrl,
   videoRef,
   onEnded,
+  onPlay,
+  onPause,
+  onAutoplayReject,
   onError,
   isGenerating = false,
   isMuted = true
@@ -86,12 +92,12 @@ export default function RealisticAvatar({
       setLoadedVideoUrl(videoUrl);
       
       // Play once loaded
-      video.play()
-        .then(() => {
+      (async () => {
+        try {
+          await video.play();
           console.log(`[Avatar] Video playing (${isMuted ? 'muted' : 'with audio'})`);
-        })
-        .catch((error) => {
-          // Only log error if not intentionally cleaning up
+          onPlay?.();
+        } catch (error) {
           if (!isCleaningUpRef.current) {
             console.error('[Avatar] Failed to play video:', error);
             console.error('[Avatar] Video element state:', {
@@ -99,11 +105,13 @@ export default function RealisticAvatar({
               networkState: video.networkState,
               error: video.error,
               src: video.src,
-              currentSrc: video.currentSrc
+              currentSrc: video.currentSrc,
             });
-            onError?.(error.message);
+            onAutoplayReject?.(error instanceof Error ? error.message : String(error));
+            onError?.(error instanceof Error ? error.message : String(error));
           }
-        });
+        }
+      })();
     }
     // Note: Removed cleanupVideo on !isSpeaking to keep AvatarTalk stream visible when idle
   }, [videoUrl, isActive, isSpeaking, loadedVideoUrl]);
@@ -120,14 +128,27 @@ export default function RealisticAvatar({
       cleanupVideo();
       
       // Notify parent that video has ended
-      if (onEnded) {
-        onEnded();
-      }
+      onPause?.();
+      onEnded?.();
     };
 
     video.addEventListener('ended', handleEnded);
     return () => video.removeEventListener('ended', handleEnded);
-  }, [onEnded]);
+  }, [onEnded, onPause]);
+
+  // Handle video pause event
+  useEffect(() => {
+    const video = activeVideoRef.current;
+    if (!video) return;
+
+    const handlePause = () => {
+      if (video.ended) return;
+      onPause?.();
+    };
+
+    video.addEventListener('pause', handlePause);
+    return () => video.removeEventListener('pause', handlePause);
+  }, [onPause]);
 
   return (
     <div className={`${className} relative w-full h-full bg-gradient-to-br from-primary/5 to-primary/10`}>

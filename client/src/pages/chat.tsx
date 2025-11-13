@@ -42,11 +42,13 @@ export default function Chat() {
   const [isGeneratingVideos, setIsGeneratingVideos] = useState(false);
   const [welcomeVideoUrl, setWelcomeVideoUrl] = useState<string | null>(null);
   const [isGeneratingWelcome, setIsGeneratingWelcome] = useState(false);
+  const [welcomeIsPlaying, setWelcomeIsPlaying] = useState(false);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const cleanupUrlsRef = useRef<string[]>([]);
   const primaryVideoRef = useRef<HTMLVideoElement>(null);
   const hasPlayedWelcome = useRef(false);
+  const hasAttemptedWelcome = useRef(false);
   const { toast} = useToast();
   
   const CORRECT_PASSWORD = 'MKS2005';
@@ -56,7 +58,7 @@ export default function Chat() {
   
   // Track when avatar is speaking
   const isPlaybackActive = queueStatus === 'playing' && !isMuted;
-  const isSpeaking = isPlaybackActive;
+  const isSpeaking = isPlaybackActive || welcomeIsPlaying;
 
   // Cleanup function to revoke object URLs
   const cleanupUrls = () => {
@@ -310,6 +312,7 @@ export default function Chat() {
     // Clear welcome video to allow it to replay
     setWelcomeVideoUrl(null);
     hasPlayedWelcome.current = false;
+    hasAttemptedWelcome.current = false;
   };
 
   const handleToggleMute = () => {
@@ -327,6 +330,24 @@ export default function Chat() {
     
     // Generate single video for replay (saves credits)
     generateSingleVideo(content, aiMessagesBeforeThis);
+  };
+
+  // Welcome video playback handlers
+  const handleWelcomePlay = () => {
+    if (!welcomeIsPlaying) setWelcomeIsPlaying(true);
+    if (isMuted) {
+      setTimeout(() => setIsMuted(false), 100); // run after play resolves
+    }
+  };
+
+  const handleWelcomePause = () => {
+    if (messages.length === 0) setWelcomeIsPlaying(false);
+  };
+
+  const handleWelcomeAutoplayReject = (message: string) => {
+    console.warn('[Welcome] Autoplay rejected:', message);
+    setWelcomeIsPlaying(false);
+    setIsMuted(true);
   };
 
   // Partner avatar is now enabled automatically when she first appears (odd-numbered AI messages)
@@ -394,9 +415,6 @@ export default function Chat() {
         setWelcomeVideoUrl(videoUrl);
         cleanupUrlsRef.current.push(videoUrl);
         hasPlayedWelcome.current = true; // Only set after successful generation
-        
-        // Auto-unmute when welcome video plays
-        setIsMuted(false);
       } catch (error) {
         console.error('[Welcome] Failed to generate welcome video:', error);
         // Don't set hasPlayedWelcome so it can retry
@@ -409,6 +427,15 @@ export default function Chat() {
     const timer = setTimeout(generateWelcomeVideo, 1000);
     return () => clearTimeout(timer);
   }, [avatarTalk, isGeneratingWelcome, messages.length, welcomeVideoUrl]);
+
+  // Pre-set welcomeIsPlaying when URL becomes available to trigger playback effect (once)
+  useEffect(() => {
+    if (welcomeVideoUrl && messages.length === 0 && !welcomeIsPlaying && !hasAttemptedWelcome.current) {
+      console.log('[Welcome] Pre-setting welcomeIsPlaying to trigger autoplay (first attempt)');
+      setWelcomeIsPlaying(true);
+      hasAttemptedWelcome.current = true;
+    }
+  }, [welcomeVideoUrl, messages.length, welcomeIsPlaying]);
 
   return (
     <div className="flex flex-col h-screen bg-background">
@@ -588,9 +615,13 @@ export default function Chat() {
                             : null)
                     }
                     videoRef={primaryVideoRef}
+                    onPlay={messages.length === 0 ? handleWelcomePlay : undefined}
+                    onPause={messages.length === 0 ? handleWelcomePause : undefined}
+                    onAutoplayReject={messages.length === 0 ? handleWelcomeAutoplayReject : undefined}
                     onEnded={() => {
-                      // If welcome video ended, don't do anything
+                      // If welcome video ended, clear playing state
                       if (messages.length === 0 && welcomeVideoUrl) {
+                        setWelcomeIsPlaying(false);
                         return;
                       }
                       // Otherwise play next queue video
