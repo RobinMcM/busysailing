@@ -479,7 +479,7 @@ export default function Chat() {
         <div className="h-full max-w-6xl mx-auto px-6 py-6">
           {messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center min-h-[calc(100vh-280px)]">
-              <AvatarWelcome isSpeaking={isSpeaking} />
+              <AvatarWelcome />
               <div className="text-center mb-8 max-w-lg" data-testid="welcome-prompt">
                 <h2 className="text-xl font-semibold text-foreground mb-2">
                   How can I help you today?

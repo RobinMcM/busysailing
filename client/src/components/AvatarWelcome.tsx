@@ -1,110 +1,78 @@
-import { useRef, useEffect } from 'react';
-import defaultAvatarImage from '@assets/generated_images/Video_call_tax_advisor_3ce91073.png';
-import { Volume2 } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
+import { useRef, useEffect, useState } from 'react';
+import welcomeVideo from '@assets/videos/welcome.mp4';
+import fallbackImage from '@assets/generated_images/Video_call_tax_advisor_3ce91073.png';
 
-interface AvatarWelcomeProps {
-  isSpeaking?: boolean;
-  isDisabled?: boolean;
-  isDimmed?: boolean;
-  avatarId?: string;
-  label?: string;
-  avatarImage?: string;
-  videoSrc?: string | null;
-  onVideoEnded?: () => void;
-}
-
-export function AvatarWelcome({ 
-  isSpeaking = false, 
-  isDisabled = false, 
-  isDimmed = false,
-  avatarId = 'primary',
-  label,
-  avatarImage = defaultAvatarImage,
-  videoSrc = null,
-  onVideoEnded
-}: AvatarWelcomeProps) {
+export function AvatarWelcome() {
   const videoRef = useRef<HTMLVideoElement>(null);
-  
-  const getOpacity = () => {
-    if (isDisabled) return 'opacity-40';
-    if (isDimmed) return 'opacity-50';
-    return 'opacity-100';
-  };
+  const [hasPlayedWelcome, setHasPlayedWelcome] = useState(false);
+  const [showVideo, setShowVideo] = useState(true);
 
-  // Handle video playback
+  // Auto-play welcome video on mount
   useEffect(() => {
-    if (videoRef.current && videoSrc) {
-      console.log(`[Avatar ${avatarId}] Loading video, speaking=${isSpeaking}`);
-      videoRef.current.src = videoSrc;
+    if (videoRef.current && !hasPlayedWelcome) {
+      console.log('[AvatarWelcome] Auto-playing welcome video');
       
-      if (isSpeaking) {
-        // Play video when speaking starts
-        videoRef.current.play().catch(err => {
-          console.error(`[Avatar ${avatarId}] Video play error:`, err);
+      // Try to play with sound first
+      videoRef.current.muted = false;
+      videoRef.current.play()
+        .then(() => {
+          console.log('[AvatarWelcome] Welcome video playing with audio');
+        })
+        .catch((error) => {
+          // If audio autoplay fails, try muted
+          console.log('[AvatarWelcome] Audio autoplay blocked, trying muted');
+          if (videoRef.current) {
+            videoRef.current.muted = true;
+            videoRef.current.play()
+              .then(() => {
+                console.log('[AvatarWelcome] Welcome video playing muted');
+              })
+              .catch((err) => {
+                // If both attempts fail, show fallback image
+                console.warn('[AvatarWelcome] Autoplay completely blocked, showing fallback image:', err);
+                setHasPlayedWelcome(true);
+                setShowVideo(false);
+              });
+          } else {
+            // Video ref lost, show fallback
+            setHasPlayedWelcome(true);
+            setShowVideo(false);
+          }
         });
-      }
     }
-  }, [videoSrc, isSpeaking, avatarId]);
-
-  // Stop video when speaking stops
-  useEffect(() => {
-    if (videoRef.current && !isSpeaking) {
-      videoRef.current.pause();
-      videoRef.current.currentTime = 0;
-    }
-  }, [isSpeaking]);
+  }, [hasPlayedWelcome]);
 
   const handleVideoEnded = () => {
-    console.log(`[Avatar ${avatarId}] Video ended`);
-    if (onVideoEnded) {
-      onVideoEnded();
-    }
+    console.log('[AvatarWelcome] Welcome video ended, showing fallback image');
+    setHasPlayedWelcome(true);
+    setShowVideo(false);
   };
 
-  // Determine what to show: video or static image
-  const showVideo = videoSrc && isSpeaking;
-
   return (
-    <div className="flex flex-col items-center justify-center mb-8" data-testid={`avatar-${avatarId}`}>
+    <div className="flex flex-col items-center justify-center mb-8" data-testid="avatar-welcome">
       <div className="relative mb-4">
-        <div className={`absolute inset-0 rounded-lg bg-primary/10 blur-2xl ${isDisabled ? 'opacity-30' : isDimmed ? 'opacity-20' : ''}`}></div>
-        <div className={`relative w-80 h-80 max-w-[90vw] rounded-lg overflow-hidden border-2 border-border shadow-2xl bg-card transition-opacity duration-300 ${getOpacity()}`}>
-          {showVideo ? (
+        <div className="absolute inset-0 rounded-lg bg-primary/10 blur-2xl"></div>
+        <div className="relative w-80 h-80 max-w-[90vw] rounded-lg overflow-hidden border-2 border-border shadow-2xl bg-card">
+          {showVideo && !hasPlayedWelcome ? (
             <video
               ref={videoRef}
+              src={welcomeVideo}
               className="w-full h-full object-cover"
-              data-testid={`avatar-video-${avatarId}`}
+              data-testid="avatar-welcome-video"
               onEnded={handleVideoEnded}
               loop={false}
-              muted={false}
               playsInline
             />
           ) : (
             <img
-              src={avatarImage}
-              alt={label || "UK Tax Advisor AI Assistant"}
+              src={fallbackImage}
+              alt="UK Tax Advisor AI Assistant"
               className="w-full h-full object-cover"
-              data-testid={`avatar-image-${avatarId}`}
+              data-testid="avatar-welcome-image"
             />
-          )}
-          {isSpeaking && !isDisabled && (
-            <div className="absolute bottom-3 left-3">
-              <Badge 
-                variant="default" 
-                className="gap-1.5 animate-pulse"
-                data-testid={`speaking-indicator-${avatarId}`}
-              >
-                <Volume2 className="h-3 w-3" />
-                Speaking
-              </Badge>
-            </div>
           )}
         </div>
       </div>
-      {label && (
-        <p className="text-xs text-muted-foreground text-center mt-2">{label}</p>
-      )}
     </div>
   );
 }
