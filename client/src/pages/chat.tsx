@@ -11,6 +11,7 @@ import RealisticAvatar from '@/components/RealisticAvatar';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
 import { useAvatarTalk, type AvatarType } from '@/hooks/use-avatartalk';
+import welcomeVideoFile from '@assets/welcome-video.mp4';
 
 interface Message {
   id: string;
@@ -41,7 +42,6 @@ export default function Chat() {
   const [queueStatus, setQueueStatus] = useState<'idle' | 'generating' | 'playing'>('idle');
   const [isGeneratingVideos, setIsGeneratingVideos] = useState(false);
   const [welcomeVideoUrl, setWelcomeVideoUrl] = useState<string | null>(null);
-  const [isGeneratingWelcome, setIsGeneratingWelcome] = useState(false);
   const [welcomeIsPlaying, setWelcomeIsPlaying] = useState(false);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -391,42 +391,17 @@ export default function Chat() {
     };
   }, []);
 
-  // Auto-play welcome message when page loads or after chat is cleared
+  // Load static welcome video when page loads or after chat is cleared
   useEffect(() => {
-    // Only generate if chat is empty, avatarTalk is ready, and we haven't generated yet
-    if (messages.length > 0 || !avatarTalk || isGeneratingWelcome || hasPlayedWelcome.current || welcomeVideoUrl) {
+    // Only load if chat is empty and we haven't loaded yet
+    if (messages.length > 0 || hasPlayedWelcome.current || welcomeVideoUrl) {
       return;
     }
     
-    const generateWelcomeVideo = async () => {
-      const welcomeText = "How can I help you today? Ask me anything about UK taxes, HMRC regulations, and personal finance.";
-      
-      try {
-        console.log('[Welcome] Generating welcome video');
-        setIsGeneratingWelcome(true);
-        
-        const videoUrl = await avatarTalk.generateVideo(
-          welcomeText,
-          'european_woman',
-          'neutral'
-        );
-        
-        console.log('[Welcome] Welcome video generated successfully');
-        setWelcomeVideoUrl(videoUrl);
-        cleanupUrlsRef.current.push(videoUrl);
-        hasPlayedWelcome.current = true; // Only set after successful generation
-      } catch (error) {
-        console.error('[Welcome] Failed to generate welcome video:', error);
-        // Don't set hasPlayedWelcome so it can retry
-      } finally {
-        setIsGeneratingWelcome(false);
-      }
-    };
-    
-    // Small delay to ensure component is fully mounted
-    const timer = setTimeout(generateWelcomeVideo, 1000);
-    return () => clearTimeout(timer);
-  }, [avatarTalk, isGeneratingWelcome, messages.length, welcomeVideoUrl]);
+    console.log('[Welcome] Loading static welcome video');
+    setWelcomeVideoUrl(welcomeVideoFile);
+    hasPlayedWelcome.current = true;
+  }, [messages.length, welcomeVideoUrl]);
 
   // Pre-set welcomeIsPlaying when URL becomes available to trigger playback effect (once)
   useEffect(() => {
@@ -627,7 +602,7 @@ export default function Chat() {
                       // Otherwise play next queue video
                       playNext();
                     }}
-                    isGenerating={isGeneratingWelcome || isGeneratingVideos}
+                    isGenerating={isGeneratingVideos}
                     isMuted={isMuted}
                   />
                 </div>
