@@ -608,10 +608,9 @@ export default function Chat() {
               {/* Consultant Avatar */}
               <div className="flex flex-col items-center gap-2">
                 <div 
-                  className="w-60 h-[360px] lg:w-64 lg:h-96 bg-gradient-to-b from-border to-muted/30 rounded-lg p-[8px] shadow-2xl"
+                  className="w-64 h-64 lg:w-72 lg:h-72 rounded-full overflow-hidden border-4 border-blue-600"
                   data-testid="avatar-primary"
                 >
-                  <div className="w-full h-full rounded-md overflow-hidden bg-card">
                   <RealisticAvatar 
                     isActive={true}
                     isSpeaking={isSpeaking}
@@ -641,7 +640,6 @@ export default function Chat() {
                     isGenerating={isGeneratingVideos}
                     isMuted={isMuted}
                   />
-                  </div>
                 </div>
                 <span className="text-sm font-medium text-foreground">Advisor</span>
               </div>
